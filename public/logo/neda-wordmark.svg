@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wordmark -->
+  <g transform="translate(10, 8)">
+    <text font-family="sans-serif" font-size="32" font-weight="700" fill="#0A1F44">
+      <tspan font-weight="900">NEDA</tspan><tspan>pay</tspan>
+    </text>
+  </g>
+</svg>
