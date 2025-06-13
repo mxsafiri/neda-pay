@@ -1,6 +1,8 @@
 # NEDApay - Modern Stablecoin Wallet
 
 ![NEDApay Logo](/public/logo/NEDApay%20Logo%20Symbol%20(1)-01.svg)
+![4](https://github.com/user-attachments/assets/7b28d16a-6b10-4e2f-a177-37cd1cf6a157)
+
 
 NEDApay is a modern fiat-to-crypto wallet focused on stablecoins on the Base blockchain. It provides a seamless experience for users to manage, swap, and transact with digital assets.
 
