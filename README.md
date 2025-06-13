@@ -1,6 +1,4 @@
 # NEDApay - Modern Stablecoin Wallet
-
-![NEDApay Logo](/public/logo/NEDApay%20Logo%20Symbol%20(1)-01.svg)
 ![4](https://github.com/user-attachments/assets/7b28d16a-6b10-4e2f-a177-37cd1cf6a157)
 
 
