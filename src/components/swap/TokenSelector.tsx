@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, Search, X } from 'lucide-react';
-import Image from 'next/image';
+import { Search, X, ChevronDown, Check } from 'lucide-react';
 import { TokenIcon } from './TokenIcons';
 
 export interface Token {
@@ -157,7 +156,7 @@ export function TokenSelector({
                 ))
               ) : (
                 <div className="px-4 py-6 text-center text-white/60">
-                  No tokens found matching "{searchQuery}"
+                  No tokens found matching &quot;{searchQuery}&quot;
                 </div>
               )}
             </div>

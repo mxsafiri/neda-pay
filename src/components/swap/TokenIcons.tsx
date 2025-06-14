@@ -1,6 +1,7 @@
 'use client';
 
 import { FC } from 'react';
+import Image from 'next/image';
 
 interface TokenIconProps {
   symbol: string;
@@ -26,7 +27,7 @@ export const TokenIcon: FC<TokenIconProps> = ({
       width: size,
       height: size,
       borderRadius: '50%',
-      objectFit: 'cover' as 'cover',
+      objectFit: 'cover' as const,
       border: '1px solid rgba(255, 255, 255, 0.2)',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
     };
@@ -37,11 +38,13 @@ export const TokenIcon: FC<TokenIconProps> = ({
         className={`relative ${className}`}
         style={{ width: size, height: size }}
       >
-        <img 
+        <Image 
           src={`https://flagcdn.com/w80/${icon.toLowerCase()}.png`}
           alt={country || symbol}
           style={flagStyle}
           title={country || symbol}
+          width={size}
+          height={size}
         />
         <div 
           className="absolute bottom-0 right-0 bg-[#0A1F44] rounded-full flex items-center justify-center"

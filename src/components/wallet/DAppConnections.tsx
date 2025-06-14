@@ -45,7 +45,7 @@ const AVAILABLE_DAPPS: DApp[] = [
 ];
 
 export const DAppConnections: FC = () => {
-  const { authenticated, user, ready, connectWallet } = usePrivy();
+  const { authenticated, connectWallet } = usePrivy();
   const { openConnectModal } = useConnectModal();
   const [connecting, setConnecting] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);

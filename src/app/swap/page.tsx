@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
-import { useWalletStore } from '@/store/useWalletStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowDown, ArrowDownUp, RefreshCcw, Check, AlertCircle } from 'lucide-react';
+import { ArrowDownUp, RefreshCcw, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-import { TokenIcon } from '@/components/swap/TokenIcons';
 import { TokenSelector, Token } from '@/components/swap/TokenSelector';
 import { SwapInput } from '@/components/swap/SwapInput';
 import { SwapDetails } from '@/components/swap/SwapDetails';

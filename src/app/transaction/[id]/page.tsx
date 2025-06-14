@@ -21,7 +21,7 @@ export default function TransactionPage() {
       <WalletLayout>
         <div className="flex flex-col items-center justify-center h-[60vh]">
           <h2 className="text-xl font-medium mb-2">Transaction not found</h2>
-          <p className="text-white/60 mb-6">The transaction you're looking for doesn't exist</p>
+          <p className="text-white/60 mb-6">The transaction you&apos;re looking for doesn&apos;t exist</p>
           <button 
             onClick={() => router.push('/')}
             className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl"

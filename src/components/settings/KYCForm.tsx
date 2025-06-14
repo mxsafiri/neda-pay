@@ -116,7 +116,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           </div>
           <h3 className="text-xl font-bold mb-2">Verification Submitted</h3>
           <p className="text-white/70 mb-6">
-            Your identity verification is being processed. We'll notify you once it's complete.
+            Your identity verification is being processed. We&apos;ll notify you once it&apos;s complete.
           </p>
           <div className="text-sm text-white/50 px-6 py-3 bg-white/5 rounded-lg">
             Verification ID: {userId.slice(0, 8)}
