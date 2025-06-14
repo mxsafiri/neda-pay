@@ -13,11 +13,11 @@ import { SwapInput } from '@/components/swap/SwapInput';
 import { SwapDetails } from '@/components/swap/SwapDetails';
 
 const TOKENS: Token[] = [
-  { symbol: 'USDC', name: 'USD Coin', balance: '1,523.00', logoUrl: '/tokens/usdc.svg', icon: '' },
-  { symbol: 'ETH', name: 'Ethereum', balance: '0.05', logoUrl: '/tokens/eth.svg', icon: '' },
-  { symbol: 'USDT', name: 'Tether', balance: '0.00', logoUrl: '/tokens/usdt.svg', icon: '' },
-  { symbol: 'BTC', name: 'Bitcoin', balance: '0.00', logoUrl: '/tokens/btc.svg', icon: '' },
-  { symbol: 'DAI', name: 'Dai Stablecoin', balance: '0.00', logoUrl: '/tokens/dai.svg', icon: '' },
+  { symbol: 'USDC', name: 'USD Coin', balance: '1,523.00', logoUrl: '/tokens/usdc.svg', icon: 'us', country: 'United States' },
+  { symbol: 'USDT', name: 'Tether USD', balance: '250.00', logoUrl: '/tokens/usdt.svg', icon: 'us', country: 'United States' },
+  { symbol: 'nTZS', name: 'NEDA Tanzanian Shilling', balance: '3,500.00', logoUrl: '', icon: 'tz', country: 'Tanzania' },
+  { symbol: 'EURC', name: 'Euro Coin', balance: '0.00', logoUrl: '', icon: 'eu', country: 'European Union' },
+  { symbol: 'GBPT', name: 'Pound Token', balance: '0.00', logoUrl: '', icon: 'gb', country: 'United Kingdom' },
 ];
 
 type SwapStatus = 'idle' | 'loading' | 'success' | 'error';

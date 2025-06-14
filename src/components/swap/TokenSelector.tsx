@@ -4,12 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronDown, Search, X } from 'lucide-react';
 import Image from 'next/image';
+import { TokenIcon } from './TokenIcons';
 
 export interface Token {
   symbol: string;
   name: string;
   balance: string;
   icon: string;
+  country?: string;
   logoUrl?: string;
 }
 
@@ -80,17 +82,12 @@ export function TokenSelector({
         className="flex items-center gap-2 bg-white/10 hover:bg-white/15 transition-colors px-4 py-3 rounded-xl w-full"
       >
         <div className="flex items-center gap-2 flex-1">
-          {selectedToken.logoUrl ? (
-            <Image 
-              src={selectedToken.logoUrl} 
-              alt={selectedToken.symbol} 
-              width={24} 
-              height={24} 
-              className="rounded-full"
-            />
-          ) : (
-            <span className="text-xl">{selectedToken.icon}</span>
-          )}
+          <TokenIcon 
+            symbol={selectedToken.symbol}
+            icon={selectedToken.icon}
+            country={selectedToken.country}
+            size={24}
+          />
           <span className="font-medium">{selectedToken.symbol}</span>
           <span className="text-white/60 text-sm hidden sm:inline">{selectedToken.name}</span>
         </div>
@@ -139,17 +136,12 @@ export function TokenSelector({
                     }`}
                   >
                     <div className="flex items-center gap-3 flex-1">
-                      {token.logoUrl ? (
-                        <Image 
-                          src={token.logoUrl} 
-                          alt={token.symbol} 
-                          width={24} 
-                          height={24} 
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <span className="text-xl">{token.icon}</span>
-                      )}
+                      <TokenIcon 
+                        symbol={token.symbol}
+                        icon={token.icon}
+                        country={token.country}
+                        size={24}
+                      />
                       <div className="text-left">
                         <div className="font-medium">{token.symbol}</div>
                         <div className="text-white/60 text-xs">{token.name}</div>

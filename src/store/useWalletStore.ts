@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { SUPPORTED_TOKENS } from '@/config/wallet';
+import { formatBalance, getTokenBalance, getUsdValue, fetchTransactions } from '@/lib/blockchain';
 
 export type TokenBalance = {
   symbol: string;
@@ -35,42 +36,9 @@ interface WalletState {
 }
 
 export const useWalletStore = create<WalletState>((set, get) => ({
-  balances: [
-    { 
-      symbol: 'USDC', 
-      balance: '1,523.00', 
-      usdValue: '1,523.00' 
-    }
-  ],
-  transactions: [
-    {
-      id: '1',
-      type: 'deposit',
-      amount: '500.00',
-      symbol: 'USDC',
-      timestamp: Date.now() - 7200000, // 2 hours ago
-      status: 'completed',
-      to: 'wallet',
-    },
-    {
-      id: '2',
-      type: 'send',
-      amount: '120.00',
-      symbol: 'USDC',
-      timestamp: Date.now() - 3600000, // 1 hour ago
-      status: 'completed',
-      to: '0x1234...5678',
-    },
-    {
-      id: '3',
-      type: 'receive',
-      amount: '50.00',
-      symbol: 'USDC',
-      timestamp: Date.now() - 1800000, // 30 minutes ago
-      status: 'completed',
-      from: '0x8765...4321',
-    },
-  ],
+  // Start with empty balances and transactions - will be populated with real data on fetch
+  balances: [],
+  transactions: [],
   isLoading: false,
   error: null,
   
@@ -78,15 +46,23 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // In a real implementation, we would fetch balances from the blockchain
-      // For now, we'll use mock data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Fetch real balances from the blockchain
+      const balancePromises = Object.values(SUPPORTED_TOKENS).map(async (token) => {
+        const rawBalance = await getTokenBalance(token.address, address, token.decimals);
+        const formattedBalance = formatBalance(rawBalance);
+        const usdValue = getUsdValue(rawBalance, token.symbol);
+        
+        return {
+          symbol: token.symbol,
+          balance: formattedBalance,
+          usdValue: formatBalance(usdValue)
+        };
+      });
       
-      // Mock successful response
+      const balances = await Promise.all(balancePromises);
+      
       set({ 
-        balances: [
-          { symbol: 'USDC', balance: '1,523.00', usdValue: '1,523.00' }
-        ],
+        balances,
         isLoading: false 
       });
     } catch (error) {
@@ -101,12 +77,22 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // In a real implementation, we would fetch transactions from the blockchain
-      // For now, we'll use mock data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Fetch real transactions from the blockchain
+      const blockchainTransactions = await fetchTransactions(address);
       
-      // Keep existing mock data
-      set({ isLoading: false });
+      // Use real blockchain transactions if available
+      if (blockchainTransactions.length > 0) {
+        set({
+          transactions: blockchainTransactions,
+          isLoading: false
+        });
+      } else {
+        // If no transactions are found, show an empty list instead of mock data
+        set({ 
+          transactions: [],
+          isLoading: false 
+        });
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to fetch transactions', 
