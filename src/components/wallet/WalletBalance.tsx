@@ -30,7 +30,7 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'USDC' }) => 
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      style={{ '--primary': theme.colors.primary } as any}
+      style={{ '--primary': theme.colors.primary } as React.CSSProperties}
     >
       {isLoading ? (
         <LoadingState size="sm" text="Loading balance..." />

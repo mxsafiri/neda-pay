@@ -35,7 +35,7 @@ interface WalletState {
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
 }
 
-export const useWalletStore = create<WalletState>((set, get) => ({
+export const useWalletStore = create<WalletState>((set) => ({
   // Start with empty balances and transactions - will be populated with real data on fetch
   balances: [],
   transactions: [],

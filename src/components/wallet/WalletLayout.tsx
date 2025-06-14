@@ -25,7 +25,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   return (
     <div 
       className="min-h-screen bg-gradient-to-b from-[#061328] via-primary to-black text-white"
-      style={{ '--primary': theme.colors.primary } as any}
+      style={{ '--primary': theme.colors.primary } as React.CSSProperties}
     >
       <motion.div 
         initial={{ opacity: 0, y: 20 }}

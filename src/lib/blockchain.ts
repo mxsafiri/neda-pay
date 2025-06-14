@@ -1,5 +1,5 @@
 import { createPublicClient, http, formatUnits, parseAbi } from 'viem';
-import { BASE_MAINNET, SUPPORTED_TOKENS } from '@/config/wallet';
+import { BASE_MAINNET } from '@/config/wallet';
 
 // Create a public client for Base Mainnet
 export const publicClient = createPublicClient({
@@ -165,7 +165,7 @@ export async function fetchTransactions(walletAddress: string) {
     }
     
     // Convert Basescan transactions to our app's transaction format
-    return data.result.slice(0, 10).map((tx, index) => {
+    return data.result.slice(0, 10).map((tx) => {
       const type = determineTransactionType(tx, walletAddress);
       // Explicitly type the status to match Transaction interface
       const status: 'completed' | 'pending' | 'failed' = tx.isError === '0' ? 'completed' : 'failed';
