@@ -131,9 +131,9 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-2">
                       {item.value && (
                         <span className={`text-sm px-2 py-0.5 rounded-full ${
-                          item.status === 'warning' ? 'bg-yellow-500/20 text-yellow-300' :
-                          item.status === 'pending' ? 'bg-blue-500/20 text-blue-300' :
-                          item.status === 'success' ? 'bg-green-500/20 text-green-300' :
+                          'status' in item && item.status === 'warning' ? 'bg-yellow-500/20 text-yellow-300' :
+                          'status' in item && item.status === 'pending' ? 'bg-blue-500/20 text-blue-300' :
+                          'status' in item && item.status === 'success' ? 'bg-green-500/20 text-green-300' :
                           'text-white/60'
                         }`}>
                           {item.value}
