@@ -4,7 +4,6 @@ import { FC, useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePrivy } from '@privy-io/react-auth';
 import { ExternalLink, ShoppingBag, Users, Wallet } from 'lucide-react';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 // Define the dApp interface
 interface DApp {
@@ -45,8 +44,7 @@ const AVAILABLE_DAPPS: DApp[] = [
 ];
 
 export const DAppConnections: FC = () => {
-  const { authenticated, connectWallet } = usePrivy();
-  const { openConnectModal } = useConnectModal();
+  const { authenticated, connectWallet, login } = usePrivy();
   const [connecting, setConnecting] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
@@ -57,17 +55,13 @@ export const DAppConnections: FC = () => {
     try {
       if (!authenticated) {
         // If user is not authenticated, prompt them to connect their wallet
-        await connectWallet();
+        await login();
         return;
       }
 
       if (dApp.id === 'wallet-connect') {
-        // Use RainbowKit's connect modal for WalletConnect
-        if (openConnectModal) {
-          openConnectModal();
-        } else {
-          throw new Error('RainbowKit connect modal is not available');
-        }
+        // Use Privy's connectWallet for connecting external wallets
+        await connectWallet();
       } else {
         // For specific dApps, open their URL
         window.open(dApp.url, '_blank');
