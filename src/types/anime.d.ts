@@ -1,8 +1,8 @@
 // Type definitions for anime.js
 declare module 'animejs' {
   interface AnimeParams {
-    targets: any;
-    [key: string]: any;
+    targets: HTMLElement | HTMLElement[] | string | string[] | NodeList | null;
+    [key: string]: unknown;
   }
 
   interface AnimeInstance {
@@ -10,14 +10,14 @@ declare module 'animejs' {
     pause: () => void;
     restart: () => void;
     seek: (time: number) => void;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   interface AnimeStatic {
     (params: AnimeParams): AnimeInstance;
-    stagger: (value: number, options?: any) => any;
+    stagger: (value: number, options?: Record<string, unknown>) => unknown;
     random: (min: number, max: number) => number;
-    timeline: (params?: any) => AnimeInstance;
+    timeline: (params?: Record<string, unknown>) => AnimeInstance;
     // Add other anime.js static methods as needed
     default?: AnimeStatic; // Handle nested default for CommonJS/ESM compatibility
   }

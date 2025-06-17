@@ -21,7 +21,12 @@ export function ParticleBackground() {
   const animationRef = useRef<number | null>(null);
   
   // State to hold the anime.js instance after it's loaded
-  const [animateFunc, setAnimateFunc] = useState<any>(null);
+  // Define a proper function type for anime.js animation function
+  type AnimeFunction = (params: { 
+    targets: HTMLElement | HTMLElement[] | string | string[] | NodeList | null; 
+    [key: string]: unknown 
+  }) => Record<string, unknown>;
+  const [animateFunc, setAnimateFunc] = useState<AnimeFunction | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -130,7 +135,7 @@ export function ParticleBackground() {
       }
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [animateFunc]);
   
   return (
     <div 

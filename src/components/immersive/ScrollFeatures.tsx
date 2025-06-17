@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Shield, Zap, Globe, Coins } from 'lucide-react';
 import { getAnime } from '@/utils/anime-helper';
 

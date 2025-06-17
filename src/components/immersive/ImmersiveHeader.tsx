@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { getAnime } from '@/utils/anime-helper';
 import Link from 'next/link';
 import Image from 'next/image';

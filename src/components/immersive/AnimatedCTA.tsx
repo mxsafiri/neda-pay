@@ -12,7 +12,17 @@ export function AnimatedCTA() {
   const circlesRef = useRef<HTMLDivElement>(null);
   
   // State to hold anime.js instance after it's loaded
-  const [anime, setAnime] = useState<any>(null);
+  // Define a proper function type for anime.js animation function
+  type AnimeFunction = (params: { 
+    targets: HTMLElement | HTMLElement[] | string | string[] | NodeList | null; 
+    [key: string]: unknown 
+  }) => Record<string, unknown>;
+  
+  interface AnimeInstance extends AnimeFunction {
+    stagger: (value: number, options?: Record<string, unknown>) => unknown;
+  }
+  
+  const [anime, setAnime] = useState<AnimeInstance | null>(null);
 
   useEffect(() => {
     // Import anime.js using our helper
@@ -160,10 +170,13 @@ export function AnimatedCTA() {
       buttonRef.current.addEventListener('mouseleave', handleMouseLeave);
     }
     
+    // Store a reference to buttonRef.current to use in cleanup function
+    const buttonRefCurrent = buttonRef.current;
+    
     return () => {
       observer.disconnect();
-      buttonRef.current?.removeEventListener('mouseenter', handleMouseEnter);
-      buttonRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+      buttonRefCurrent?.removeEventListener('mouseenter', handleMouseEnter);
+      buttonRefCurrent?.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, [anime]);
   

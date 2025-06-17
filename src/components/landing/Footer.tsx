@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+// motion is imported but not used, removing import
 import { Twitter, Github, Linkedin } from 'lucide-react';
 
 export function Footer() {
@@ -23,7 +23,7 @@ export function Footer() {
               <span className="text-xl font-bold">NEDApay</span>
             </Link>
             <p className="text-white/60 mb-4 max-w-md">
-              The future of digital finance. Send, receive, and manage your digital assets with NEDApay's secure and intuitive wallet.
+              The future of digital finance. Send, receive, and manage your digital assets with NEDApay&apos;s secure and intuitive wallet.
             </p>
             <div className="flex gap-4">
               <Link href="#" className="text-white/60 hover:text-white transition-colors">

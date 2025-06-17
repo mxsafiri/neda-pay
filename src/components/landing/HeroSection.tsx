@@ -16,7 +16,7 @@ export function HeroSection() {
     }, 3000); // Change word every 3 seconds
     
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length]);
   return (
     <section className="container mx-auto px-4 py-16 md:py-24">
       <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
@@ -46,7 +46,7 @@ export function HeroSection() {
             <br />GLOBAL LIFE
           </h1>
           <p className="text-xl text-white/80 mb-8">
-            Send, receive, and manage your digital assets with NEDApay's secure and intuitive wallet.
+            Send, receive, and manage your digital assets with NEDApay&apos;s secure and intuitive wallet.
           </p>
           <div className="flex flex-wrap gap-4">
             <Link 

@@ -24,7 +24,7 @@ export function ImmersiveHero() {
     }, 3000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length]);
   
   // Animate word change
   useEffect(() => {
@@ -67,7 +67,7 @@ export function ImmersiveHero() {
         if (titleRef.current) titleRef.current.innerHTML = '';
         
         // Split text into spans for character animation
-        titleText.split('').forEach((char, i) => {
+        titleText.split('').forEach((char) => {
           const span = document.createElement('span');
           span.innerText = char;
           span.style.opacity = '0';
@@ -170,7 +170,7 @@ export function ImmersiveHero() {
               ref={descriptionRef}
               className="text-xl text-white/80 mb-8"
             >
-              Send, receive, and manage your digital assets with NEDApay's secure and intuitive wallet.
+              Send, receive, and manage your digital assets with NEDApay&apos;s secure and intuitive wallet.
             </p>
             <div ref={ctaRef} className="flex flex-wrap gap-4">
               <Link 
