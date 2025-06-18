@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import React from 'react';
 import { Shield, Zap, Globe, Coins } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -41,7 +41,6 @@ const Feature = ({ icon, title, description, index }: FeatureProps): React.React
 };
 
 export function ScrollFeatures() {
-  const sectionRef = useRef<HTMLDivElement>(null);
   
   const features = [
     {

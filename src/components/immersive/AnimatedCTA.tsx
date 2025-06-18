@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { motion, useAnimate, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 
 // Helper component for animated background circles
 const AnimatedCircle = ({ size, position, delay }: { size: number, position: { x: number, y: number }, delay: number }) => {
