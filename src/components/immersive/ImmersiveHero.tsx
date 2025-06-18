@@ -1,138 +1,66 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { getAnime } from '@/utils/anime-helper';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence, useAnimate, stagger } from 'framer-motion';
 
-// Types are now defined in src/types/anime.d.ts
+// Using Framer Motion instead of anime.js for more reliable animations
 
 export function ImmersiveHero() {
+  const [scope, animate] = useAnimate();
   const heroRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
   const [currentWord, setCurrentWord] = useState(0);
   const words = ['FASTER', 'SECURED', 'CONNECTED', 'DISTRIBUTED'];
   
-  // Handle word animation
+  // Handle word cycling with a timer
   useEffect(() => {
-    const interval = setInterval(() => {
+    const wordChangeInterval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
     }, 3000);
     
-    return () => clearInterval(interval);
+    return () => clearInterval(wordChangeInterval);
   }, [words.length]);
   
-  // Animate word change
+  // Initial animation sequence
   useEffect(() => {
-    if (!titleRef.current) return;
-    
-    const wordElement = titleRef.current.querySelector('.animated-word');
-    if (!wordElement) return;
-    
-    const animateWord = async () => {
-      try {
-        // Get anime.js through our helper
-        const anime = await getAnime();
-        
-        anime({
-          targets: wordElement,
-          opacity: [0, 1],
-          translateY: [20, 0],
-          duration: 800,
-          easing: 'easeOutQuad'
-        });
-      } catch (error) {
-        console.error('Error loading anime.js:', error);
+    // Using a timeout to ensure DOM elements are rendered before animation
+    const animationTimeout = setTimeout(() => {
+      const titleElement = document.getElementById('hero-title');
+      const descriptionElement = document.getElementById('hero-description');
+      const ctaButtons = document.querySelectorAll('.cta-button');
+      const logoElement = document.getElementById('hero-logo');
+      
+      // Only animate elements that exist in the DOM
+      if (titleElement) {
+        animate(titleElement, { opacity: [0, 1], y: [20, 0] }, { duration: 0.6 });
       }
-    };
+      
+      if (descriptionElement) {
+        animate(descriptionElement, { opacity: [0, 1], y: [20, 0] }, { duration: 0.5 });
+      }
+      
+      if (ctaButtons.length > 0) {
+        animate(ctaButtons, 
+          { opacity: [0, 1], y: [20, 0] }, 
+          { delay: stagger(0.1), duration: 0.5 }
+        );
+      }
+      
+      if (logoElement) {
+        animate(logoElement, 
+          { opacity: [0, 1], scale: [0.9, 1] }, 
+          { duration: 0.8, type: 'spring' }
+        );
+      }
+    }, 100); // Small delay to ensure DOM is ready
     
-    animateWord();
-  }, [currentWord]);
+    return () => clearTimeout(animationTimeout);
+  }, [animate]);
   
-  // Initial animations
+  // Handle scroll animation
   useEffect(() => {
-    if (!heroRef.current || !titleRef.current || !descriptionRef.current || !ctaRef.current || !logoRef.current) return;
-    
-    const initAnimations = async () => {
-      try {
-        // Get anime.js through our helper
-        const anime = await getAnime();
-        
-        // Staggered animation for title characters
-        const titleText = titleRef.current?.innerText || '';
-        if (titleRef.current) titleRef.current.innerHTML = '';
-        
-        // Split text into spans for character animation
-        titleText.split('').forEach((char) => {
-          const span = document.createElement('span');
-          span.innerText = char;
-          span.style.opacity = '0';
-          span.style.display = 'inline-block';
-          if (char === ' ') span.innerHTML = '&nbsp;';
-          titleRef.current?.appendChild(span);
-        });
-        
-        // Animate each character
-        if (titleRef.current) {
-          const spans = titleRef.current.querySelectorAll('span');
-          anime({
-            targets: spans,
-            opacity: [0, 1],
-            translateY: [20, 0],
-            delay: anime.stagger(50),
-            easing: 'easeOutQuad',
-            duration: 800
-          });
-        }
-        
-        // Animate description
-        if (descriptionRef.current) {
-          anime({
-            targets: descriptionRef.current,
-            opacity: [0, 1],
-            translateY: [20, 0],
-            delay: 500,
-            duration: 800,
-            easing: 'easeOutQuad'
-          });
-        }
-        
-        // Animate CTA buttons
-        if (ctaRef.current) {
-          const ctaButtons = ctaRef.current.querySelectorAll('a');
-          anime({
-            targets: ctaButtons,
-            opacity: [0, 1],
-            translateY: [20, 0],
-            delay: anime.stagger(200, {start: 800}),
-            duration: 800,
-            easing: 'easeOutQuad'
-          });
-        }
-        
-        // Animate logo
-        if (logoRef.current) {
-          anime({
-            targets: logoRef.current,
-            opacity: [0, 1],
-            scale: [0.8, 1],
-            delay: 300,
-            duration: 1200,
-            easing: 'easeOutElastic(1, .5)'
-          });
-        }
-      } catch (error) {
-        console.error('Error loading anime.js:', error);
-      }
-    };
-    
-    initAnimations();
-    
-    // Add scroll interaction
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const opacity = Math.max(0, 1 - scrollY / 500);
@@ -155,39 +83,66 @@ export function ImmersiveHero() {
     <div ref={heroRef} className="relative min-h-screen flex items-center">
       <div className="container mx-auto px-4 py-16 md:py-24 z-10">
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-          <div className="flex-1">
-            <h1 
-              ref={titleRef} 
+          <div className="flex-1" ref={scope}>
+            <motion.h1 
+              id="hero-title"
+              initial={{ opacity: 0, y: 20 }}
               className="text-4xl md:text-6xl font-bold mb-6 text-white"
             >
               ONE APP FOR A{' '}
-              <span className="animated-word text-blue-300">
-                {words[currentWord]}
-              </span>{' '}
+              <AnimatePresence mode="wait">
+                <motion.span 
+                  key={words[currentWord]}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-block text-blue-300"
+                >
+                  {words[currentWord].split('').map((char, idx) => (
+                    <motion.span 
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.3, 
+                        delay: idx * 0.04,
+                        ease: "easeOut"
+                      }}
+                      className="inline-block"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </motion.span>
+              </AnimatePresence>{' '}
               <br />GLOBAL LIFE
-            </h1>
-            <p 
-              ref={descriptionRef}
+            </motion.h1>
+            <motion.p 
+              id="hero-description"
+              initial={{ opacity: 0, y: 20 }}
               className="text-xl text-white/80 mb-8"
             >
               Send, receive, and manage your digital assets with NEDApay&apos;s secure and intuitive wallet.
-            </p>
-            <div ref={ctaRef} className="flex flex-wrap gap-4">
-              <Link 
-                href="/wallet" 
-                className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-full text-lg font-medium flex items-center gap-2 transition-all opacity-0"
+            </motion.p>
+            <div className="flex flex-wrap gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                className="cta-button"
               >
-                Get Started <ArrowRight size={18} />
-              </Link>
-              <Link 
-                href="#features" 
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-md px-8 py-3 rounded-full text-lg font-medium transition-all opacity-0"
-              >
-                Learn More
-              </Link>
+                <Link 
+                  href="/wallet" 
+                  className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-full text-lg font-medium flex items-center gap-2 transition-all"
+                >
+                  Get Started <ArrowRight size={18} />
+                </Link>
+              </motion.div>
             </div>
           </div>
-          <div ref={logoRef} className="flex-1 relative opacity-0">
+          <motion.div 
+            id="hero-logo"
+            initial={{ opacity: 0, scale: 0.9 }}
+            className="flex-1 relative">
             <div className="relative w-full max-w-[320px] mx-auto">
               <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
               <div className="relative z-10 rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
@@ -243,7 +198,7 @@ export function ImmersiveHero() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
