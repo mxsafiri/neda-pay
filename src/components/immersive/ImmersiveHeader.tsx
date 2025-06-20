@@ -3,13 +3,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, useAnimate, useScroll, stagger, useTransform } from 'framer-motion';
+import { motion, useAnimate, useScroll, stagger } from 'framer-motion';
 
 // Using Framer Motion for animations instead of anime.js
 
 export function ImmersiveHeader() {
   const [scope, animate] = useAnimate();
-  const headerRef = useRef<HTMLDivElement>(null);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const { scrollY } = useScroll();
   

@@ -10,13 +10,13 @@ declare module 'animejs' {
   }
 
   interface AnimeParams {
-    targets: any;
-    [key: string]: any;
+    targets: string | HTMLElement | NodeList | HTMLElement[] | string[] | unknown;
+    [key: string]: unknown;
   }
 
   interface AnimeStatic {
     (params: AnimeParams): AnimeInstance;
-    stagger(value: number | string, options?: object): (el: HTMLElement, i: number, t: number) => number;
+    stagger(value: number | string, options?: Record<string, unknown>): (el: HTMLElement, i: number, t: number) => number;
     random(min: number, max: number): number;
     timeline(params?: AnimeParams): AnimeInstance;
   }

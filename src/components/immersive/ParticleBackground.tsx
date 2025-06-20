@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useAnimationControls, useMotionValueEvent, useSpring, useTransform, animate, useMotionValue } from 'framer-motion';
+import { motion, useAnimationControls, useMotionValue } from 'framer-motion';
 
 interface Particle {
   id: number;
@@ -14,7 +14,7 @@ interface Particle {
 }
 
 // A single particle component using Framer Motion
-const AnimatedParticle: React.FC<Particle> = ({ id, x, y, size, color, speed, opacity }) => {
+const AnimatedParticle: React.FC<Particle> = ({ x, y, size, color, speed, opacity }) => {
   const controls = useAnimationControls();
   const yPos = useMotionValue(y);
   const mouseDistance = useRef<number>(9999);

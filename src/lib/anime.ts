@@ -7,4 +7,4 @@
 import * as anime from 'animejs';
 
 // The actual anime function might be on the 'default' property of the module object.
-export default (anime as any).default || anime;
+export default (anime as unknown as { default: typeof anime }).default || anime;
