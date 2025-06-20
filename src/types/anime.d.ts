@@ -1,28 +1,27 @@
-// Type definitions for anime.js
+// Type definitions for anime.js with better CommonJS/ESM compatibility
 declare module 'animejs' {
-  interface AnimeParams {
-    targets: HTMLElement | HTMLElement[] | string | string[] | NodeList | null;
-    [key: string]: unknown;
+  // Define the main anime function and its properties
+  interface AnimeInstance {
+    play(): void;
+    pause(): void;
+    restart(): void;
+    seek(time: number): void;
+    [key: string]: any;
   }
 
-  interface AnimeInstance {
-    play: () => void;
-    pause: () => void;
-    restart: () => void;
-    seek: (time: number) => void;
-    [key: string]: unknown;
+  interface AnimeParams {
+    targets: any;
+    [key: string]: any;
   }
 
   interface AnimeStatic {
     (params: AnimeParams): AnimeInstance;
-    stagger: (value: number, options?: Record<string, unknown>) => unknown;
-    random: (min: number, max: number) => number;
-    timeline: (params?: Record<string, unknown>) => AnimeInstance;
-    // Add other anime.js static methods as needed
-    default?: AnimeStatic; // Handle nested default for CommonJS/ESM compatibility
+    stagger(value: number | string, options?: object): (el: HTMLElement, i: number, t: number) => number;
+    random(min: number, max: number): number;
+    timeline(params?: AnimeParams): AnimeInstance;
   }
 
-  // Define the default export as the AnimeStatic interface
+  // Export the main anime function as the default export
   const anime: AnimeStatic;
   export default anime;
 }
