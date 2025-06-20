@@ -6,7 +6,7 @@ declare module 'animejs' {
     pause(): void;
     restart(): void;
     seek(time: number): void;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   interface AnimeParams {
