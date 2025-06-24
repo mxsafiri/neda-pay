@@ -33,25 +33,41 @@ export function PrivyProvider({ children }: PropsWithChildren) {
     status?: number;
     [key: string]: unknown;
   };
+  
+  // Set up error handling via useEffect
+  useEffect(() => {
+    // Create a global error handler to catch Privy errors
+    const handleGlobalError = (event: ErrorEvent) => {
+      // Check if error is likely from Privy (this is a heuristic approach)
+      if (event.message?.toLowerCase().includes('privy') || 
+          event.filename?.toLowerCase().includes('privy')) {
+        console.error('Privy authentication error:', event.error);
+        
+        const error = event.error;
+        // Type guard for Error objects
+        if (error instanceof Error) {
+          setError('Authentication error: ' + error.message);
+        } 
+        // Type guard for objects with message property
+        else if (typeof error === 'object' && error !== null && 'message' in error) {
+          const privyError = error as PrivyError;
+          setError('Authentication error: ' + (privyError.message || 'Unknown error'));
+        } 
+        // Fallback for unknown error types
+        else {
+          setError('Authentication error: Unknown error occurred');
+        }
+      }
+    };
 
-  // Handle authentication errors
-  const handlePrivyError = (error: Error | PrivyError | unknown) => {
-    console.error('Privy authentication error:', error);
+    // Add global error listener
+    window.addEventListener('error', handleGlobalError);
     
-    // Type guard for Error objects
-    if (error instanceof Error) {
-      setError('Authentication error: ' + error.message);
-    } 
-    // Type guard for PrivyError objects
-    else if (typeof error === 'object' && error !== null && 'message' in error) {
-      const privyError = error as PrivyError;
-      setError('Authentication error: ' + (privyError.message || 'Unknown error'));
-    } 
-    // Fallback for unknown error types
-    else {
-      setError('Authentication error: Unknown error occurred');
-    }
-  };
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, []);
   
   return (
     <>
@@ -93,7 +109,6 @@ export function PrivyProvider({ children }: PropsWithChildren) {
             }
             // Note: Custom styling for modal and buttons is now handled via CSS in the PrivyTagline component
           }}
-          onError={handlePrivyError}
         >
           {children}
         </PrivyClientProvider>
