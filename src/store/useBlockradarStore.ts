@@ -18,7 +18,7 @@ interface AddressInfo {
   walletId: string;
   blockchain: BlockchainInfo;
   name?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface BlockradarState {
@@ -43,10 +43,10 @@ interface BlockradarState {
   // Actions
   initialize: (walletMap: Record<string, string>) => void;
   setSelectedBlockchain: (blockchain: string) => void;
-  createUserAddress: (blockchain: string, name?: string, metadata?: Record<string, any>) => Promise<string>;
+  createUserAddress: (blockchain: string, name?: string, metadata?: Record<string, unknown>) => Promise<string>;
   fetchBalances: (forceRefresh?: boolean) => Promise<void>;
   fetchTransactions: (limit?: number, page?: number) => Promise<void>;
-  withdraw: (toAddress: string, amount: string, asset: string) => Promise<any>;
+  withdraw: (toAddress: string, amount: string, asset: string) => Promise<unknown>;
   setError: (error: string | null) => void;
 }
 
@@ -76,7 +76,7 @@ export const useBlockradarStore = create<BlockradarState>()(
       },
       
       // Create a new address for the user
-      createUserAddress: async (blockchain: string, name?: string, metadata?: Record<string, any>) => {
+      createUserAddress: async (blockchain: string, name?: string, metadata?: Record<string, unknown>) => {
         const { masterWallets } = get();
         const walletId = masterWallets[blockchain];
         
@@ -143,7 +143,7 @@ export const useBlockradarStore = create<BlockradarState>()(
               throw new Error(`Failed to fetch balances for ${blockchain}`);
             }
             
-            return response.data.map((asset: any) => ({
+            return response.data.map((asset: { symbol: string; balance: string; usdValue?: string }) => ({
               symbol: asset.symbol,
               balance: asset.balance,
               usdValue: asset.usdValue || '0.00',
@@ -163,7 +163,7 @@ export const useBlockradarStore = create<BlockradarState>()(
       
       // Fetch transactions for the currently selected blockchain
       fetchTransactions: async (limit = 20, page = 1) => {
-        const { masterWallets, selectedBlockchain } = get();
+        const { masterWallets, userAddresses, selectedBlockchain } = get();
         const walletId = masterWallets[selectedBlockchain];
         
         if (!walletId) {
@@ -174,32 +174,36 @@ export const useBlockradarStore = create<BlockradarState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const response = await blockradarClient.getTransactions(walletId, { limit, page });
+          // Get the user's address for the current blockchain
+          const addressInfo = userAddresses[selectedBlockchain];
           
-          if (!response?.data) {
-            throw new Error('Failed to fetch transactions: Invalid response');
+          if (!addressInfo) {
+            set({ 
+              transactions: [],
+              isLoading: false,
+              error: null
+            });
+            return;
           }
           
-          // Transform Blockradar transactions to our app's format
-          const transactions: Transaction[] = response.data.map((tx: any) => ({
-            id: tx.id,
-            type: tx.type === 'INCOMING' ? 'receive' : 
-                 tx.type === 'OUTGOING' ? 'send' : 
-                 tx.type === 'INTERNAL' ? 'swap' : 'deposit',
-            amount: tx.amount,
-            symbol: tx.asset.symbol,
-            timestamp: new Date(tx.timestamp).getTime(),
-            status: tx.status === 'CONFIRMED' ? 'completed' : 
-                   tx.status === 'PENDING' ? 'pending' : 'failed',
-            to: tx.toAddress,
-            from: tx.fromAddress,
-            hash: tx.hash
-          }));
+          const response = await blockradarClient.getTransactions(walletId, {
+            address: addressInfo.address,
+            limit,
+            page
+          });
           
-          set({ transactions, isLoading: false });
+          if (response?.data && Array.isArray(response.data.transactions)) {
+            set({ 
+              transactions: response.data.transactions as Transaction[],
+              isLoading: false 
+            });
+          }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to fetch transactions';
-          set({ error: errorMessage, isLoading: false });
+          console.error('Error fetching transactions:', error);
+          set({ 
+            isLoading: false, 
+            error: error instanceof Error ? error.message : 'Failed to fetch transactions'
+          });
         }
       },
       
@@ -223,10 +227,13 @@ export const useBlockradarStore = create<BlockradarState>()(
           });
           
           set({ isLoading: false });
-          return response;
+          return response?.data;
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Withdrawal failed';
-          set({ error: errorMessage, isLoading: false });
+          console.error('Error processing withdrawal:', error);
+          set({ 
+            isLoading: false, 
+            error: error instanceof Error ? error.message : 'Failed to process withdrawal'
+          });
           throw error;
         }
       },

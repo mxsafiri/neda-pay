@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { KycVerification, KycStatus } from '@/types/kyc';
 
 interface UseKycStatusResult {
@@ -20,7 +20,7 @@ export function useKycStatus(userId: string): UseKycStatusResult {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchKycStatus = async () => {
+  const fetchKycStatus = useCallback(async () => {
     if (!userId) {
       setError('User ID is required');
       setIsLoading(false);
@@ -45,17 +45,17 @@ export function useKycStatus(userId: string): UseKycStatusResult {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchKycStatus();
-  }, [userId]);
+  }, [fetchKycStatus]);
 
   return {
     verification,
     isLoading,
     error,
-    refetch: fetchKycStatus,
+    refetch: fetchKycStatus
   };
 }
 

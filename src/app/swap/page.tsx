@@ -5,10 +5,12 @@ import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowDownUp, RefreshCcw, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTokenSwap, SwapStatus } from '@/hooks/useTokenSwap';
 
 import { TokenSelector, Token } from '@/components/swap/TokenSelector';
 import { SwapInput } from '@/components/swap/SwapInput';
 import { SwapDetails } from '@/components/swap/SwapDetails';
+import { SwapHistory } from '@/components/swap/SwapHistory';
 
 const TOKENS: Token[] = [
   { symbol: 'USDC', name: 'USD Coin', balance: '1,523.00', logoUrl: '/tokens/usdc.svg', icon: 'us', country: 'United States' },
@@ -18,18 +20,53 @@ const TOKENS: Token[] = [
   { symbol: 'GBPT', name: 'Pound Token', balance: '0.00', logoUrl: '', icon: 'gb', country: 'United Kingdom' },
 ];
 
-type SwapStatus = 'idle' | 'loading' | 'success' | 'error';
-
 export default function SwapPage() {
   const { authenticated } = useAuth();
+  const { swap, status: swapStatus, error: swapError, reset } = useTokenSwap();
   const [fromToken, setFromToken] = useState<Token>(TOKENS[0]);
   const [toToken, setToToken] = useState<Token>(TOKENS[1]);
   const [amount, setAmount] = useState('');
-  const [swapStatus, setSwapStatus] = useState<SwapStatus>('idle');
   const [statusMessage, setStatusMessage] = useState('');
   
-  // Calculate exchange rate - in a real app this would come from an API
-  const exchangeRate = fromToken.symbol === 'USDC' && toToken.symbol === 'ETH' ? 0.00033 : 0.5;
+  // Calculate exchange rate based on token pair
+  const getExchangeRate = (from: string, to: string) => {
+    const rates: Record<string, Record<string, number>> = {
+      'USDC': {
+        'USDT': 0.998,
+        'nTZS': 2500,
+        'EURC': 0.92,
+        'GBPT': 0.78,
+      },
+      'USDT': {
+        'USDC': 1.002,
+        'nTZS': 2505,
+        'EURC': 0.921,
+        'GBPT': 0.781,
+      },
+      'nTZS': {
+        'USDC': 0.0004,
+        'USDT': 0.0004,
+        'EURC': 0.00037,
+        'GBPT': 0.00031,
+      },
+      'EURC': {
+        'USDC': 1.087,
+        'USDT': 1.086,
+        'nTZS': 2720,
+        'GBPT': 0.85,
+      },
+      'GBPT': {
+        'USDC': 1.28,
+        'USDT': 1.28,
+        'nTZS': 3205,
+        'EURC': 1.18,
+      },
+    };
+    
+    return rates[from]?.[to] || 1;
+  };
+  
+  const exchangeRate = getExchangeRate(fromToken.symbol, toToken.symbol);
   
   // Calculate estimated amount based on input and exchange rate
   const estimatedAmount = amount && !isNaN(parseFloat(amount)) 
@@ -40,46 +77,38 @@ export default function SwapPage() {
   useEffect(() => {
     if (swapStatus === 'success' || swapStatus === 'error') {
       const timer = setTimeout(() => {
-        setSwapStatus('idle');
+        reset();
         setStatusMessage('');
       }, 5000);
       
       return () => clearTimeout(timer);
     }
-  }, [swapStatus]);
+  }, [swapStatus, reset]);
+  
+  // Update status message when swap status changes
+  useEffect(() => {
+    if (swapStatus === 'error' && swapError) {
+      setStatusMessage(swapError);
+    }
+  }, [swapStatus, swapError]);
   
   const handleSwap = async () => {
     if (!authenticated || !amount || parseFloat(amount) <= 0) return;
     
-    setSwapStatus('loading');
-    
     try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // 90% chance of success
-          if (Math.random() > 0.1) {
-            resolve(true);
-          } else {
-            reject(new Error('Swap failed due to insufficient liquidity'));
-          }
-        }, 2000);
-      });
+      // Execute the swap using our hook
+      const transaction = await swap(fromToken, toToken, amount);
       
-      // Success
-      setSwapStatus('success');
-      setStatusMessage(`Successfully swapped ${amount} ${fromToken.symbol} for ${estimatedAmount} ${toToken.symbol}`);
+      // Success - set status message
+      setStatusMessage(`Successfully swapped ${amount} ${fromToken.symbol} for ${transaction.outputAmount.toFixed(6)} ${toToken.symbol}`);
       
       // Reset form after a delay
       setTimeout(() => {
         setAmount('');
-        setSwapStatus('idle');
-        setStatusMessage('');
       }, 3000);
     } catch (error) {
-      // Error
-      setSwapStatus('error');
-      setStatusMessage(error instanceof Error ? error.message : 'Swap failed. Please try again.');
+      // Error handling is done in the hook
+      console.error('Swap error:', error);
     }
   };
   
@@ -206,6 +235,11 @@ export default function SwapPage() {
             )}
           </button>
         </div>
+        
+        {/* Swap History */}
+        {authenticated && (
+          <SwapHistory userId="current-user-id" />
+        )}
       </motion.div>
     </WalletLayout>
   );

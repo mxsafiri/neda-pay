@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { ArrowLeft, Send, CheckCircle2, Loader, AlertCircle } from 'lucide-react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
-import { ArrowLeft, Send, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { SUPPORTED_TOKENS } from '@/config/wallet';
+
 import { useBlockradar } from '@/hooks/useBlockradar';
 import { TokenBalance } from '@/store/useWalletStore';
 import { z } from 'zod';
@@ -26,17 +26,12 @@ type SendFormData = z.infer<typeof sendFormSchema>;
 
 export default function SendPage() {
   const router = useRouter();
-  const { activeAddress } = useAuth();
+  const { } = useAuth();
   const { 
     balances, 
-    transactions,
-    isLoading, 
-    error: blockradarError,
     selectedBlockchain,
     setSelectedBlockchain,
     withdraw,
-    hasAddressForCurrentChain,
-    getCurrentChainAddress,
     fetchTransactions,
     getBalancesForCurrentChain
   } = useBlockradar();
@@ -49,7 +44,7 @@ export default function SendPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -96,15 +91,15 @@ export default function SendPage() {
     setIsSubmitting(true);
     
     try {
-      // Use Blockradar to withdraw funds
-      const response = await withdraw(
+      // Call the Blockradar API to send the transaction
+      await withdraw(
         formData.recipient,
         formData.amount,
         formData.token
       );
       
-      // Set transaction hash from Blockradar response
-      const txHash = response?.data?.hash || `tx_${Date.now()}`;
+      // Transaction completed successfully
+      setFormSubmitted(true);
       
       // Simulate blockchain confirmation
       
@@ -139,7 +134,34 @@ export default function SendPage() {
           <h1 className="text-xl font-semibold">Send Payment</h1>
         </div>
         
-        {txHash ? (
+        {isSubmitting ? (
+          <div className="flex flex-col items-center py-12 text-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+              className="mb-6 text-blue-400"
+            >
+              <Loader size={80} />
+            </motion.div>
+            <h2 className="text-2xl font-bold mb-2">Processing Payment...</h2>
+            <p className="text-white/70 mb-6">
+              Your transaction is being processed. Please wait.
+            </p>
+          </div>
+        ) : errors.submit ? (
+          <div className="flex flex-col items-center py-12 text-center">
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', duration: 0.6 }}
+              className="mb-6 text-red-400"
+            >
+              <AlertCircle size={80} />
+            </motion.div>
+            <h2 className="text-2xl font-bold mb-2">Transaction Failed</h2>
+            <p className="text-white/70 mb-6">{errors.submit}</p>
+          </div>
+        ) : formSubmitted ? (
           <div className="flex flex-col items-center py-12 text-center">
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
@@ -153,9 +175,6 @@ export default function SendPage() {
             <p className="text-white/70 mb-6">
               Your transaction has been successfully submitted to the blockchain.
             </p>
-            <div className="bg-white/10 rounded-lg p-4 mb-6 w-full overflow-hidden">
-              <p className="text-sm font-mono truncate">{txHash}</p>
-            </div>
             <button 
               onClick={() => router.push('/wallet')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
@@ -257,7 +276,7 @@ export default function SendPage() {
               )}
             </div>
             
-            {txHash && (
+            {formSubmitted && (
               <div className="mt-4 p-4 bg-green-800 bg-opacity-20 rounded-md border border-green-600">
                 <h3 className="flex items-center text-green-500 font-medium">
                   <CheckCircle2 className="mr-2" />
@@ -266,12 +285,6 @@ export default function SendPage() {
                 <p className="mt-2 text-sm text-gray-300">
                   Your transaction has been successfully submitted to the network. You can track its status in your transaction history.
                 </p>
-                <div className="mt-2 flex items-center">
-                  <span className="text-sm font-medium text-gray-400">Transaction Hash:</span>
-                  <code className="ml-2 px-2 py-1 bg-gray-800 rounded text-xs text-green-400 font-mono overflow-x-auto max-w-full">
-                    {txHash}
-                  </code>
-                </div>
               </div>
             )}
 

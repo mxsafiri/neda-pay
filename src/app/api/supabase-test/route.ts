@@ -31,7 +31,7 @@ export async function GET() {
     
     // Create a test user if none exists
     if (!tables || tables.length === 0) {
-      const { data: newUser, error: createError } = await supabase
+      const { error: createError } = await supabase
         .from('User')
         .upsert({
           id: 'test-user-id',
@@ -66,12 +66,14 @@ export async function GET() {
     // Extract more detailed error information
     let errorDetails = {};
     if (error && typeof error === 'object') {
+      // Use type assertion to access properties safely
+      const err = error as Record<string, unknown>;
       errorDetails = {
-        name: error.name,
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
+        name: err.name as string | undefined,
+        message: err.message as string | undefined,
+        code: err.code as string | undefined,
+        details: err.details as unknown,
+        hint: err.hint as string | undefined
       };
     }
     

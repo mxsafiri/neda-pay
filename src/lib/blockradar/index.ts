@@ -15,7 +15,7 @@ if (!API_KEY) {
 
 interface CreateAddressOptions {
   name?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   disableAutoSweep?: boolean;
   enableGaslessWithdraw?: boolean;
   showPrivateKey?: boolean;
@@ -25,7 +25,7 @@ interface WithdrawOptions {
   toAddress: string;
   asset: string;
   amount: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export const blockradarClient = {

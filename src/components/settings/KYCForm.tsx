@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload, Check, AlertCircle, Loader2, ChevronDown } from 'lucide-react';
 import { uploadKycDocument } from '@/lib/kyc-storage';
-import { IdType, KycStatus } from '@/types/kyc';
+// KYC form component
 
 // Define the KYC schema with Zod for validation
 const kycSchema = z.object({
@@ -96,7 +96,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       
       // Upload the document to Supabase Storage
       console.log('Uploading document...');
-      const documentUrl = await uploadKycDocument(userId, uploadedFile);
+      const documentUrl = await uploadKycDocument(userId);
       console.log('Document uploaded successfully:', documentUrl);
       
       // For testing, let's try the test API endpoint first

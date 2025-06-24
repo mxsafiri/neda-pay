@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 import { PrismaClient } from '@prisma/client';
 
 export async function GET() {
@@ -82,21 +81,15 @@ export async function GET() {
       connectionStatus: 'Connected to Supabase database successfully',
     });
   } catch (error) {
-    console.error('Database test error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Failed to connect to database or perform CRUD operations',
-      error: error instanceof Error ? error.message : String(error),
-    }, { status: 500 });
     console.error('Database connection error:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        message: 'Database connection failed', 
-        error: error instanceof Error ? error.message : String(error),
-        connectionStatus: 'Failed to connect to database'
-      },
-      { status: 500 }
-    );
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({
+      success: false, 
+      message: 'Database connection failed', 
+      error: errorMessage,
+      connectionStatus: 'Failed to connect to database'
+    },
+    { status: 500 }
+  );
   }
 }

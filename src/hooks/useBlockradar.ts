@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useBlockradarStore } from '@/store/useBlockradarStore';
-import { TokenBalance, Transaction } from '@/store/useWalletStore';
+import { TokenBalance } from '@/store/useWalletStore';
 
 /**
  * A hook for easily accessing and managing Blockradar wallet functionality
@@ -55,7 +55,7 @@ export function useBlockradar() {
   // Create an address for the current blockchain if one doesn't exist
   const ensureAddressExists = useCallback(async (
     name?: string, 
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<string> => {
     // If address already exists, return it
     if (hasAddressForCurrentChain()) {

@@ -6,7 +6,7 @@ import supabase from './supabase';
  * @param file The file to upload
  * @returns The URL of the uploaded document
  */
-export async function uploadKycDocument(userId: string, file: File): Promise<string> {
+export async function uploadKycDocument(userId: string): Promise<string> {
   try {
     // For testing purposes, we'll use a simulated document URL
     // This allows us to bypass the storage RLS issues for now

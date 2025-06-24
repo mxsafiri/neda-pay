@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
-import { useKycStatus, getKycStatusMessage } from '@/hooks/useKycStatus';
+import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
 
 export default function SettingsPage() {
@@ -16,7 +16,7 @@ export default function SettingsPage() {
   const [showKYCModal, setShowKYCModal] = useState(false);
   
   // Use our custom hook to get KYC verification status
-  const { verification, isLoading, refetch } = useKycStatus(user?.id || '');
+  const { verification, refetch } = useKycStatus(user?.id || '');
   
   const handleLogout = async () => {
     if (authenticated) {
