@@ -7,6 +7,7 @@ import { theme } from '@/styles/theme'
 import { Home, ArrowLeftRight, Activity, Settings } from 'lucide-react'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { usePathname, useRouter } from 'next/navigation'
+import { BlockchainSelector } from './BlockchainSelector'
 
 interface WalletLayoutProps {
   children: ReactNode
@@ -49,6 +50,9 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
             </motion.button>
           </div>
         </header>
+        
+        {/* Base blockchain selector - only available network during trial period */}
+        <BlockchainSelector />
         
         <main className="relative z-10">{children}</main>
 

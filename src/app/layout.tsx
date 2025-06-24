@@ -62,12 +62,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <PrivyProvider>
-          <BlockradarProvider walletConfig={{
-            'ethereum': process.env.NEXT_PUBLIC_BLOCKRADAR_ETHEREUM_WALLET_ID || '',
-            'polygon': process.env.NEXT_PUBLIC_BLOCKRADAR_POLYGON_WALLET_ID || '',
-            'base': process.env.NEXT_PUBLIC_BLOCKRADAR_BASE_WALLET_ID || '',
-            'arbitrum': process.env.NEXT_PUBLIC_BLOCKRADAR_ARBITRUM_WALLET_ID || ''
-          }}>
+          <BlockradarProvider>
             {children}
           </BlockradarProvider>
         </PrivyProvider>

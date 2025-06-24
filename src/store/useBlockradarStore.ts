@@ -60,7 +60,7 @@ export const useBlockradarStore = create<BlockradarState>()(
       transactions: [],
       isLoading: false,
       error: null,
-      selectedBlockchain: 'ethereum', // Default to Ethereum
+      selectedBlockchain: 'base', // Default to Base for trial period
       initialized: false,
       
       // Initialize with master wallet IDs

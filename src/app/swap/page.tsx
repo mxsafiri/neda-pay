@@ -1,32 +1,94 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowDownUp, RefreshCcw, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenSwap } from '@/hooks/useTokenSwap';
+import { useBlockradar } from '@/hooks/useBlockradar';
 
 import { TokenSelector, Token } from '@/components/swap/TokenSelector';
 import { SwapInput } from '@/components/swap/SwapInput';
 import { SwapDetails } from '@/components/swap/SwapDetails';
 import { SwapHistory } from '@/components/swap/SwapHistory';
 
-const TOKENS: Token[] = [
-  { symbol: 'USDC', name: 'USD Coin', balance: '1,523.00', logoUrl: '/tokens/usdc.svg', icon: 'us', country: 'United States' },
-  { symbol: 'USDT', name: 'Tether USD', balance: '250.00', logoUrl: '/tokens/usdt.svg', icon: 'us', country: 'United States' },
-  { symbol: 'nTZS', name: 'NEDA Tanzanian Shilling', balance: '3,500.00', logoUrl: '', icon: 'tz', country: 'Tanzania' },
-  { symbol: 'EURC', name: 'Euro Coin', balance: '0.00', logoUrl: '', icon: 'eu', country: 'European Union' },
-  { symbol: 'GBPT', name: 'Pound Token', balance: '0.00', logoUrl: '', icon: 'gb', country: 'United Kingdom' },
-];
+// Token metadata (logos, country info) - will be merged with real balances
+const TOKEN_METADATA: Record<string, { name: string, logoUrl: string, icon: string, country: string }> = {
+  'USDC': { name: 'USD Coin', logoUrl: '/tokens/usdc.svg', icon: 'us', country: 'United States' },
+  'USDT': { name: 'Tether USD', logoUrl: '/tokens/usdt.svg', icon: 'us', country: 'United States' },
+  'nTZS': { name: 'NEDA Tanzanian Shilling', logoUrl: '', icon: 'tz', country: 'Tanzania' },
+  'EURC': { name: 'Euro Coin', logoUrl: '', icon: 'eu', country: 'European Union' },
+  'GBPT': { name: 'Pound Token', logoUrl: '', icon: 'gb', country: 'United Kingdom' },
+};
 
 export default function SwapPage() {
   const { authenticated } = useAuth();
+  const { balances, getBalancesForCurrentChain } = useBlockradar();
   const { swap, status: swapStatus, error: swapError, reset } = useTokenSwap();
-  const [fromToken, setFromToken] = useState<Token>(TOKENS[0]);
-  const [toToken, setToToken] = useState<Token>(TOKENS[1]);
   const [amount, setAmount] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  
+  // Convert Blockradar balances to Token format
+  const availableTokens = useMemo(() => {
+    const baseBalances = getBalancesForCurrentChain();
+    
+    // Map balances to Token format
+    return baseBalances.map(balance => {
+      const symbol = balance.symbol || '';
+      const metadata = TOKEN_METADATA[symbol] || { 
+        name: symbol, 
+        logoUrl: '', 
+        icon: 'us', 
+        country: 'Unknown' 
+      };
+      
+      return {
+        symbol,
+        name: metadata.name,
+        balance: balance.balance ? balance.balance.toString() : '0.00',
+        logoUrl: metadata.logoUrl,
+        icon: metadata.icon,
+        country: metadata.country
+      };
+    });
+  }, [balances, getBalancesForCurrentChain]);
+  
+  // Default to first two tokens if available, otherwise use empty tokens
+  const [fromToken, setFromToken] = useState<Token>(
+    availableTokens.length > 0 ? availableTokens[0] : { 
+      symbol: 'USDC', 
+      name: 'USD Coin', 
+      balance: '0.00', 
+      logoUrl: '/tokens/usdc.svg', 
+      icon: 'us', 
+      country: 'United States' 
+    }
+  );
+  
+  const [toToken, setToToken] = useState<Token>(
+    availableTokens.length > 1 ? availableTokens[1] : { 
+      symbol: 'USDT', 
+      name: 'Tether USD', 
+      balance: '0.00', 
+      logoUrl: '/tokens/usdt.svg', 
+      icon: 'us', 
+      country: 'United States' 
+    }
+  );
+  
+  // Update tokens when balances change
+  useEffect(() => {
+    if (availableTokens.length > 0) {
+      // Find current tokens in new balances
+      const newFromToken = availableTokens.find(t => t.symbol === fromToken.symbol) || availableTokens[0];
+      const newToToken = availableTokens.find(t => t.symbol === toToken.symbol) || 
+        (availableTokens.length > 1 ? availableTokens[1] : availableTokens[0]);
+      
+      setFromToken(newFromToken);
+      setToToken(newToToken);
+    }
+  }, [availableTokens]);
   
   // Calculate exchange rate based on token pair
   const getExchangeRate = (from: string, to: string) => {
@@ -137,25 +199,27 @@ export default function SwapPage() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 max-w-lg mx-auto"
       >
-        <div className="space-y-6">
-          {/* From Token */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <TokenSelector 
-                selectedToken={fromToken} 
-                tokens={TOKENS} 
-                onSelect={setFromToken} 
-                label="From"
-              />
-            </div>
-            <SwapInput 
-              token={fromToken} 
-              amount={amount} 
-              onChange={setAmount} 
-              showMax={true}
+        <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Select Tokens</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">From</label>
+            <TokenSelector 
+              tokens={availableTokens}
+              selectedToken={fromToken}
+              onSelect={setFromToken}
             />
           </div>
-          
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">To</label>
+            <TokenSelector 
+              tokens={availableTokens.filter(t => t.symbol !== fromToken.symbol)}
+              selectedToken={toToken}
+              onSelect={setToToken}
+            />
+          </div>
+        </div>
+        
           {/* Switch Button */}
           <div className="flex justify-center -my-2">
             <motion.button
@@ -173,7 +237,7 @@ export default function SwapPage() {
           <div className="space-y-2">
             <TokenSelector 
               selectedToken={toToken} 
-              tokens={TOKENS.filter(t => t.symbol !== fromToken.symbol)} 
+              tokens={availableTokens.filter((t: Token) => t.symbol !== fromToken.symbol)} 
               onSelect={setToToken} 
               label="To (Estimated)"
             />

@@ -29,8 +29,7 @@ export default function SendPage() {
   const { } = useAuth();
   const { 
     balances, 
-    selectedBlockchain,
-    setSelectedBlockchain,
+    selectedBlockchain, // This will always be 'base' during trial period
     withdraw,
     fetchTransactions,
     getBalancesForCurrentChain
@@ -189,26 +188,11 @@ export default function SendPage() {
                 <label htmlFor="blockchain" className="block text-sm font-medium text-gray-300">
                   Blockchain
                 </label>
-                <select
-                  id="blockchain"
-                  name="blockchain"
-                  value={selectedBlockchain}
-                  onChange={(e) => setSelectedBlockchain(e.target.value)}
-                  className="mt-1 block w-full py-2 px-3 border border-gray-700 bg-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
-                >
-                  {Object.keys(balances.reduce<Record<string, boolean>>((acc, b) => {
-                    // Properly type check and cast the balance object
-                    const balance = b as TokenBalance & { blockchain?: string };
-                    if (balance.blockchain) {
-                      acc[balance.blockchain] = true;
-                    }
-                    return acc;
-                  }, {})).map((chain) => (
-                    <option key={chain} value={chain}>
-                      {chain.charAt(0).toUpperCase() + chain.slice(1)}
-                    </option>
-                  ))}
-                </select>
+                <div className="mt-1 block w-full py-2 px-3 border border-gray-700 bg-gray-900 rounded-md shadow-sm text-white flex items-center justify-between">
+                  <span>{selectedBlockchain.charAt(0).toUpperCase() + selectedBlockchain.slice(1)}</span>
+                  <span className="text-xs bg-blue-600 px-2 py-1 rounded-full">Trial</span>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Only Base blockchain is available during the trial period</p>
               </div>
               
               <div>

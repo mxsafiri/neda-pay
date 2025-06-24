@@ -7,6 +7,7 @@ import { useWalletStore } from '@/store/useWalletStore'
 import { TransactionItem } from '@/components/wallet/TransactionItem'
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 import { DAppConnections } from '@/components/wallet/DAppConnections'
+import { PaymentLinkButton } from '@/components/payment/PaymentLinkButton'
 
 export default function WalletPage() {
   const [activeTab, setActiveTab] = React.useState<'basic' | 'connect'>('basic');
@@ -37,15 +38,12 @@ export default function WalletPage() {
           {/* Tab Content */}
           {activeTab === 'basic' ? (
             <div className="grid grid-cols-2 gap-3">
-              <button className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all">
-                <ArrowUpRight className="mb-2 text-blue-400" />
-                <span>Send</span>
-              </button>
-              <button className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all">
+              <PaymentLinkButton />
+              <button 
+                onClick={() => window.location.href = '/swap'}
+                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all"
+              >
                 <ArrowDownLeft className="mb-2 text-green-400" />
-                <span>Receive</span>
-              </button>
-              <button className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all col-span-2">
                 <span>Swap Tokens</span>
               </button>
             </div>
