@@ -5,7 +5,7 @@ import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowDownUp, RefreshCcw, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTokenSwap, SwapStatus } from '@/hooks/useTokenSwap';
+import { useTokenSwap } from '@/hooks/useTokenSwap';
 
 import { TokenSelector, Token } from '@/components/swap/TokenSelector';
 import { SwapInput } from '@/components/swap/SwapInput';

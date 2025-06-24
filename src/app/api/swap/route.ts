@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const { fromToken, toToken, amount, userId } = result.data;
+    const { fromToken, toToken, amount } = result.data;
     
     // Check if the token pair is supported
     if (!exchangeRates[fromToken] || !exchangeRates[fromToken][toToken]) {
