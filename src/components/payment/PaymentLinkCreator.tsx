@@ -60,7 +60,7 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10"
+      className="bg-[#061328]/90 backdrop-blur-xl rounded-xl p-6 border border-white/10 shadow-xl"
     >
       {step === 'form' ? (
         <>
@@ -77,13 +77,13 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="flex-1 bg-white/5 border border-white/10 rounded-l-lg px-3 py-2 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 bg-[#0A1F44]/70 border border-white/20 rounded-l-lg px-3 py-2 text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
                 />
                 <select
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  className="bg-white/10 border border-white/10 rounded-r-lg px-3 py-2 text-white focus:outline-none"
+                  className="bg-[#0A1F44]/80 border border-white/20 rounded-r-lg px-3 py-2 text-white focus:outline-none"
                 >
                   <option value="USDC">USDC</option>
                   <option value="ETH">ETH</option>
@@ -99,7 +99,7 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What's this payment for?"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-[#0A1F44]/70 border border-white/20 rounded-lg px-3 py-2 text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
             
@@ -120,7 +120,7 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
             <h3 className="text-lg font-medium">Payment Link Created!</h3>
           </div>
           
-          <div className="bg-white/5 p-4 rounded-lg mb-4 break-all">
+          <div className="bg-[#0A1F44]/70 p-4 rounded-lg mb-4 break-all border border-white/20">
             <p className="text-sm text-white/70">Your payment link:</p>
             <p className="text-sm font-mono">{paymentLink}</p>
           </div>

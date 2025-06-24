@@ -1,13 +1,13 @@
 'use client';
 
-import { FC, ReactNode } from 'react'
+import { FC, ReactNode, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Logo } from '@/components/ui/Logo'
 import { theme } from '@/styles/theme'
 import { Home, ArrowLeftRight, Activity, Settings } from 'lucide-react'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { usePathname, useRouter } from 'next/navigation'
-import { BlockchainSelector } from './BlockchainSelector'
+import { WalletMenu } from './WalletMenu'
 
 interface WalletLayoutProps {
   children: ReactNode
@@ -23,6 +23,10 @@ const navItems = [
 export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   const router = useRouter()
   const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  
+  const toggleMenu = () => setIsMenuOpen(prev => !prev)
+  
   return (
     <div 
       className="min-h-screen bg-gradient-to-b from-[#061328] via-primary to-black text-white"
@@ -42,6 +46,8 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors"
+              onClick={toggleMenu}
+              aria-label="Open menu"
             >
               <span className="sr-only">Menu</span>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,8 +57,8 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
           </div>
         </header>
         
-        {/* Base blockchain selector - only available network during trial period */}
-        <BlockchainSelector />
+        {/* WalletMenu component */}
+        <WalletMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
         
         <main className="relative z-10">{children}</main>
 

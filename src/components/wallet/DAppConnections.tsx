@@ -49,19 +49,39 @@ export const DAppConnections: FC = () => {
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const handleConnect = async (dApp: DApp) => {
+    console.log('handleConnect called with dApp:', dApp.id);
     setConnectionError(null);
     setConnecting(dApp.id);
     
     try {
       if (!authenticated) {
+        console.log('User not authenticated, calling login()');
         // If user is not authenticated, prompt them to connect their wallet
         await login();
         return;
       }
 
+      console.log('User authenticated, checking dApp.id:', dApp.id);
       if (dApp.id === 'wallet-connect') {
+        console.log('Calling connectWallet()');
         // Use Privy's connectWallet for connecting external wallets
-        await connectWallet();
+        try {
+          // Add a timeout to the connectWallet promise
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Wallet connection timed out after 10 seconds')), 10000);
+          });
+          
+          // Race the connectWallet promise against the timeout
+          await Promise.race([
+            connectWallet(),
+            timeoutPromise
+          ]);
+          
+          console.log('connectWallet() completed');
+        } catch (walletError) {
+          console.error('Wallet connection specific error:', walletError);
+          throw walletError; // Re-throw to be caught by the outer try/catch
+        }
       } else {
         // For ecosystem apps, pass the auth token for seamless sign-in
         try {
@@ -84,6 +104,7 @@ export const DAppConnections: FC = () => {
       console.error('Connection error:', error);
       setConnectionError(error instanceof Error ? error.message : 'Failed to connect');
     } finally {
+      console.log('Connection attempt completed, resetting connecting state');
       setConnecting('');
     }
   };
