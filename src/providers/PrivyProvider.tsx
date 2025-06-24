@@ -26,10 +26,31 @@ export function PrivyProvider({ children }: PropsWithChildren) {
     console.warn('NEXT_PUBLIC_PRIVY_APP_ID environment variable is not set. Using fallback value for development only.');
   }
   
+  // Define a type for Privy errors
+  type PrivyError = {
+    message?: string;
+    code?: string;
+    status?: number;
+    [key: string]: unknown;
+  };
+
   // Handle authentication errors
-  const handlePrivyError = (error: any) => {
+  const handlePrivyError = (error: Error | PrivyError | unknown) => {
     console.error('Privy authentication error:', error);
-    setError('Authentication error: ' + (error?.message || 'Unknown error'));
+    
+    // Type guard for Error objects
+    if (error instanceof Error) {
+      setError('Authentication error: ' + error.message);
+    } 
+    // Type guard for PrivyError objects
+    else if (typeof error === 'object' && error !== null && 'message' in error) {
+      const privyError = error as PrivyError;
+      setError('Authentication error: ' + (privyError.message || 'Unknown error'));
+    } 
+    // Fallback for unknown error types
+    else {
+      setError('Authentication error: Unknown error occurred');
+    }
   };
   
   return (
