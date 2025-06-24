@@ -14,7 +14,6 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [token, setToken] = useState('USDC');
-  const [linkId, setLinkId] = useState('');
   const [paymentLink, setPaymentLink] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -23,7 +22,6 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
     
     // Generate a unique ID for the payment link
     const id = nanoid(10);
-    setLinkId(id);
     
     // Create the payment link URL
     const baseUrl = window.location.origin;
@@ -158,7 +156,6 @@ export function PaymentLinkCreator({ onClose }: PaymentLinkCreatorProps) {
                 setStep('form');
                 setAmount('');
                 setDescription('');
-                setLinkId('');
                 setPaymentLink('');
                 if (onClose) onClose();
               }}

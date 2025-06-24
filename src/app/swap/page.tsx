@@ -52,7 +52,7 @@ export default function SwapPage() {
         country: metadata.country
       };
     });
-  }, [balances, getBalancesForCurrentChain]);
+  }, [getBalancesForCurrentChain]);
   
   // Default to first two tokens if available, otherwise use empty tokens
   const [fromToken, setFromToken] = useState<Token>(
@@ -88,7 +88,7 @@ export default function SwapPage() {
       setFromToken(newFromToken);
       setToToken(newToToken);
     }
-  }, [availableTokens]);
+  }, [availableTokens, fromToken.symbol, toToken.symbol]);
   
   // Calculate exchange rate based on token pair
   const getExchangeRate = (from: string, to: string) => {

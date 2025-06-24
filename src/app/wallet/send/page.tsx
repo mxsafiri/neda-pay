@@ -8,7 +8,6 @@ import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 
 import { useBlockradar } from '@/hooks/useBlockradar';
-import { TokenBalance } from '@/store/useWalletStore';
 import { z } from 'zod';
 
 // Validation schema for the form
@@ -28,7 +27,6 @@ export default function SendPage() {
   const router = useRouter();
   const { } = useAuth();
   const { 
-    balances, 
     selectedBlockchain, // This will always be 'base' during trial period
     withdraw,
     fetchTransactions,

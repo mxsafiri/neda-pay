@@ -12,8 +12,6 @@ import { SUPPORTED_BLOCKCHAINS } from '@/lib/blockradar/config';
  * and doesn't allow switching to other networks.
  */
 export const BlockchainSelector: FC = () => {
-  const { selectedBlockchain } = useBlockradar();
-  
   // During trial period, we only support Base blockchain
   const blockchain = SUPPORTED_BLOCKCHAINS.base;
   

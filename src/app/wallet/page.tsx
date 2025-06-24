@@ -5,7 +5,7 @@ import { WalletLayout } from '@/components/wallet/WalletLayout'
 import { WalletBalance } from '@/components/wallet/WalletBalance'
 import { useWalletStore } from '@/store/useWalletStore'
 import { TransactionItem } from '@/components/wallet/TransactionItem'
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
+import { ArrowDownLeft } from 'lucide-react'
 import { DAppConnections } from '@/components/wallet/DAppConnections'
 import { PaymentLinkButton } from '@/components/payment/PaymentLinkButton'
 
