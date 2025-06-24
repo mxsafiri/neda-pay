@@ -24,7 +24,7 @@ const TOKEN_METADATA: Record<string, { name: string, logoUrl: string, icon: stri
 
 export default function SwapPage() {
   const { authenticated } = useAuth();
-  const { balances, getBalancesForCurrentChain } = useBlockradar();
+  const { getBalancesForCurrentChain } = useBlockradar();
   const { swap, status: swapStatus, error: swapError, reset } = useTokenSwap();
   const [amount, setAmount] = useState('');
   const [statusMessage, setStatusMessage] = useState('');

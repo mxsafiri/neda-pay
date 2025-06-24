@@ -2,7 +2,6 @@
 
 import { FC } from 'react';
 import { motion } from 'framer-motion';
-import { useBlockradar } from '@/hooks/useBlockradar';
 import { SUPPORTED_BLOCKCHAINS } from '@/lib/blockradar/config';
 
 /**
