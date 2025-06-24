@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { ArrowLeft, Send, CheckCircle2 } from 'lucide-react';
-import { useWalletStore } from '@/store/useWalletStore';
 import { useAuth } from '@/hooks/useAuth';
 import { SUPPORTED_TOKENS } from '@/config/wallet';
+import { useBlockradar } from '@/hooks/useBlockradar';
+import { TokenBalance } from '@/store/useWalletStore';
 import { z } from 'zod';
 
 // Validation schema for the form
@@ -26,7 +27,19 @@ type SendFormData = z.infer<typeof sendFormSchema>;
 export default function SendPage() {
   const router = useRouter();
   const { activeAddress } = useAuth();
-  const { balances, addTransaction, updateTransaction } = useWalletStore();
+  const { 
+    balances, 
+    transactions,
+    isLoading, 
+    error: blockradarError,
+    selectedBlockchain,
+    setSelectedBlockchain,
+    withdraw,
+    hasAddressForCurrentChain,
+    getCurrentChainAddress,
+    fetchTransactions,
+    getBalancesForCurrentChain
+  } = useBlockradar();
   
   // Form state
   const [formData, setFormData] = useState<SendFormData>({
@@ -67,7 +80,7 @@ export default function SendPage() {
   };
   
   const getMaxAmount = () => {
-    const token = balances.find(b => b.symbol === formData.token);
+    const token = getBalancesForCurrentChain().find(b => b.symbol === formData.token);
     return token?.balance || '0.00';
   };
   
@@ -83,39 +96,22 @@ export default function SendPage() {
     setIsSubmitting(true);
     
     try {
-      // In a real app, this would call a blockchain transaction method
-      // For now, we'll simulate the transaction
-      const txId = `tx_${Date.now()}`;
+      // Use Blockradar to withdraw funds
+      const response = await withdraw(
+        formData.recipient,
+        formData.amount,
+        formData.token
+      );
       
-      // Add the pending transaction to the store
-      addTransaction({
-        id: txId,
-        type: 'send',
-        amount: formData.amount,
-        symbol: formData.token,
-        timestamp: Date.now(),
-        status: 'pending',
-        to: formData.recipient,
-        from: activeAddress || '',
-      });
+      // Set transaction hash from Blockradar response
+      const txHash = response?.data?.hash || `tx_${Date.now()}`;
       
       // Simulate blockchain confirmation
-      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Generate a fake transaction hash
-      const hash = `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
-      setTxHash(hash);
-      
-      // Update the transaction
-      updateTransaction(txId, {
-        status: 'completed',
-        hash
-      });
-      
-      // Reset the form after 5 seconds
+      // Refresh transactions to show the new one
       setTimeout(() => {
-        router.push('/wallet');
-      }, 3000);
+        fetchTransactions();
+      }, 1000);
       
     } catch (error) {
       console.error('Transaction failed', error);
@@ -169,6 +165,53 @@ export default function SendPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
+            <div className="flex flex-col space-y-6 mb-8">
+              <div>
+                <label htmlFor="blockchain" className="block text-sm font-medium text-gray-300">
+                  Blockchain
+                </label>
+                <select
+                  id="blockchain"
+                  name="blockchain"
+                  value={selectedBlockchain}
+                  onChange={(e) => setSelectedBlockchain(e.target.value)}
+                  className="mt-1 block w-full py-2 px-3 border border-gray-700 bg-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
+                >
+                  {Object.keys(balances.reduce<Record<string, boolean>>((acc, b) => {
+                    // Properly type check and cast the balance object
+                    const balance = b as TokenBalance & { blockchain?: string };
+                    if (balance.blockchain) {
+                      acc[balance.blockchain] = true;
+                    }
+                    return acc;
+                  }, {})).map((chain) => (
+                    <option key={chain} value={chain}>
+                      {chain.charAt(0).toUpperCase() + chain.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label htmlFor="token" className="block text-sm font-medium text-gray-300">
+                  Token
+                </label>
+                <select
+                  id="token"
+                  name="token"
+                  value={formData.token}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full py-2 px-3 border border-gray-700 bg-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
+                >
+                  {getBalancesForCurrentChain().map((token) => (
+                    <option key={token.symbol} value={token.symbol}>
+                      {token.symbol}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
             <div className="mb-6">
               <label className="block text-white/80 mb-2 font-medium">Recipient Address</label>
               <input
@@ -208,24 +251,30 @@ export default function SendPage() {
                     errors.amount ? 'border-red-500' : 'border-white/20'
                   } rounded-l-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
-                <select
-                  name="token"
-                  value={formData.token}
-                  onChange={handleInputChange}
-                  className="bg-white/10 border border-white/20 rounded-r-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {Object.values(SUPPORTED_TOKENS).map((token) => (
-                    <option key={token.symbol} value={token.symbol}>
-                      {token.symbol}
-                    </option>
-                  ))}
-                </select>
               </div>
               {errors.amount && (
                 <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
               )}
             </div>
             
+            {txHash && (
+              <div className="mt-4 p-4 bg-green-800 bg-opacity-20 rounded-md border border-green-600">
+                <h3 className="flex items-center text-green-500 font-medium">
+                  <CheckCircle2 className="mr-2" />
+                  Transaction Submitted
+                </h3>
+                <p className="mt-2 text-sm text-gray-300">
+                  Your transaction has been successfully submitted to the network. You can track its status in your transaction history.
+                </p>
+                <div className="mt-2 flex items-center">
+                  <span className="text-sm font-medium text-gray-400">Transaction Hash:</span>
+                  <code className="ml-2 px-2 py-1 bg-gray-800 rounded text-xs text-green-400 font-mono overflow-x-auto max-w-full">
+                    {txHash}
+                  </code>
+                </div>
+              </div>
+            )}
+
             <div className="mb-6">
               <label className="block text-white/80 mb-2 font-medium">Estimated Network Fee</label>
               <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white/60">

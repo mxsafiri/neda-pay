@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PrivyProvider } from "@/providers/PrivyProvider";
+import { BlockradarProvider } from "@/components/blockradar/BlockradarProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,7 +62,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <PrivyProvider>
-          {children}
+          <BlockradarProvider walletConfig={{
+            'ethereum': process.env.NEXT_PUBLIC_BLOCKRADAR_ETHEREUM_WALLET_ID || '',
+            'polygon': process.env.NEXT_PUBLIC_BLOCKRADAR_POLYGON_WALLET_ID || '',
+            'base': process.env.NEXT_PUBLIC_BLOCKRADAR_BASE_WALLET_ID || '',
+            'arbitrum': process.env.NEXT_PUBLIC_BLOCKRADAR_ARBITRUM_WALLET_ID || ''
+          }}>
+            {children}
+          </BlockradarProvider>
         </PrivyProvider>
       </body>
     </html>

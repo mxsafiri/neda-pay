@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id            String    @id // Using Privy user ID as primary key
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  email         String?   @unique // From Privy
+  walletAddress String?   @unique // From Privy active wallet
+  
+  // KYC fields (matching your form)
+  firstName     String?
+  lastName      String?
+  dateOfBirth   DateTime?
+  nationality   String?
+  idType        String?   // 'passport' or 'nationalId'
+  idNumber      String?
+  kycStatus     KycStatus @default(NOT_STARTED)
+  kycSubmittedAt DateTime?
+  kycVerifiedAt DateTime?
+  
+  // Relations
+  documents     Document[]
+  settings      UserSettings?
+  dAppConnections DAppConnection[]
+  transactions  Transaction[]
+}
+
+enum KycStatus {
+  NOT_STARTED
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model Document {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  fileName      String
+  fileUrl       String    // URL to the stored document
+  fileType      String    // MIME type
+  fileSize      Int       // Size in bytes
+  status        DocumentStatus @default(PENDING_REVIEW)
+  
+  // Relations
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+enum DocumentStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model UserSettings {
+  id                    String    @id @default(cuid())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  preferredCurrency     String    @default("USD")
+  theme                 String    @default("light")
+  notificationsEnabled  Boolean   @default(true)
+  
+  // Relations
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DAppConnection {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  dAppId        String    // Matches the ID from your AVAILABLE_DAPPS array
+  lastConnected DateTime
+  
+  // Relations
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, dAppId])
+  @@index([userId])
+}
+
+model Transaction {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  hash          String?   @unique
+  status        TransactionStatus
+  type          TransactionType
+  amount        String    // Using String to handle crypto precision
+  tokenSymbol   String
+  chainId       Int
+  
+  // Relations
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+enum TransactionType {
+  SEND
+  RECEIVE
+  SWAP
+  PAYMENT
+}

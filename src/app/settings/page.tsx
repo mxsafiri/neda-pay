@@ -1,17 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
+import { KYCStatus } from '@/components/settings/KYCStatus';
+import { useKycStatus, getKycStatusMessage } from '@/hooks/useKycStatus';
+import { KycStatus as KycStatusEnum } from '@/types/kyc';
 
 export default function SettingsPage() {
   const { authenticated, user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showKYCModal, setShowKYCModal] = useState(false);
-  const [kycStatus, setKycStatus] = useState<'not_started' | 'pending' | 'verified'>('not_started');
+  
+  // Use our custom hook to get KYC verification status
+  const { verification, isLoading, refetch } = useKycStatus(user?.id || '');
   
   const handleLogout = async () => {
     if (authenticated) {
@@ -20,7 +25,8 @@ export default function SettingsPage() {
   };
   
   const handleKYCComplete = () => {
-    setKycStatus('pending');
+    // Refetch KYC status after submission
+    refetch();
     // Close the modal after a delay to show the success state
     setTimeout(() => {
       setShowKYCModal(false);
@@ -45,10 +51,12 @@ export default function SettingsPage() {
           icon: FileCheck,
           label: 'Identity Verification',
           action: () => setShowKYCModal(true),
-          value: kycStatus === 'not_started' ? 'Required' : 
-                 kycStatus === 'pending' ? 'Pending' : 'Verified',
-          status: kycStatus === 'not_started' ? 'warning' : 
-                  kycStatus === 'pending' ? 'pending' : 'success',
+          value: !verification ? 'Required' : 
+                 verification.status === KycStatusEnum.PENDING ? 'Pending' : 
+                 verification.status === KycStatusEnum.APPROVED ? 'Verified' : 'Rejected',
+          status: !verification ? 'warning' : 
+                  verification.status === KycStatusEnum.PENDING ? 'pending' : 
+                  verification.status === KycStatusEnum.APPROVED ? 'success' : 'warning',
         },
       ],
     },
@@ -158,6 +166,25 @@ export default function SettingsPage() {
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </motion.button>
+          
+          {/* KYC Status Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
+          >
+            <h3 className="text-lg font-medium mb-4">Identity Verification Status</h3>
+            {user?.id ? (
+              <KYCStatus 
+                userId={user.id} 
+                showDetails={true} 
+                onUpdateClick={() => setShowKYCModal(true)} 
+              />
+            ) : (
+              <p className="text-white/60">Please connect your wallet to view verification status</p>
+            )}
+          </motion.div>
           
           {/* KYC Modal */}
           {showKYCModal && (

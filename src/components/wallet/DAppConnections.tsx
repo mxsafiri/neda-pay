@@ -22,7 +22,7 @@ const AVAILABLE_DAPPS: DApp[] = [
     name: 'NEDApay Merchant',
     description: 'Accept payments from customers',
     icon: ShoppingBag,
-    url: 'https://merchant.nedapay.com',
+    url: 'https://www.nedapay.xyz',
     category: 'merchant',
   },
   {
@@ -30,7 +30,7 @@ const AVAILABLE_DAPPS: DApp[] = [
     name: 'washikaDAO',
     description: 'Community governance platform',
     icon: Users,
-    url: 'https://washika.dao',
+    url: 'https://www.washikadao.xyz',
     category: 'dao',
   },
   {
@@ -44,8 +44,8 @@ const AVAILABLE_DAPPS: DApp[] = [
 ];
 
 export const DAppConnections: FC = () => {
-  const { authenticated, connectWallet, login } = usePrivy();
-  const [connecting, setConnecting] = useState<string | null>(null);
+  const { authenticated, connectWallet, login, getAccessToken } = usePrivy();
+  const [connecting, setConnecting] = useState<string>('');
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const handleConnect = async (dApp: DApp) => {
@@ -63,14 +63,28 @@ export const DAppConnections: FC = () => {
         // Use Privy's connectWallet for connecting external wallets
         await connectWallet();
       } else {
-        // For specific dApps, open their URL
-        window.open(dApp.url, '_blank');
+        // For ecosystem apps, pass the auth token for seamless sign-in
+        try {
+          // Get Privy auth token for SSO between apps
+          const authToken = await getAccessToken();
+          
+          // Open the dApp with the auth token for automatic authentication
+          if (authToken) {
+            window.open(`${dApp.url}?auth_token=${encodeURIComponent(authToken)}`, '_blank');
+          } else {
+            window.open(dApp.url, '_blank');
+          }
+        } catch (error) {
+          // If token retrieval fails, still open the app without SSO
+          console.error('Failed to get auth token:', error);
+          window.open(dApp.url, '_blank');
+        }
       }
     } catch (error) {
       console.error('Connection error:', error);
       setConnectionError(error instanceof Error ? error.message : 'Failed to connect');
     } finally {
-      setConnecting(null);
+      setConnecting('');
     }
   };
 
@@ -102,8 +116,8 @@ export const DAppConnections: FC = () => {
             </div>
             <button
               onClick={() => handleConnect(dApp)}
-              disabled={connecting !== null}
-              className={`${connecting === dApp.id ? 'bg-primary/40' : 'bg-primary/20 hover:bg-primary/30'} text-primary px-4 py-2 rounded-lg flex items-center space-x-1 transition-colors ${connecting !== null ? 'opacity-70 cursor-not-allowed' : ''}`}
+              disabled={connecting !== ''}
+              className={`${connecting === dApp.id ? 'bg-primary/40' : 'bg-primary/20 hover:bg-primary/30'} text-primary px-4 py-2 rounded-lg flex items-center space-x-1 transition-colors ${connecting !== '' ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <span>{connecting === dApp.id ? 'Connecting...' : 'Connect'}</span>
               {connecting !== dApp.id && <ExternalLink className="w-4 h-4" />}

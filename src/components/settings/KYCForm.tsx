@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload, Check, AlertCircle, Loader2, ChevronDown } from 'lucide-react';
+import { uploadKycDocument } from '@/lib/kyc-storage';
+import { IdType, KycStatus } from '@/types/kyc';
 
 // Define the KYC schema with Zod for validation
 const kycSchema = z.object({
@@ -87,17 +89,74 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
     }
     
     setIsSubmitting(true);
+    setUploadError('');
     
     try {
-      // In a real app, you would upload the data and file to your backend
-      // For now, we'll simulate a successful submission
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log('Starting KYC submission process...');
       
-      console.log('KYC data submitted:', { ...data, userId });
+      // Upload the document to Supabase Storage
+      console.log('Uploading document...');
+      const documentUrl = await uploadKycDocument(userId, uploadedFile);
+      console.log('Document uploaded successfully:', documentUrl);
+      
+      // For testing, let's try the test API endpoint first
+      console.log('Testing API connection...');
+      const testResponse = await fetch('/api/kyc/test');
+      const testResult = await testResponse.json();
+      console.log('Test API response:', testResult);
+      
+      // Submit the KYC data to the API
+      console.log('Submitting KYC data...');
+      console.log('Payload:', {
+        userId,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dateOfBirth: data.dateOfBirth,
+        nationality: data.nationality,
+        idType: data.idType,
+        idNumber: data.idNumber,
+        documentUrl,
+      });
+      
+      const response = await fetch('/api/kyc/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dateOfBirth: data.dateOfBirth,
+          nationality: data.nationality,
+          idType: data.idType,
+          idNumber: data.idNumber,
+          documentUrl,
+        }),
+      });
+      
+      const result = await response.json();
+      console.log('API response:', result);
+      
+      if (!response.ok) {
+        console.error('API error details:', result);
+        throw new Error(result.message || result.error || 'Failed to submit KYC data');
+      }
+      
+      console.log('KYC data submitted successfully:', result);
       setIsComplete(true);
       if (onComplete) onComplete();
     } catch (error) {
       console.error('Error submitting KYC data:', error);
+      let errorMessage = 'Failed to submit KYC data';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        errorMessage = JSON.stringify(error);
+      }
+      
+      setUploadError(`Error processing KYC submission: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -317,9 +376,14 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
             </label>
           </div>
           {uploadError && (
-            <div className="flex items-center mt-2 text-red-400">
-              <AlertCircle className="w-4 h-4 mr-1" />
-              <span className="text-sm">{uploadError}</span>
+            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm mb-4">
+              <div className="flex items-center">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                {uploadError}
+              </div>
+              <div className="mt-2 text-xs opacity-80">
+                Please check the browser console for more details.
+              </div>
             </div>
           )}
         </div>
