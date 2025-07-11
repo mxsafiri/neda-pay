@@ -1,16 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { z } from 'zod';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Upload, Check, AlertCircle, Loader2, ChevronDown } from 'lucide-react';
+import { z } from 'zod';
+import { motion } from 'framer-motion';
+import { AlertCircle, Check, Loader2, Upload, ChevronDown } from 'lucide-react';
+import { BiometricCapture } from './BiometricCapture';
+import { VerificationResults } from './VerificationResults';
 import { uploadKycDocument } from '@/lib/kyc-storage';
-// KYC form component
+import { 
+  validateDocument, 
+  verifyFacialMatch, 
+  detectLiveness,
+  calculateRiskScore,
+  determineKycStatus,
+  DocumentValidationResult,
+  FacialVerificationResult
+} from '@/lib/kyc-verification';
+import { KycStatus } from '@/types/kyc';
 
-// Define the KYC schema with Zod for validation
-const kycSchema = z.object({
+// Define the form schema with Zod
+const kycFormSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Please enter a valid date (YYYY-MM-DD)' }),
@@ -19,10 +30,11 @@ const kycSchema = z.object({
     required_error: 'Please select an ID type' 
   }),
   idNumber: z.string().min(4, { message: 'ID number must be at least 4 characters' }),
+  // Selfie verification is handled separately with the BiometricCapture component
 });
 
 // TypeScript type derived from the schema
-type KYCFormData = z.infer<typeof kycSchema>;
+type KYCFormData = z.infer<typeof kycFormSchema>;
 
 interface KYCFormProps {
   onComplete?: () => void;
@@ -35,13 +47,25 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState('');
+  const [selfieImage, setSelfieImage] = useState<string | null>(null);
+  const [selfieError, setSelfieError] = useState('');
+  const [currentStep, setCurrentStep] = useState<'info' | 'document' | 'selfie' | 'review' | 'verification'>('info');
+  const [formData, setFormData] = useState<KYCFormData | null>(null);
+  
+  // Verification results
+  const [documentResult, setDocumentResult] = useState<DocumentValidationResult | null>(null);
+  const [facialResult, setFacialResult] = useState<FacialVerificationResult | null>(null);
+  const [verificationInProgress, setVerificationInProgress] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
+  const [riskScore, setRiskScore] = useState<number | null>(null);
+  const [kycStatus, setKycStatus] = useState<KycStatus | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<KYCFormData>({
-    resolver: zodResolver(kycSchema),
+    resolver: zodResolver(kycFormSchema),
     defaultValues: {
       idType: 'passport',
     },
@@ -81,15 +105,49 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
     }
   };
 
-  // Handle form submission
+  // Handle initial form submission (personal info)
   const onSubmit = async (data: KYCFormData) => {
+    // Save form data and move to document upload step
+    setFormData(data);
+    setCurrentStep('document');
+  };
+  
+  // Handle document upload step completion
+  const handleDocumentStepComplete = () => {
     if (!uploadedFile) {
       setUploadError('Please upload your ID document');
       return;
     }
     
+    // Move to selfie capture step
+    setCurrentStep('selfie');
+  };
+  
+  // Handle selfie capture
+  const handleSelfieCapture = (imageData: string) => {
+    setSelfieImage(imageData);
+    setSelfieError('');
+    
+    // Move to review step
+    setCurrentStep('review');
+  };
+  
+  // Handle selfie error
+  const handleSelfieError = (error: string) => {
+    setSelfieError(error);
+  };
+  
+  // Handle final submission
+  const handleFinalSubmit = async () => {
+    if (!formData || !uploadedFile || !selfieImage) {
+      setUploadError('Please complete all steps before submitting');
+      return;
+    }
+    
     setIsSubmitting(true);
     setUploadError('');
+    setVerificationInProgress(true);
+    setCurrentStep('verification');
     
     try {
       console.log('Starting KYC submission process...');
@@ -99,23 +157,52 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       const documentUrl = await uploadKycDocument(userId);
       console.log('Document uploaded successfully:', documentUrl);
       
-      // For testing, let's try the test API endpoint first
-      console.log('Testing API connection...');
-      const testResponse = await fetch('/api/kyc/test');
-      const testResult = await testResponse.json();
-      console.log('Test API response:', testResult);
+      // Perform document validation
+      console.log('Validating document...');
+      const docResult = await validateDocument(
+        documentUrl,
+        formData.idType
+      );
+      setDocumentResult(docResult);
+      console.log('Document validation result:', docResult);
+      
+      // Perform liveness detection and facial matching
+      console.log('Performing facial verification...');
+      const faceResult = await verifyFacialMatch(
+        selfieImage,
+        documentUrl
+      );
+      setFacialResult(faceResult);
+      console.log('Facial verification result:', faceResult);
+      
+      // Calculate risk score
+      if (docResult && faceResult) {
+        const calculatedRiskScore = calculateRiskScore(docResult, faceResult);
+        setRiskScore(calculatedRiskScore);
+        console.log('Risk score:', calculatedRiskScore);
+        
+        // Determine KYC status
+        const status = determineKycStatus(docResult, faceResult, calculatedRiskScore);
+        setKycStatus(status);
+        console.log('KYC status:', status);
+      }
       
       // Submit the KYC data to the API
       console.log('Submitting KYC data...');
       console.log('Payload:', {
         userId,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: data.dateOfBirth,
-        nationality: data.nationality,
-        idType: data.idType,
-        idNumber: data.idNumber,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        dateOfBirth: formData.dateOfBirth,
+        nationality: formData.nationality,
+        idType: formData.idType,
+        idNumber: formData.idNumber,
         documentUrl,
+        selfieImage,
+        documentValidation: documentResult,
+        facialVerification: facialResult,
+        riskScore,
+        kycStatus
       });
       
       const response = await fetch('/api/kyc/submit', {
@@ -125,13 +212,18 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
         },
         body: JSON.stringify({
           userId,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          dateOfBirth: data.dateOfBirth,
-          nationality: data.nationality,
-          idType: data.idType,
-          idNumber: data.idNumber,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          nationality: formData.nationality,
+          idType: formData.idType,
+          idNumber: formData.idNumber,
           documentUrl,
+          selfieImage,
+          documentValidation: documentResult,
+          facialVerification: facialResult,
+          riskScore,
+          kycStatus
         }),
       });
       
@@ -185,6 +277,55 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
     );
   }
 
+  // Render progress indicator
+  const renderProgressSteps = () => {
+    const steps = [
+      { id: 'info', label: 'Personal Info' },
+      { id: 'document', label: 'ID Document' },
+      { id: 'selfie', label: 'Selfie' },
+      { id: 'review', label: 'Review' }
+    ];
+    
+    return (
+      <div className="flex justify-between mb-8">
+        {steps.map((step, index) => {
+          const isActive = step.id === currentStep;
+          const isCompleted = (
+            (step.id === 'info' && formData) ||
+            (step.id === 'document' && uploadedFile) ||
+            (step.id === 'selfie' && selfieImage) ||
+            false
+          );
+          
+          return (
+            <div key={step.id} className="flex flex-col items-center relative">
+              <div className="flex items-center">
+                {index > 0 && (
+                  <div className={`h-0.5 w-10 -ml-5 ${isCompleted ? 'bg-blue-500' : 'bg-white/20'}`} />
+                )}
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center z-10 ${isActive ? 'bg-blue-500' : isCompleted ? 'bg-green-500' : 'bg-white/20'}`}
+                >
+                  {isCompleted ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : (
+                    <span className="text-sm">{index + 1}</span>
+                  )}
+                </div>
+                {index < steps.length - 1 && (
+                  <div className={`h-0.5 w-10 -mr-5 ${isCompleted ? 'bg-blue-500' : 'bg-white/20'}`} />
+                )}
+              </div>
+              <span className={`text-xs mt-1 ${isActive ? 'text-blue-400' : isCompleted ? 'text-green-400' : 'text-white/50'}`}>
+                {step.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -193,10 +334,13 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
     >
       <h3 className="text-xl font-bold mb-4">Identity Verification</h3>
       <p className="text-white/70 mb-6">
-        To comply with regulations, we need to verify your identity. Please provide the following information.
+        To comply with regulations, we need to verify your identity. Please complete all steps.
       </p>
       
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {currentStep !== 'verification' && renderProgressSteps()}
+      
+      {currentStep === 'info' && (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* First Name */}
           <div>
@@ -325,85 +469,250 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           )}
         </div>
         
-        {/* Document Upload */}
-        <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">
-            Upload ID Document (PDF, JPG, PNG, max 5MB)
-          </label>
-          <div className="border-2 border-dashed border-white/20 rounded-lg p-4 text-center">
-            <input
-              type="file"
-              id="idDocument"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <label
-              htmlFor="idDocument"
-              className="flex flex-col items-center justify-center cursor-pointer"
-            >
-              {!uploadedFile ? (
-                <>
-                  <Upload className="w-8 h-8 text-white/50 mb-2" />
-                  <p className="text-white/70">Click to upload your document</p>
-                  <p className="text-white/50 text-sm mt-1">
-                    Passport or National ID card
-                  </p>
-                </>
-              ) : (
-                <div className="w-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white/70 truncate max-w-[200px]">
-                      {uploadedFile.name}
-                    </span>
-                    <span className="text-white/50 text-sm">
-                      {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full"
-                      style={{ width: `${uploadProgress}%` }}
-                    ></div>
-                  </div>
-                  {uploadProgress === 100 && (
-                    <div className="flex items-center justify-center mt-2 text-green-400">
-                      <Check className="w-4 h-4 mr-1" /> Upload complete
-                    </div>
-                  )}
-                </div>
-              )}
+        {/* Next Button */}
+        <button
+          type="submit"
+          className="w-full flex items-center justify-center gap-2 p-4 mt-4 rounded-xl bg-primary hover:bg-primary/90 transition-colors text-white font-medium"
+        >
+          Continue to Document Upload
+        </button>
+      </form>
+      )}
+
+      {currentStep === 'document' && (
+        <div className="space-y-4">
+          {/* Document Upload */}
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1">
+              Upload ID Document (PDF, JPG, PNG, max 5MB)
             </label>
+            <div className="border-2 border-dashed border-white/20 rounded-lg p-4 text-center">
+              <input
+                type="file"
+                id="idDocument"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="idDocument"
+                className="flex flex-col items-center justify-center cursor-pointer"
+              >
+                {!uploadedFile ? (
+                  <>
+                    <Upload className="w-8 h-8 text-white/50 mb-2" />
+                    <p className="text-white/70">Click to upload your document</p>
+                    <p className="text-white/50 text-sm mt-1">
+                      Passport or National ID card
+                    </p>
+                  </>
+                ) : (
+                  <div className="w-full">
+                    <div className="flex items-center mb-2">
+                      <div className="bg-white/10 rounded-full p-2 mr-3">
+                        <Check className="w-4 h-4 text-green-400" />
+                      </div>
+                      <span className="text-white truncate">
+                        {uploadedFile.name}
+                      </span>
+                      <span className="text-white/50 text-sm">
+                        {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
+                      </span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                    {uploadProgress === 100 && (
+                      <div className="flex items-center justify-center mt-2 text-green-400">
+                        <Check className="w-4 h-4 mr-1" /> Upload complete
+                      </div>
+                    )}
+                  </div>
+                )}
+              </label>
+            </div>
           </div>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={() => setCurrentStep('info')}
+              className="flex-1 p-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleDocumentStepComplete}
+              disabled={!uploadedFile}
+              className="flex-1 p-3 bg-primary hover:bg-primary/90 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continue to Selfie
+            </button>
+          </div>
+          
           {uploadError && (
-            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm mb-4">
+            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
               <div className="flex items-center">
                 <AlertCircle className="w-4 h-4 mr-2" />
                 {uploadError}
               </div>
-              <div className="mt-2 text-xs opacity-80">
-                Please check the browser console for more details.
+            </div>
+          )}
+        </div>
+      )}
+
+      {currentStep === 'selfie' && (
+        <div className="space-y-4">
+          <h4 className="text-lg font-medium">Selfie Verification</h4>
+          <p className="text-white/70 mb-2">
+            Please take a clear photo of your face for identity verification.
+          </p>
+          
+          <BiometricCapture 
+            onCapture={handleSelfieCapture}
+            onError={handleSelfieError}
+          />
+          
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => setCurrentStep('document')}
+              className="flex-1 p-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors"
+            >
+              Back
+            </button>
+          </div>
+          
+          {selfieError && (
+            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              <div className="flex items-center">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                {selfieError}
               </div>
             </div>
           )}
         </div>
-        
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-2 p-4 mt-4 rounded-xl bg-primary hover:bg-primary/90 transition-colors text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            'Submit Verification'
+      )}
+
+      {currentStep === 'review' && formData && (
+        <div className="space-y-4">
+          <h4 className="text-lg font-medium">Review Your Information</h4>
+          <p className="text-white/70 mb-4">
+            Please review your information before final submission.
+          </p>
+          
+          <div className="bg-white/5 rounded-lg p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-white/50 text-sm">First Name</p>
+                <p>{formData.firstName}</p>
+              </div>
+              <div>
+                <p className="text-white/50 text-sm">Last Name</p>
+                <p>{formData.lastName}</p>
+              </div>
+            </div>
+            
+            <div>
+              <p className="text-white/50 text-sm">Date of Birth</p>
+              <p>{formData.dateOfBirth}</p>
+            </div>
+            
+            <div>
+              <p className="text-white/50 text-sm">Nationality</p>
+              <p>{formData.nationality}</p>
+            </div>
+            
+            <div>
+              <p className="text-white/50 text-sm">ID Type</p>
+              <p>{formData.idType === 'passport' ? 'Passport' : 'National ID'}</p>
+            </div>
+            
+            <div>
+              <p className="text-white/50 text-sm">ID Number</p>
+              <p>{formData.idNumber}</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-white/50 text-sm mb-1">ID Document</p>
+              {uploadedFile && (
+                <div className="bg-white/5 rounded-lg p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2 mr-3">
+                    <Check className="w-4 h-4 text-green-400" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="truncate">{uploadedFile.name}</p>
+                    <p className="text-white/50 text-xs">
+                      {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <p className="text-white/50 text-sm mb-1">Selfie Verification</p>
+              {selfieImage && (
+                <div className="bg-white/5 rounded-lg p-2">
+                  <img 
+                    src={selfieImage} 
+                    alt="Verification selfie" 
+                    className="h-20 w-auto mx-auto rounded" 
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => setCurrentStep('selfie')}
+              className="flex-1 p-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleFinalSubmit}
+              disabled={isSubmitting}
+              className="flex-1 p-3 bg-primary hover:bg-primary/90 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting...
+                </div>
+              ) : (
+                'Submit Verification'
+              )}
+            </button>
+          </div>
+          
+          {uploadError && (
+            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              <div className="flex items-center">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                {uploadError}
+              </div>
+            </div>
           )}
-        </button>
-      </form>
+        </div>
+      )}
+      
+      {/* Verification Results Step */}
+      {currentStep === 'verification' && (
+        <VerificationResults
+          isLoading={verificationInProgress && !documentResult && !facialResult}
+          documentResult={documentResult}
+          facialResult={facialResult}
+          riskScore={riskScore}
+          kycStatus={kycStatus}
+          onComplete={onComplete ? onComplete : () => setIsComplete(true)}
+          onBack={() => setCurrentStep('review')}
+        />
+      )}
     </motion.div>
   );
 }

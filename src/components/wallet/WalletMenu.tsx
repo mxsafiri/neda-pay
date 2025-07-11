@@ -123,6 +123,13 @@ export const WalletMenu: FC<WalletMenuProps> = ({ isOpen, onClose }) => {
                   
                   <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
                     <h3 className="font-medium mb-2">Security</h3>
+                    <button 
+                      className="w-full text-left text-sm py-2 text-white/80 hover:text-white flex items-center justify-between"
+                      onClick={() => window.location.href = '/settings'}
+                    >
+                      <span>Account & KYC Verification</span>
+                      <span className="text-blue-400 text-xs px-2 py-0.5 bg-blue-500/20 rounded-full">Required</span>
+                    </button>
                     <button className="w-full text-left text-sm py-2 text-white/80 hover:text-white">
                       Change Password
                     </button>
