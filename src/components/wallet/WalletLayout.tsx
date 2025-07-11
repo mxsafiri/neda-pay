@@ -4,7 +4,7 @@ import { FC, ReactNode, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Logo } from '@/components/ui/Logo'
 import { theme } from '@/styles/theme'
-import { Home, ArrowLeftRight, Activity, Settings } from 'lucide-react'
+import { Home, ArrowLeftRight, Activity, Settings, QrCode, Search, Scan } from 'lucide-react'
 import { LoginButton } from '@/components/auth/LoginButton'
 import { usePathname, useRouter } from 'next/navigation'
 import { WalletMenu } from './WalletMenu'
@@ -16,8 +16,8 @@ interface WalletLayoutProps {
 const navItems = [
   { name: 'Home', icon: Home, path: '/' },
   { name: 'Swap', icon: ArrowLeftRight, path: '/swap' },
+  { name: 'Scan', icon: Scan, path: '/scan' },
   { name: 'Activity', icon: Activity, path: '/activity' },
-  { name: 'Settings', icon: Settings, path: '/settings' },
 ]
 
 export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
@@ -29,7 +29,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   
   return (
     <div 
-      className="min-h-screen bg-gradient-to-b from-[#061328] via-primary to-black text-white"
+      className="min-h-screen bg-black text-white"
       style={{ '--primary': theme.colors.primary } as React.CSSProperties}
     >
       <motion.div 
@@ -38,21 +38,45 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="container mx-auto px-4 py-8 max-w-md relative pb-24"
       >
-        <header className="flex items-center justify-between mb-8">
-          <Logo variant="primary" size={120} className="-ml-2" />
+        <header className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <Logo variant="white" size={24} />
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <span className="font-medium">Address 1</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
-            <LoginButton size="sm" />
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors"
-              onClick={toggleMenu}
-              aria-label="Open menu"
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              aria-label="Search"
             >
-              <span className="sr-only">Menu</span>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
+              <Search className="w-6 h-6" />
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              aria-label="QR Code"
+            >
+              <QrCode className="w-6 h-6" />
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              onClick={toggleMenu}
+              aria-label="Settings"
+            >
+              <Settings className="w-6 h-6" />
             </motion.button>
           </div>
         </header>
@@ -66,7 +90,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
           initial={{ y: 100 }}
           animate={{ y: 0 }}
           transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
-          className="fixed bottom-0 left-0 right-0 bg-primary/90 backdrop-blur-md border-t border-white/10 p-4 z-20"
+          className="fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 p-4 z-20"
         >
           <div className="flex justify-around max-w-md mx-auto">
             {navItems.map(({ name, icon: Icon, path }) => {

@@ -3,20 +3,20 @@
 import { FC, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { theme } from '@/styles/theme'
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 import { useWalletStore } from '@/store/useWalletStore'
 import { useAuth } from '@/hooks/useAuth'
 import { LoadingState } from '@/components/ui/LoadingState'
+import Link from 'next/link'
 
 interface WalletBalanceProps {
   currency?: string
 }
 
-export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'USDC' }) => {
+export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
   const { balances, isLoading, fetchBalances } = useWalletStore()
   const { authenticated, activeAddress } = useAuth()
   
-  const balance = balances.find(b => b.symbol === currency)?.balance || '0.00'
+  const balance = balances.find(b => b.symbol === currency)?.balance || '0'
   
   useEffect(() => {
     if (authenticated && activeAddress) {
@@ -25,54 +25,54 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'USDC' }) => 
   }, [authenticated, activeAddress, fetchBalances])
 
   return (
-    <motion.div 
-      className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 mb-6 border border-white/10 shadow-xl"
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      style={{ '--primary': theme.colors.primary } as React.CSSProperties}
-    >
-      {isLoading ? (
-        <LoadingState size="sm" text="Loading balance..." />
-      ) : (
-        <div className="text-center">
-          <motion.p 
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 0.7 }}
-            transition={{ delay: 0.1 }}
-            className="text-white/70 mb-2 font-medium"
-          >
-            Total Available
-          </motion.p>
-          <motion.h2 
-            className="text-5xl font-bold mb-6 flex items-center justify-center gap-2"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            ${balance}
-            <span className="text-base text-white/70">{currency}</span>
-          </motion.h2>
-          <div className="flex justify-center gap-4">
-            <motion.button 
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl transition-colors font-medium"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ArrowDownLeft className="w-5 h-5" />
-              Deposit
-            </motion.button>
-            <motion.button 
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl transition-colors font-medium"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ArrowUpRight className="w-5 h-5" />
-              Send
-            </motion.button>
-          </div>
-        </div>
+    <div className="mb-8">
+      <motion.h1 
+        className="text-6xl font-bold mb-2"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        {isLoading ? (
+          <LoadingState size="lg" text="" />
+        ) : (
+          <>
+            <span className="text-blue-500">{balance}</span>
+            <span className="text-gray-300">|{currency}</span>
+          </>
+        )}
+      </motion.h1>
+      
+      {!isLoading && (
+        <motion.p 
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-gray-400 text-lg"
+        >
+          {currency === 'USDC' ? '$' : ''}{parseFloat(balance).toFixed(2)} {currency === 'TZS' ? 'USDC' : ''}
+        </motion.p>
       )}
-    </motion.div>
+      
+      <div className="grid grid-cols-2 gap-4 mt-8">
+        <Link href="/buy" className="w-full">
+          <motion.button 
+            className="w-full py-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xl font-medium"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Buy
+          </motion.button>
+        </Link>
+        <Link href="/swap" className="w-full">
+          <motion.button 
+            className="w-full py-4 rounded-full bg-gray-800 text-white text-xl font-medium"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Swap
+          </motion.button>
+        </Link>
+      </div>
+    </div>
   )
 }

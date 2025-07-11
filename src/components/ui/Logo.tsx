@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 interface LogoProps {
-  variant?: 'symbol' | 'primary' | 'vertical' | 'wordmark'
+  variant?: 'symbol' | 'primary' | 'vertical' | 'wordmark' | 'white'
   className?: string
   size?: number
 }
@@ -16,7 +16,8 @@ export function Logo({
     symbol: '/logo/NEDApay Logo Symbol (1)-01.svg',
     primary: '/logo/NEDApay Logo Symbol (1)-01.svg', // Using new logo for primary as well
     vertical: '/logo/neda-vertical.svg',
-    wordmark: '/logo/neda-wordmark.svg'
+    wordmark: '/logo/neda-wordmark.svg',
+    white: '/logo/NEDApay Logo Symbol (1)-01.svg' // Using the same logo for white variant
   }
 
   return (

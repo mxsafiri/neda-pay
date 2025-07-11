@@ -5,9 +5,8 @@ import { WalletLayout } from '@/components/wallet/WalletLayout'
 import { WalletBalance } from '@/components/wallet/WalletBalance'
 import { useWalletStore } from '@/store/useWalletStore'
 import { TransactionItem } from '@/components/wallet/TransactionItem'
-import { ArrowDownLeft } from 'lucide-react'
+import { ArrowDownLeft, QrCode, Plus, ArrowLeftRight, TrendingUp } from 'lucide-react'
 import { DAppConnections } from '@/components/wallet/DAppConnections'
-import { PaymentLinkButton } from '@/components/payment/PaymentLinkButton'
 
 export default function WalletPage() {
   const [activeTab, setActiveTab] = React.useState<'basic' | 'connect'>('basic');
@@ -38,13 +37,33 @@ export default function WalletPage() {
           {/* Tab Content */}
           {activeTab === 'basic' ? (
             <div className="grid grid-cols-2 gap-3">
-              <PaymentLinkButton />
               <button 
-                onClick={() => window.location.href = '/swap'}
+                onClick={() => window.location.href = '/payment?manual=true'}
                 className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all"
               >
-                <ArrowDownLeft className="mb-2 text-green-400" />
-                <span>Swap Tokens</span>
+                <ArrowDownLeft className="mb-2 text-blue-400" />
+                <span>Send Money</span>
+              </button>
+              <button 
+                onClick={() => window.location.href = '/scan'}
+                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all"
+              >
+                <QrCode className="mb-2 text-purple-400" />
+                <span>Scan to Pay</span>
+              </button>
+              <button 
+                onClick={() => window.location.href = '/buy'}
+                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all mt-3"
+              >
+                <Plus className="mb-2 text-green-400" />
+                <span>Buy</span>
+              </button>
+              <button 
+                onClick={() => window.location.href = '/stake'}
+                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all mt-3"
+              >
+                <TrendingUp className="mb-2 text-yellow-400" />
+                <span>Stake</span>
               </button>
             </div>
           ) : (
