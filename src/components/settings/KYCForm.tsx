@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Image from 'next/image';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
@@ -13,7 +12,7 @@ import { WalletCreation } from './WalletCreation';
 import { uploadKycDocument } from '@/lib/kyc-storage';
 import { 
   validateDocument, 
-  verifyFacialMatch, 
+  // verifyFacialMatch removed - no longer needed for document-only flow
   calculateRiskScore,
   determineKycStatus,
   DocumentValidationResult,

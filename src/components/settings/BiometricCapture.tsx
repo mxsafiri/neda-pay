@@ -71,8 +71,8 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
     }
   }, [onError, simulateFaceDetection]);
   
-  // Stop camera
-  const stopCamera = useCallback(() => {
+  // Stop camera function - used internally
+  const stopCameraStream = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -85,7 +85,7 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
       clearInterval(faceDetectionInterval.current);
       faceDetectionInterval.current = null;
     }
-  }, []);
+  };
   
   // Capture image
   const captureImage = useCallback(() => {
@@ -137,9 +137,9 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
   
   // Retake photo
   const retakePhoto = useCallback(() => {
-    if (setCapturedImage) setCapturedImage(null);
-    if (startCamera) startCamera();
-  }, []);
+    setCapturedImage(null);
+    startCamera();
+  }, [startCamera]);
   
   // Clean up on unmount
   useEffect(() => {
