@@ -30,7 +30,7 @@ export function VerificationResults({
     <div className="space-y-6">
       <h4 className="text-lg font-medium">Verification in Progress</h4>
       <p className="text-white/70 mb-4">
-        We're verifying your identity. This may take a moment.
+        We&apos;re verifying your identity. This may take a moment.
       </p>
       
       {isLoading && !documentResult && !facialResult && (
@@ -187,7 +187,7 @@ export function VerificationResults({
             {kycStatus === KycStatus.APPROVED ? (
               <p className="text-green-400">Your identity has been verified successfully!</p>
             ) : kycStatus === KycStatus.PENDING ? (
-              <p className="text-yellow-400">Your verification requires manual review. We'll notify you once it's complete.</p>
+              <p className="text-yellow-400">Your verification requires manual review. We&apos;ll notify you once it&apos;s complete.</p>
             ) : (
               <p className="text-red-400">Your verification was not successful. Please try again with clearer documents.</p>
             )}

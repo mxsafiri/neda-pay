@@ -15,7 +15,7 @@ export const LoginButton: FC<LoginButtonProps> = ({
   className = '',
   size = 'md',
 }) => {
-  const { authenticated, login, logout, activeAddress } = useAuth();
+  const { authenticated, login, activeAddress } = useAuth();
   const router = useRouter();
   
   const sizeClasses = {

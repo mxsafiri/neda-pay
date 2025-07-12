@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useWalletAuth } from './useWalletAuth';
 import { useRouter } from 'next/navigation';
 

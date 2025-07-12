@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
-import { ArrowLeft, ChevronRight, Info } from 'lucide-react';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -31,10 +31,10 @@ const NETWORKS = [
 export default function BuyPage() {
   const router = useRouter();
   const [amount, setAmount] = useState('');
-  const [selectedToken, setSelectedToken] = useState(TOKEN_OPTIONS[0]);
-  const [selectedNetwork, setSelectedNetwork] = useState(NETWORKS[0]);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(PAYMENT_METHODS[0]);
-  const [selectedCard, setSelectedCard] = useState(PAYMENT_METHODS[0].cards[0]);
+  const [selectedToken, /* setSelectedToken */] = useState(TOKEN_OPTIONS[0]);
+  const [selectedNetwork, /* setSelectedNetwork */] = useState(NETWORKS[0]);
+  const [selectedPaymentMethod, /* setSelectedPaymentMethod */] = useState(PAYMENT_METHODS[0]);
+  const [selectedCard, /* setSelectedCard */] = useState(PAYMENT_METHODS[0].cards[0]);
   const [usdcEquivalent, setUsdcEquivalent] = useState('0.00');
   
   // Calculate USDC equivalent when amount changes

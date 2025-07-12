@@ -3,7 +3,7 @@
 import { FC, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
-import { useAuth } from '@/hooks/useAuth';
+// import { useAuth } from '@/hooks/useAuth';
 import { ExternalLink, ShoppingBag, Users, Wallet } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -47,7 +47,7 @@ const AVAILABLE_DAPPS: DApp[] = [
 
 export const DAppConnections: FC = () => {
   const { isAuthenticated, address } = useWalletAuth();
-  const { user } = useAuth();
+  // const { user } = useAuth(); // Commented out as it's currently unused
   const router = useRouter();
   const [connecting, setConnecting] = useState<string>('');
   const [connectionError, setConnectionError] = useState<string | null>(null);

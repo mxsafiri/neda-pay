@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
-import { AlertCircle, CheckCircle2, Copy, Eye, EyeOff, Key } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Copy, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { WalletTagline } from './WalletTagline';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ export function WalletLogin() {
     }
   }, []);
   const [privateKey, setPrivateKey] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null); // Used in JSX below
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [activeTab, setActiveTab] = useState('import');
   const [newWallet, setNewWallet] = useState<{ address: string; privateKey: string } | null>(null);
@@ -44,7 +44,7 @@ export function WalletLogin() {
     try {
       const wallet = createWallet();
       setNewWallet(wallet);
-    } catch (error) {
+    } catch {
       setError('Failed to create wallet. Please try again.');
     }
   };

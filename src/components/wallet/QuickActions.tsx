@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
-  Wallet, 
+  // Wallet, // Commented out as it's currently unused
   QrCode,
   Plus,
   ArrowLeftRight,
-  Receipt,
+  // Receipt, // Commented out as it's currently unused
   History
 } from 'lucide-react';
 

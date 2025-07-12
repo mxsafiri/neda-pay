@@ -2,7 +2,7 @@
 
 import { FC, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { theme } from '@/styles/theme'
+// import { theme } from '@/styles/theme' // Commented out as it's currently unused
 import { useWalletStore } from '@/store/useWalletStore'
 import { useAuth } from '@/hooks/useAuth'
 import { LoadingState } from '@/components/ui/LoadingState'

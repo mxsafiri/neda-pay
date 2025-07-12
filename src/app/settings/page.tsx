@@ -103,7 +103,7 @@ export default function SettingsPage() {
                 <User size={32} className="text-white/80" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">{typeof user?.email === 'string' ? user.email : 'NEDApay User'}</h2>
+                <h2 className="text-xl font-bold">{user?.wallet ? `${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}` : 'NEDApay User'}</h2>
                 <p className="text-white/60 text-sm">
                   {user?.wallet ? 
                     (typeof user.wallet === 'string' ? 

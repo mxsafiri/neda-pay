@@ -1,6 +1,6 @@
 'use client';
 
-import { PropsWithChildren, createContext, useCallback, useEffect, useState } from 'react';
+import { PropsWithChildren, createContext, useEffect, useState } from 'react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 
 // Define the context type

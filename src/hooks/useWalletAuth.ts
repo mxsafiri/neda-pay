@@ -32,7 +32,7 @@ export function useWalletAuth() {
           isAuthenticated: true,
           privateKey: null // Don't keep in memory
         });
-      } catch (e) {
+      } catch {
         console.error('Failed to parse saved wallet');
       }
     }
@@ -107,7 +107,7 @@ export function useWalletAuth() {
       try {
         const parsed = JSON.parse(savedWallet);
         return parsed.privateKey;
-      } catch (e) {
+      } catch {
         console.error('Failed to get private key');
         return null;
       }

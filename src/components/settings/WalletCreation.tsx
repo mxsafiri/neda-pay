@@ -80,9 +80,10 @@ export function WalletCreation({ userId, userName, onComplete }: WalletCreationP
         // Continue anyway as we have the data in state
       }
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating wallet:', err);
-      setError(err.message || 'Failed to create wallet. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create wallet. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -169,7 +170,7 @@ export function WalletCreation({ userId, userName, onComplete }: WalletCreationP
                   animate={{ opacity: 1 }}
                   className="text-xs text-center text-white/60 mt-2"
                 >
-                  This may take a few moments. Please don't refresh the page.
+                  This may take a few moments. Please don&apos;t refresh the page.
                 </motion.div>
               )}
             </div>
@@ -284,8 +285,8 @@ export function WalletCreation({ userId, userName, onComplete }: WalletCreationP
                   animate={{ opacity: 1 }}
                   className="text-sm text-white/70 text-center"
                 >
-                  Make sure you've saved your private key before continuing.
-                  You won't be able to access your wallet without it.
+                  Make sure you&apos;ve saved your private key before continuing.
+                  You won&apos;t be able to access your wallet without it.
                 </motion.p>
                 
                 <button
@@ -294,7 +295,7 @@ export function WalletCreation({ userId, userName, onComplete }: WalletCreationP
                   aria-label="Continue to next step"
                 >
                   <CheckCircle className="h-5 w-5" />
-                  <span>I've Saved My Private Key - Continue</span>
+                  <span>I&apos;ve Saved My Private Key - Continue</span>
                 </button>
               </motion.div>
             </div>

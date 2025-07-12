@@ -87,8 +87,10 @@ export async function validateDocument(
  * In a production environment, this would call an actual facial verification API
  */
 export async function verifyFacialMatch(
-  selfieImage: string,
-  documentImage: string
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  selfieImage: string, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  documentImage: string 
 ): Promise<FacialVerificationResult> {
   // In a real implementation, this would call a facial verification API
   // For demo purposes, we'll simulate a verification process
@@ -128,7 +130,10 @@ export async function verifyFacialMatch(
  * Performs liveness detection on a selfie image
  * In a production environment, this would call an actual liveness detection API
  */
-export async function detectLiveness(selfieImage: string): Promise<{
+export async function detectLiveness(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  selfieImage: string
+): Promise<{
   isLive: boolean;
   confidence: number;
   errors: string[];

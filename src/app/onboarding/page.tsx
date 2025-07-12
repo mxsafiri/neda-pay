@@ -20,8 +20,10 @@ enum OnboardingStep {
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(OnboardingStep.WELCOME);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [walletAddress, setWalletAddress] = useState<string>('');
-  const [userId, setUserId] = useState<string>(`user_${Date.now()}`); // Generate a temporary user ID
+  // Generate a temporary user ID
+  const [userId, /* setUserId */] = useState<string>(`user_${Date.now()}`); 
   const [userName, setUserName] = useState<string>('');
   const router = useRouter();
   const { user, authenticated } = useAuth();
@@ -121,7 +123,7 @@ export default function OnboardingPage() {
             >
               <h1 className="text-3xl font-bold mb-6 text-center">Welcome to NEDApay</h1>
               <p className="text-white/70 text-center mb-8">
-                Let's get you set up with your digital wallet. First, we'll need to know what to call you.
+                Let&apos;s get you set up with your digital wallet. First, we&apos;ll need to know what to call you.
               </p>
               
               <form onSubmit={handleNameSubmit} className="space-y-6">
@@ -206,7 +208,7 @@ export default function OnboardingPage() {
               
               <h1 className="text-3xl font-bold mb-4">Setup Complete!</h1>
               <p className="text-white/70 mb-8">
-                Your wallet has been created and your identity verification is being processed. You're all set to start using NEDApay!
+                Your wallet has been created and your identity verification is being processed. You&apos;re all set to start using NEDApay!
               </p>
               
               <p className="text-sm text-white/50 mb-4">

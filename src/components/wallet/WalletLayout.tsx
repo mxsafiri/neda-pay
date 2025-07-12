@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Logo } from '@/components/ui/Logo'
 import { theme } from '@/styles/theme'
 import { Home, ArrowLeftRight, Activity, Settings, QrCode, Search, Scan } from 'lucide-react'
-import { LoginButton } from '@/components/auth/LoginButton'
+// import { LoginButton } from '@/components/auth/LoginButton' // Commented out as it's currently unused
 import { usePathname, useRouter } from 'next/navigation'
 import { WalletMenu } from './WalletMenu'
 

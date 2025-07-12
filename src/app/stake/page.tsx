@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
-import { ArrowLeft, TrendingUp, Info, AlertCircle, ChevronRight, Percent } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Info, ChevronRight, Percent } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useWalletStore } from '@/store/useWalletStore';
 import { useAuth } from '@/hooks/useAuth';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 // Mock data for index funds
 const indexFunds = [
@@ -61,7 +61,7 @@ const initialStakedPositions = [
 
 export default function StakePage() {
   const router = useRouter();
-  const { authenticated } = useAuth();
+  const { /* authenticated */ } = useAuth();
   const { balances } = useWalletStore();
   
   const [selectedFund, setSelectedFund] = useState<string | null>(null);
@@ -337,7 +337,7 @@ export default function StakePage() {
                 <TrendingUp className="w-8 h-8 text-gray-600" />
               </div>
               <h4 className="text-lg font-medium mb-2">No Active Stakes</h4>
-              <p className="text-gray-400 mb-4">You don't have any active staking positions yet.</p>
+              <p className="text-gray-400 mb-4">You don&apos;t have any active staking positions yet.</p>
               <button 
                 onClick={() => setActiveTab('funds')}
                 className="px-4 py-2 bg-blue-600 rounded-lg text-white"
