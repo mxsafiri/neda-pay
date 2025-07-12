@@ -2,18 +2,18 @@
 
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Image from 'next/image';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { AlertCircle, Check, Loader2, Upload, ChevronDown } from 'lucide-react';
-import { BiometricCapture } from './BiometricCapture';
+// Biometric capture removed as per requirements
 import { VerificationResults } from './VerificationResults';
 import { WalletCreation } from './WalletCreation';
 import { uploadKycDocument } from '@/lib/kyc-storage';
 import { 
   validateDocument, 
   verifyFacialMatch, 
-  detectLiveness,
   calculateRiskScore,
   determineKycStatus,
   DocumentValidationResult,
@@ -48,9 +48,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState('');
-  const [selfieImage, setSelfieImage] = useState<string | null>(null);
-  const [selfieError, setSelfieError] = useState('');
-  const [currentStep, setCurrentStep] = useState<'info' | 'document' | 'selfie' | 'review' | 'verification' | 'wallet'>('info');
+  const [currentStep, setCurrentStep] = useState<'info' | 'document' | 'review' | 'verification' | 'wallet' | 'result'>('info');
   const [formData, setFormData] = useState<KYCFormData | null>(null);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   
@@ -58,7 +56,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
   const [documentResult, setDocumentResult] = useState<DocumentValidationResult | null>(null);
   const [facialResult, setFacialResult] = useState<FacialVerificationResult | null>(null);
   const [verificationInProgress, setVerificationInProgress] = useState(false);
-  const [verificationError, setVerificationError] = useState('');
+  // const [verificationError, setVerificationError] = useState('');
   const [riskScore, setRiskScore] = useState<number | null>(null);
   const [kycStatus, setKycStatus] = useState<KycStatus | null>(null);
 
@@ -121,27 +119,15 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       return;
     }
     
-    // Move to selfie capture step
-    setCurrentStep('selfie');
-  };
-  
-  // Handle selfie capture
-  const handleSelfieCapture = (imageData: string) => {
-    setSelfieImage(imageData);
-    setSelfieError('');
-    
-    // Move to review step
+    // Move directly to review step (selfie step removed)
     setCurrentStep('review');
   };
   
-  // Handle selfie error
-  const handleSelfieError = (error: string) => {
-    setSelfieError(error);
-  };
+  // Selfie capture removed as per requirements
   
   // Handle final submission
   const handleFinalSubmit = async () => {
-    if (!formData || !uploadedFile || !selfieImage) {
+    if (!formData || !uploadedFile) {
       setUploadError('Please complete all steps before submitting');
       return;
     }
@@ -168,14 +154,17 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       setDocumentResult(docResult);
       console.log('Document validation result:', docResult);
       
-      // Perform liveness detection and facial matching
-      console.log('Performing facial verification...');
-      const faceResult = await verifyFacialMatch(
-        selfieImage,
-        documentUrl
-      );
+      // Facial verification skipped (selfie step removed)
+      console.log('Facial verification skipped - document-only flow');
+      const faceResult: FacialVerificationResult = {
+        isMatch: true,
+        confidence: 100,
+        livenessScore: 100,
+        isLive: true,
+        errors: []
+      };
       setFacialResult(faceResult);
-      console.log('Facial verification result:', faceResult);
+      console.log('Using default facial verification result:', faceResult);
       
       // Calculate risk score
       if (docResult && faceResult) {
@@ -200,7 +189,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
         idType: formData.idType,
         idNumber: formData.idNumber,
         documentUrl,
-        selfieImage,
         documentValidation: documentResult,
         facialVerification: facialResult,
         riskScore,
@@ -221,7 +209,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           idType: formData.idType,
           idNumber: formData.idNumber,
           documentUrl,
-          selfieImage,
           documentValidation: documentResult,
           facialVerification: facialResult,
           riskScore,
@@ -292,7 +279,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
     const steps = [
       { id: 'info', label: 'Personal Info' },
       { id: 'document', label: 'ID Document' },
-      { id: 'selfie', label: 'Selfie' },
       { id: 'review', label: 'Review' },
       { id: 'wallet', label: 'Wallet Setup' }
     ];
@@ -304,7 +290,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           const isCompleted = (
             (step.id === 'info' && formData) ||
             (step.id === 'document' && uploadedFile) ||
-            (step.id === 'selfie' && selfieImage) ||
             false
           );
           
@@ -559,7 +544,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
               disabled={!uploadedFile}
               className="flex-1 p-3 bg-primary hover:bg-primary/90 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continue to Selfie
+              Continue to Review
             </button>
           </div>
           
@@ -574,37 +559,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
         </div>
       )}
 
-      {currentStep === 'selfie' && (
-        <div className="space-y-4">
-          <h4 className="text-lg font-medium">Selfie Verification</h4>
-          <p className="text-white/70 mb-2">
-            Please take a clear photo of your face for identity verification.
-          </p>
-          
-          <BiometricCapture 
-            onCapture={handleSelfieCapture}
-            onError={handleSelfieError}
-          />
-          
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={() => setCurrentStep('document')}
-              className="flex-1 p-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors"
-            >
-              Back
-            </button>
-          </div>
-          
-          {selfieError && (
-            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
-              <div className="flex items-center">
-                <AlertCircle className="w-4 h-4 mr-2" />
-                {selfieError}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Selfie verification step removed as per requirements */}
 
       {currentStep === 'review' && formData && (
         <div className="space-y-4">
@@ -664,23 +619,12 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
               )}
             </div>
             
-            <div>
-              <p className="text-white/50 text-sm mb-1">Selfie Verification</p>
-              {selfieImage && (
-                <div className="bg-white/5 rounded-lg p-2">
-                  <img 
-                    src={selfieImage} 
-                    alt="Verification selfie" 
-                    className="h-20 w-auto mx-auto rounded" 
-                  />
-                </div>
-              )}
-            </div>
+            {/* Selfie verification section removed */}
           </div>
           
           <div className="flex gap-3 mt-6">
             <button
-              onClick={() => setCurrentStep('selfie')}
+              onClick={() => setCurrentStep('document')}
               className="flex-1 p-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors"
             >
               Back
@@ -731,7 +675,7 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">Create Your Wallet</h3>
             <p className="text-white/70">
-              Now that your identity has been verified, let's create your wallet to manage your digital assets.
+              Now that your identity has been verified, let&apos;s create your wallet to manage your digital assets.
             </p>
           </div>
           

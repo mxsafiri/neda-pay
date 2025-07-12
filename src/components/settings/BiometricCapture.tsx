@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Camera, Check, RefreshCw, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 
 interface BiometricCaptureProps {
   onCapture: (image: string) => void;
@@ -22,6 +22,21 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
   
   // Face detection setup
   const faceDetectionInterval = useRef<NodeJS.Timeout | null>(null);
+  
+  // Simulate face detection (in a real app, use a face detection library)
+  const simulateFaceDetection = useCallback(() => {
+    if (faceDetectionInterval.current) {
+      clearInterval(faceDetectionInterval.current);
+    }
+    
+    // Simulate face detection after 2 seconds
+    setTimeout(() => {
+      setFaceDetected(true);
+      
+      // Start countdown for auto-capture
+      setCountdown(3);
+    }, 2000);
+  }, []);
   
   // Start camera
   const startCamera = useCallback(async () => {
@@ -54,7 +69,7 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
       setError(err instanceof Error ? err.message : 'Failed to access camera');
       if (onError) onError(err instanceof Error ? err.message : 'Failed to access camera');
     }
-  }, [onError]);
+  }, [onError, simulateFaceDetection]);
   
   // Stop camera
   const stopCamera = useCallback(() => {
@@ -72,20 +87,37 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
     }
   }, []);
   
-  // Simulate face detection (in a real app, use a face detection library)
-  const simulateFaceDetection = useCallback(() => {
-    if (faceDetectionInterval.current) {
-      clearInterval(faceDetectionInterval.current);
+  // Capture image
+  const captureImage = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Draw video frame to canvas
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Get image data as base64 string
+    const imageData = canvas.toDataURL('image/png');
+    
+    // Stop the video stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+      streamRef.current = null;
     }
     
-    // Simulate face detection after 2 seconds
-    setTimeout(() => {
-      setFaceDetected(true);
-      
-      // Start countdown for auto-capture
-      setCountdown(3);
-    }, 2000);
-  }, []);
+    // Set captured image and notify parent
+    setCapturedImage(imageData);
+    setIsCameraActive(false);
+    if (onCapture) onCapture(imageData);
+  }, [onCapture]);
   
   // Handle countdown for auto-capture
   useEffect(() => {
@@ -101,48 +133,25 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
       // Auto-capture when countdown reaches 0
       captureImage();
     }
-  }, [countdown]);
-  
-  // Capture image
-  const captureImage = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // Draw video frame to canvas
-    const context = canvas.getContext('2d');
-    if (context) {
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      // Convert canvas to data URL
-      const imageData = canvas.toDataURL('image/jpeg');
-      setCapturedImage(imageData);
-      
-      // Pass image data to parent component
-      onCapture(imageData);
-      
-      // Stop camera
-      stopCamera();
-    }
-  }, [onCapture, stopCamera]);
+  }, [countdown, captureImage]);
   
   // Retake photo
   const retakePhoto = useCallback(() => {
-    setCapturedImage(null);
-    startCamera();
-  }, [startCamera]);
+    if (setCapturedImage) setCapturedImage(null);
+    if (startCamera) startCamera();
+  }, []);
   
   // Clean up on unmount
   useEffect(() => {
     return () => {
-      stopCamera();
+      // Clean up camera resources when component unmounts
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      setIsCameraActive(false);
     };
-  }, [stopCamera]);
+  }, []);
   
   return (
     <div className="w-full">
@@ -164,10 +173,13 @@ export function BiometricCapture({ onCapture, onError }: BiometricCaptureProps) 
         ) : capturedImage ? (
           <div className="text-center">
             <div className="relative mb-4">
-              <img 
+              <Image 
                 src={capturedImage} 
                 alt="Captured selfie" 
                 className="w-full max-w-xs mx-auto rounded-lg"
+                width={320}
+                height={240}
+                priority
               />
               <div className="absolute top-2 right-2 bg-green-500/80 rounded-full p-1">
                 <Check className="w-4 h-4 text-white" />
