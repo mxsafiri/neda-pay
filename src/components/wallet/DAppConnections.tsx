@@ -2,8 +2,10 @@
 
 import { FC, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePrivy } from '@privy-io/react-auth';
+import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { ExternalLink, ShoppingBag, Users, Wallet } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // Define the dApp interface
 interface DApp {
@@ -44,7 +46,9 @@ const AVAILABLE_DAPPS: DApp[] = [
 ];
 
 export const DAppConnections: FC = () => {
-  const { authenticated, connectWallet, login, getAccessToken } = usePrivy();
+  const { isAuthenticated, address } = useWalletAuth();
+  const { user } = useAuth();
+  const router = useRouter();
   const [connecting, setConnecting] = useState<string>('');
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
@@ -54,49 +58,40 @@ export const DAppConnections: FC = () => {
     setConnecting(dApp.id);
     
     try {
-      if (!authenticated) {
-        console.log('User not authenticated, calling login()');
-        // If user is not authenticated, prompt them to connect their wallet
-        await login();
+      if (!isAuthenticated) {
+        console.log('User not authenticated, redirecting to login');
+        // If user is not authenticated, redirect to login page
+        router.push('/auth/login');
         return;
       }
 
       console.log('User authenticated, checking dApp.id:', dApp.id);
       if (dApp.id === 'wallet-connect') {
-        console.log('Calling connectWallet()');
-        // Use Privy's connectWallet for connecting external wallets
+        console.log('Wallet connect functionality');
+        // For now, just open a generic wallet connect page
         try {
-          // Add a timeout to the connectWallet promise
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Wallet connection timed out after 10 seconds')), 10000);
-          });
-          
-          // Race the connectWallet promise against the timeout
-          await Promise.race([
-            connectWallet(),
-            timeoutPromise
-          ]);
-          
-          console.log('connectWallet() completed');
+          // In the future, implement proper wallet connection functionality
+          window.open('https://www.nedapay.xyz/wallet-connect', '_blank');
+          console.log('Opened wallet connect page');
         } catch (walletError) {
           console.error('Wallet connection specific error:', walletError);
           throw walletError; // Re-throw to be caught by the outer try/catch
         }
       } else {
-        // For ecosystem apps, pass the auth token for seamless sign-in
+        // For ecosystem apps, pass the wallet address for seamless sign-in
         try {
-          // Get Privy auth token for SSO between apps
-          const authToken = await getAccessToken();
+          // Get wallet address for SSO between apps
+          const walletAddress = address;
           
-          // Open the dApp with the auth token for automatic authentication
-          if (authToken) {
-            window.open(`${dApp.url}?auth_token=${encodeURIComponent(authToken)}`, '_blank');
+          // Open the dApp with the wallet address for automatic authentication
+          if (walletAddress) {
+            window.open(`${dApp.url}?wallet_address=${encodeURIComponent(walletAddress)}`, '_blank');
           } else {
             window.open(dApp.url, '_blank');
           }
         } catch (error) {
-          // If token retrieval fails, still open the app without SSO
-          console.error('Failed to get auth token:', error);
+          // If address retrieval fails, still open the app without SSO
+          console.error('Failed to get wallet address:', error);
           window.open(dApp.url, '_blank');
         }
       }

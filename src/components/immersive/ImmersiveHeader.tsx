@@ -84,7 +84,7 @@ export function ImmersiveHeader() {
               className="nav-link"
             >
               <Link 
-                href="/wallet" 
+                href="/onboarding" 
                 className="bg-white text-blue-900 px-6 py-3 rounded-full font-medium hover:bg-blue-50 transition-colors"
               >
                 Open App

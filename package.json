@@ -12,7 +12,6 @@
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.10.1",
     "@prisma/extension-accelerate": "^2.0.1",
-    "@privy-io/react-auth": "^2.14.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-toast": "^1.2.14",
@@ -23,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "ethers": "^6.15.0",
     "framer-motion": "^12.17.3",
     "lucide-react": "^0.514.0",
     "next": "15.3.3",
@@ -31,6 +31,7 @@
     "react-hook-form": "^7.57.0",
     "shadcn-ui": "^0.9.5",
     "tailwind-merge": "^3.3.1",
+    "viem": "^2.31.7",
     "zod": "^3.25.64",
     "zustand": "^5.0.5"
   },

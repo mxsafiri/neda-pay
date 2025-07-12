@@ -37,7 +37,7 @@ const AnimatedCircle = ({ size, position, delay }: { size: number, position: { x
 };
 
 // Button with pulse animation
-const PulseButton = ({ children }: { children: React.ReactNode }) => {
+const PulseButton = ({ children, href = "/wallet" }: { children: React.ReactNode, href?: string }) => {
   const [hovered, setHovered] = useState(false);
   
   return (
@@ -71,7 +71,7 @@ const PulseButton = ({ children }: { children: React.ReactNode }) => {
         </AnimatePresence>
         
         <Link 
-          href="/wallet"
+          href={href}
           className="inline-block bg-white text-blue-900 hover:bg-white/90 px-10 py-4 rounded-full text-xl font-medium flex items-center gap-2 transition-all"
         >
           {children}
@@ -139,8 +139,8 @@ export function AnimatedCTA() {
             Start your journey today.
           </motion.p>
           
-          <PulseButton>
-            <span>Open Wallet</span> <ChevronRight size={20} />
+          <PulseButton href="/onboarding">
+            <span>Get Started</span> <ChevronRight size={20} />
           </PulseButton>
         </motion.div>
       </div>

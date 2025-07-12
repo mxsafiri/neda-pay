@@ -1,68 +1,63 @@
 'use client';
 
-import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
+import { useWalletAuth } from './useWalletAuth';
+import { useRouter } from 'next/navigation';
 
 type UserInfo = {
-  email?: string;
   wallet?: string;
   id: string;
 };
 
 export function useAuth() {
   const { 
-    ready,
-    authenticated,
-    user,
-    login,
-    logout,
-    createWallet,
-    linkWallet,
-    unlinkWallet,
-  } = usePrivy();
+    address,
+    isAuthenticated,
+    importPrivateKey,
+    createWallet: createNewWallet,
+    logout: walletLogout,
+  } = useWalletAuth();
   
-  const { wallets } = useWallets();
+  const router = useRouter();
   
-  const activeWallet = useMemo(() => {
-    return wallets?.find(wallet => wallet.walletClientType === 'privy');
-  }, [wallets]);
+  // Generate a user ID based on wallet address
+  const userId = useMemo(() => {
+    if (!address) return '';
+    return `wallet_${address.toLowerCase()}`;
+  }, [address]);
 
-  const activeAddress = useMemo(() => {
-    return activeWallet?.address;
-  }, [activeWallet]);
+  const activeAddress = address;
 
   const handleLogin = useCallback(() => {
-    login();
-  }, [login]);
+    // Open wallet login modal
+    router.push('/auth/login');
+  }, [router]);
 
   const handleLogout = useCallback(() => {
-    logout();
-  }, [logout]);
+    walletLogout();
+    router.push('/');
+  }, [walletLogout, router]);
 
   // Format user data for easier consumption in components
   const formattedUser = useMemo(() => {
-    if (!user) return null;
+    if (!isAuthenticated || !address) return null;
     
     const userInfo: UserInfo = {
-      id: user.id,
-      email: user.email?.address,
-      wallet: activeAddress,
+      id: userId,
+      wallet: address,
     };
-    
+
     return userInfo;
-  }, [user, activeAddress]);
+  }, [isAuthenticated, address, userId]);
   
   return {
-    ready,
-    authenticated,
+    ready: true,
+    authenticated: isAuthenticated,
     user: formattedUser,
+    activeAddress,
     login: handleLogin,
     logout: handleLogout,
-    createWallet,
-    linkWallet,
-    unlinkWallet,
-    wallets,
-    activeWallet,
-    activeAddress,
+    createWallet: createNewWallet,
+    importWallet: importPrivateKey,
   };
 }

@@ -32,6 +32,5 @@ export const WALLET_CONFIG = {
   appName: 'NEDApay',
   chains: [BASE_MAINNET],
   factoryAddress: process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
-  privyAppId: process.env.NEXT_PUBLIC_PRIVY_APP_ID,
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '',
 }

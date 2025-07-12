@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { AlertCircle, Check, Loader2, Upload, ChevronDown } from 'lucide-react';
 import { BiometricCapture } from './BiometricCapture';
 import { VerificationResults } from './VerificationResults';
+import { WalletCreation } from './WalletCreation';
 import { uploadKycDocument } from '@/lib/kyc-storage';
 import { 
   validateDocument, 
@@ -49,8 +50,9 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
   const [uploadError, setUploadError] = useState('');
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
   const [selfieError, setSelfieError] = useState('');
-  const [currentStep, setCurrentStep] = useState<'info' | 'document' | 'selfie' | 'review' | 'verification'>('info');
+  const [currentStep, setCurrentStep] = useState<'info' | 'document' | 'selfie' | 'review' | 'verification' | 'wallet'>('info');
   const [formData, setFormData] = useState<KYCFormData | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   
   // Verification results
   const [documentResult, setDocumentResult] = useState<DocumentValidationResult | null>(null);
@@ -236,8 +238,9 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       }
       
       console.log('KYC data submitted successfully:', result);
-      setIsComplete(true);
-      if (onComplete) onComplete();
+      
+      // Move to wallet creation step instead of completing immediately
+      setCurrentStep('wallet');
     } catch (error) {
       console.error('Error submitting KYC data:', error);
       let errorMessage = 'Failed to submit KYC data';
@@ -254,6 +257,13 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
     }
   };
 
+  // Handle wallet creation completion
+  const handleWalletCreationComplete = (address: string) => {
+    setWalletAddress(address);
+    setIsComplete(true);
+    if (onComplete) onComplete();
+  };
+
   if (isComplete) {
     return (
       <motion.div
@@ -265,12 +275,12 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
             <Check className="w-8 h-8 text-green-400" />
           </div>
-          <h3 className="text-xl font-bold mb-2">Verification Submitted</h3>
+          <h3 className="text-xl font-bold mb-2">Setup Complete</h3>
           <p className="text-white/70 mb-6">
-            Your identity verification is being processed. We&apos;ll notify you once it&apos;s complete.
+            Your identity has been verified and your wallet has been created successfully.
           </p>
           <div className="text-sm text-white/50 px-6 py-3 bg-white/5 rounded-lg">
-            Verification ID: {userId.slice(0, 8)}
+            Wallet Address: {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Created'}
           </div>
         </div>
       </motion.div>
@@ -283,7 +293,8 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       { id: 'info', label: 'Personal Info' },
       { id: 'document', label: 'ID Document' },
       { id: 'selfie', label: 'Selfie' },
-      { id: 'review', label: 'Review' }
+      { id: 'review', label: 'Review' },
+      { id: 'wallet', label: 'Wallet Setup' }
     ];
     
     return (
@@ -709,9 +720,27 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           facialResult={facialResult}
           riskScore={riskScore}
           kycStatus={kycStatus}
-          onComplete={onComplete ? onComplete : () => setIsComplete(true)}
+          onComplete={() => setCurrentStep('wallet')}
           onBack={() => setCurrentStep('review')}
         />
+      )}
+      
+      {/* Wallet Creation Step */}
+      {currentStep === 'wallet' && (
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Create Your Wallet</h3>
+            <p className="text-white/70">
+              Now that your identity has been verified, let's create your wallet to manage your digital assets.
+            </p>
+          </div>
+          
+          <WalletCreation 
+            userId={userId} 
+            userName={formData ? `${formData.firstName} ${formData.lastName}` : userId}
+            onComplete={handleWalletCreationComplete}
+          />
+        </div>
       )}
     </motion.div>
   );
