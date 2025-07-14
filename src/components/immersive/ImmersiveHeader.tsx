@@ -76,11 +76,24 @@ export function ImmersiveHeader() {
             <span className="text-xl font-bold">NEDAwallet</span>
           </Link>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
+              className="nav-link"
+            >
+              <Link 
+                href="/signin" 
+                className="border border-white text-white px-6 py-3 rounded-full font-medium hover:bg-white/10 transition-colors"
+              >
+                Sign In
+              </Link>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
               className="nav-link"
             >
               <Link 
