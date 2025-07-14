@@ -1,13 +1,13 @@
 'use client';
 
-import { FC, ReactNode, useState } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Logo } from '@/components/ui/Logo'
 import { theme } from '@/styles/theme'
-import { Home, ArrowLeftRight, Activity, Settings, QrCode, Search, Scan } from 'lucide-react'
+import { Home, ArrowLeftRight, Activity, Settings, QrCode, Scan } from 'lucide-react'
 // import { LoginButton } from '@/components/auth/LoginButton' // Commented out as it's currently unused
 import { usePathname, useRouter } from 'next/navigation'
-import { WalletMenu } from './WalletMenu'
+import { useAuth } from '@/hooks/useAuth'
 
 interface WalletLayoutProps {
   children: ReactNode
@@ -23,9 +23,27 @@ const navItems = [
 export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   const router = useRouter()
   const pathname = usePathname()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user } = useAuth()
+  const [displayName, setDisplayName] = useState('')
   
-  const toggleMenu = () => setIsMenuOpen(prev => !prev)
+  // Load profile data from localStorage
+  useEffect(() => {
+    if (user?.id) {
+      try {
+        const savedProfile = localStorage.getItem(`profile_${user.id}`)
+        if (savedProfile) {
+          const profileData = JSON.parse(savedProfile)
+          setDisplayName(profileData.displayName || `User ${user.wallet?.slice(0, 6)}`)
+        } else {
+          // Default to shortened wallet address if no profile exists
+          setDisplayName(user.wallet ? `User ${user.wallet.slice(0, 6)}` : 'Address 1')
+        }
+      } catch (e) {
+        console.error('Failed to load profile data', e)
+        setDisplayName(user.wallet ? `User ${user.wallet.slice(0, 6)}` : 'Address 1')
+      }
+    }
+  }, [user])
   
   return (
     <div 
@@ -45,7 +63,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
-                <span className="font-medium">Address 1</span>
+                <span className="font-medium">{displayName}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -53,14 +71,6 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-6 h-6" />
-            </motion.button>
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -73,7 +83,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="p-2 rounded-full hover:bg-white/10 transition-colors"
-              onClick={toggleMenu}
+              onClick={() => router.push('/settings')}
               aria-label="Settings"
             >
               <Settings className="w-6 h-6" />
@@ -81,8 +91,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
           </div>
         </header>
         
-        {/* WalletMenu component */}
-        <WalletMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+        {/* Settings are now consolidated in the main settings page */}
         
         <main className="relative z-10">{children}</main>
 

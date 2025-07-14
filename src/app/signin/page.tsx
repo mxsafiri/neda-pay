@@ -13,7 +13,7 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { connectWallet } = useAuth();
+  const { importWallet } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +25,13 @@ export default function SignInPage() {
         throw new Error('Please enter your wallet address');
       }
 
-      // Connect to existing wallet
-      await connectWallet(walletAddress);
+      // Import existing wallet using address as private key
+      // Note: In a real app, you'd need to handle this more securely
+      const result = await importWallet(walletAddress);
+      
+      if (!result || 'error' in result) {
+        throw new Error('Invalid wallet address or private key');
+      }
       
       // Redirect to wallet dashboard
       router.push('/wallet');

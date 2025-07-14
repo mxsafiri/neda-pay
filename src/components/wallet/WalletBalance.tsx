@@ -42,16 +42,7 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
         )}
       </motion.h1>
       
-      {!isLoading && (
-        <motion.p 
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-gray-400 text-lg"
-        >
-          {currency === 'USDC' ? '$' : ''}{parseFloat(balance).toFixed(2)} {currency === 'TZS' ? 'USDC' : ''}
-        </motion.p>
-      )}
+      {/* Secondary balance display removed to reduce confusion */}
       
       <div className="grid grid-cols-2 gap-4 mt-8">
         <Link href="/buy" className="w-full">

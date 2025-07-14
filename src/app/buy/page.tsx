@@ -16,36 +16,20 @@ const TOKEN_OPTIONS = [
 
 // Payment method options
 const PAYMENT_METHODS = [
-  { id: 'mobile_money', name: 'Mobile Money', icon: '📱', cards: ['Yellow Card'] },
-  { id: 'bank', name: 'Bank Transfer', icon: '🏦', cards: ['Local Bank'] },
+  { id: 'bank', name: 'Bank Transfer', icon: '🏦', cards: ['Banks'] },
+  { id: 'mobile_money', name: 'Mobile Money', icon: '📱', cards: ['M-Pesa', 'Tigo Pesa'] },
   { id: 'card', name: 'Credit Card', icon: '💳', cards: ['Visa', 'Mastercard'] },
 ];
 
-// Network options
-const NETWORKS = [
-  { id: 'ethereum', name: 'Ethereum', icon: '/tokens/ethereum.svg' },
-  { id: 'polygon', name: 'Polygon', icon: '/tokens/polygon.svg' },
-  { id: 'arbitrum', name: 'Arbitrum', icon: '/tokens/arbitrum.svg' },
-];
+// Network options removed - network selection handled automatically based on token
 
 export default function BuyPage() {
   const router = useRouter();
   const [amount, setAmount] = useState('');
   const [selectedToken, /* setSelectedToken */] = useState(TOKEN_OPTIONS[0]);
-  const [selectedNetwork, /* setSelectedNetwork */] = useState(NETWORKS[0]);
   const [selectedPaymentMethod, /* setSelectedPaymentMethod */] = useState(PAYMENT_METHODS[0]);
   const [selectedCard, /* setSelectedCard */] = useState(PAYMENT_METHODS[0].cards[0]);
-  const [usdcEquivalent, setUsdcEquivalent] = useState('0.00');
-  
-  // Calculate USDC equivalent when amount changes
-  useEffect(() => {
-    if (amount && !isNaN(parseFloat(amount))) {
-      const equivalent = (parseFloat(amount) * selectedToken.price).toFixed(2);
-      setUsdcEquivalent(equivalent);
-    } else {
-      setUsdcEquivalent('0.00');
-    }
-  }, [amount, selectedToken]);
+  // USDC equivalent calculation removed for cleaner UI
   
   // Handle numeric keypad input
   const handleKeypadPress = (value: string) => {
@@ -114,26 +98,10 @@ export default function BuyPage() {
             />
           </div>
           
-          <div className="text-center text-gray-400">
-            ≈ {usdcEquivalent} USDC
-          </div>
+          {/* USDC equivalent display removed */}
         </div>
         
-        {/* Network Selection */}
-        <div className="bg-gray-900 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Image 
-                src={selectedNetwork.icon}
-                alt={selectedNetwork.name}
-                width={20}
-                height={20}
-              />
-              <span>Network: {selectedNetwork.name}</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-500" />
-          </div>
-        </div>
+        {/* Network Selection removed - network is automatically selected based on token */}
         
         {/* Payment Method */}
         <div className="bg-gray-900 rounded-xl p-4">

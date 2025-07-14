@@ -1,19 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X } from 'lucide-react';
+import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X, Layers } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
+import { SUPPORTED_BLOCKCHAINS } from '@/lib/blockradar/config';
+import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEditModal';
 
 export default function SettingsPage() {
   const { authenticated, user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showKYCModal, setShowKYCModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileData, setProfileData] = useState<ProfileData>({
+    displayName: '',
+    bio: '',
+    walletAddress: '',
+  });
   
   // Use our custom hook to get KYC verification status
   const { verification, refetch } = useKycStatus(user?.id || '');
@@ -33,6 +41,66 @@ export default function SettingsPage() {
     }, 3000);
   };
   
+  // Initialize profile data when user data is available
+  useEffect(() => {
+    if (user?.wallet) {
+      // Get profile data from localStorage or initialize with defaults
+      const savedProfile = localStorage.getItem(`profile_${user.id}`);
+      if (savedProfile) {
+        try {
+          setProfileData(JSON.parse(savedProfile));
+        } catch (e) {
+          console.error('Failed to parse saved profile', e);
+          initializeDefaultProfile();
+        }
+      } else {
+        initializeDefaultProfile();
+      }
+    }
+  }, [user]);
+  
+  const initializeDefaultProfile = () => {
+    if (user?.wallet) {
+      setProfileData({
+        displayName: `User ${user.wallet.slice(0, 6)}`,
+        bio: '',
+        walletAddress: user.wallet,
+      });
+    }
+  };
+  
+  const handleSaveProfile = async (data: ProfileData) => {
+    // Save profile data to localStorage
+    if (user?.id) {
+      localStorage.setItem(`profile_${user.id}`, JSON.stringify(data));
+      setProfileData(data);
+      return Promise.resolve();
+    }
+    return Promise.reject('User not authenticated');
+  };
+  
+  // Handle theme toggle with localStorage persistence
+  useEffect(() => {
+    // Check if theme preference exists in localStorage
+    const savedTheme = localStorage.getItem('theme_preference');
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+    }
+  }, []);
+  
+  const handleThemeToggle = () => {
+    const newThemeValue = !isDarkMode;
+    setIsDarkMode(newThemeValue);
+    localStorage.setItem('theme_preference', newThemeValue ? 'dark' : 'light');
+    
+    // Apply theme to document
+    if (newThemeValue) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+  
   const settingsSections = [
     {
       title: 'Account',
@@ -40,7 +108,8 @@ export default function SettingsPage() {
         {
           icon: User,
           label: 'Profile',
-          action: () => {},
+          action: () => setShowProfileModal(true),
+          value: profileData.displayName || 'Set up profile',
         },
         {
           icon: Shield,
@@ -61,12 +130,34 @@ export default function SettingsPage() {
       ],
     },
     {
+      title: 'Network',
+      items: [
+        {
+          icon: Layers,
+          label: 'Base',
+          value: 'Active',
+          status: 'success',
+          action: () => {},
+          description: 'Trial Network',
+        },
+        {
+          icon: Layers,
+          label: 'Ethereum',
+          value: 'Coming Soon',
+          status: 'pending',
+          action: () => {},
+          description: 'Coming Soon',
+          disabled: true,
+        },
+      ],
+    },
+    {
       title: 'Preferences',
       items: [
         {
           icon: isDarkMode ? Sun : Moon,
           label: 'Theme',
-          action: () => setIsDarkMode(!isDarkMode),
+          action: handleThemeToggle,
           value: isDarkMode ? 'Dark' : 'Light',
         },
         {
@@ -130,11 +221,21 @@ export default function SettingsPage() {
                   <button
                     key={item.label}
                     onClick={item.action}
-                    className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/10 transition-colors"
+                    disabled={'disabled' in item && item.disabled === true}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                      'disabled' in item && item.disabled === true 
+                        ? 'opacity-50 cursor-not-allowed' 
+                        : 'hover:bg-white/10 cursor-pointer'
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="w-5 h-5 text-white/70" />
-                      <span>{item.label}</span>
+                      <div className="flex flex-col items-start">
+                        <span>{item.label}</span>
+                        {'description' in item && (
+                          <span className="text-xs text-white/60">{item.description}</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {item.value && (
@@ -204,6 +305,16 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          )}
+          
+          {/* Profile Edit Modal */}
+          {showProfileModal && (
+            <ProfileEditModal
+              isOpen={showProfileModal}
+              onClose={() => setShowProfileModal(false)}
+              onSave={handleSaveProfile}
+              initialData={profileData}
+            />
           )}
         </div>
       ) : (
