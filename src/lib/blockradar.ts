@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const BLOCKRADAR_API_URL = process.env.NEXT_PUBLIC_BLOCKRADAR_API_URL || 'https://api.blockradar.co/v1';
 const BLOCKRADAR_API_KEY = process.env.NEXT_PUBLIC_BLOCKRADAR_API_KEY;
+const BLOCKRADAR_MASTER_WALLET_ID = process.env.NEXT_PUBLIC_BLOCKRADAR_MASTER_WALLET_ID;
 
 // Helper for consistent headers across all API calls
 const getHeaders = () => ({
@@ -33,21 +34,30 @@ export const blockradarClient = {
   // Helper methods for common operations
   createUserWallet: async (userId: string, userName: string) => {
     try {
-      // First, check if we have a master wallet, if not create one
-      const masterWalletId = localStorage.getItem('master_wallet_id');
-      
+      // Use the master wallet ID from environment variables
       let walletId: string;
-      if (!masterWalletId) {
-        // Create a master wallet for the application
-        const masterWallet = await createMasterWallet(
-          'polygon', // Default to Polygon for stablecoins
-          ['usdc', 'usdt'], // Support major stablecoins
-          `${window.location.origin}/api/webhooks/blockradar` // Webhook for transaction notifications
-        );
-        walletId = masterWallet.id;
-        localStorage.setItem('master_wallet_id', walletId);
+      
+      if (BLOCKRADAR_MASTER_WALLET_ID) {
+        console.log('Using existing master wallet ID from environment variables');
+        walletId = BLOCKRADAR_MASTER_WALLET_ID;
       } else {
-        walletId = masterWalletId;
+        // Fallback to localStorage if environment variable is not set
+        const masterWalletId = localStorage.getItem('master_wallet_id');
+        
+        if (masterWalletId) {
+          console.log('Using existing master wallet ID from localStorage');
+          walletId = masterWalletId;
+        } else {
+          console.log('No master wallet ID found, creating a new one');
+          // Create a master wallet for the application
+          const masterWallet = await createMasterWallet(
+            'base', // Default to Base for stablecoins
+            ['usdc', 'usdt'], // Support major stablecoins
+            `${window.location.origin}/api/webhooks/blockradar` // Webhook for transaction notifications
+          );
+          walletId = masterWallet.id;
+          localStorage.setItem('master_wallet_id', walletId);
+        }
       }
       
       // Generate a dedicated address for this user
