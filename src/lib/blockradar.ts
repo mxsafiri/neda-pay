@@ -3,6 +3,12 @@ import axios from 'axios';
 const BLOCKRADAR_API_URL = process.env.NEXT_PUBLIC_BLOCKRADAR_API_URL || 'https://api.blockradar.co/v1';
 const BLOCKRADAR_API_KEY = process.env.NEXT_PUBLIC_BLOCKRADAR_API_KEY;
 
+// Helper for consistent headers across all API calls
+const getHeaders = () => ({
+  'Content-Type': 'application/json',
+  'X-API-Key': BLOCKRADAR_API_KEY  // Using capital X-API-Key format
+});
+
 /**
  * BlockRadar API client for making API calls
  */
@@ -67,10 +73,7 @@ export async function createMasterWallet(blockchain: string, stablecoins: string
         webhookUrl
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -88,16 +91,12 @@ export async function generateUserAddress(walletId: string, userId: string, user
     const response = await axios.post(
       `${BLOCKRADAR_API_URL}/wallets/${walletId}/addresses`,
       {
-        name: userName,
-        metadata: { user_id: userId },
-        showPrivateKey: true, // Only for initial creation
+        userId,
+        userName,
         enableGaslessWithdraw: true // Enable gasless transactions for better UX
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -115,10 +114,7 @@ export async function getAddressBalance(address: string) {
     const response = await axios.get(
       `${BLOCKRADAR_API_URL}/addresses/${address}/balance`,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -136,10 +132,7 @@ export async function getAddressTransactions(address: string) {
     const response = await axios.get(
       `${BLOCKRADAR_API_URL}/addresses/${address}/transactions`,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -158,10 +151,7 @@ export async function createAddress(walletId: string, options: { name?: string; 
       `${BLOCKRADAR_API_URL}/wallets/${walletId}/addresses`,
       options,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -179,10 +169,7 @@ export async function getWalletBalances(walletId: string) {
     const response = await axios.get(
       `${BLOCKRADAR_API_URL}/wallets/${walletId}/balances`,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -204,10 +191,7 @@ export async function getTransactions(walletId: string, options?: { limit?: numb
     const url = `${BLOCKRADAR_API_URL}/wallets/${walletId}/transactions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     
     const response = await axios.get(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': BLOCKRADAR_API_KEY
-      }
+      headers: getHeaders()
     });
     return response.data;
   } catch (error) {
@@ -225,10 +209,7 @@ export async function withdraw(walletId: string, options: { to: string; amount: 
       `${BLOCKRADAR_API_URL}/wallets/${walletId}/withdraw`,
       options,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
@@ -257,10 +238,7 @@ export async function initiateWithdrawal(
         asset
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': BLOCKRADAR_API_KEY
-        }
+        headers: getHeaders()
       }
     );
     return response.data;
