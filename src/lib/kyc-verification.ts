@@ -3,8 +3,6 @@
  * 
  * This module provides utilities for KYC verification including:
  * - Document validation
- * - Facial recognition
- * - Liveness detection
  * - Risk scoring
  */
 
@@ -27,16 +25,7 @@ export interface DocumentValidationResult {
   };
 }
 
-/**
- * Interface for facial verification result
- */
-export interface FacialVerificationResult {
-  isMatch: boolean;
-  confidence: number;
-  livenessScore: number;
-  isLive: boolean;
-  errors: string[];
-}
+// FacialVerificationResult interface removed - no longer needed for document-only flow
 
 /**
  * Validates an ID document image
@@ -82,100 +71,23 @@ export async function validateDocument(
   };
 }
 
-/**
- * Performs facial verification between selfie and ID document
- * In a production environment, this would call an actual facial verification API
- */
-export async function verifyFacialMatch(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  selfieImage: string, 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  documentImage: string 
-): Promise<FacialVerificationResult> {
-  // In a real implementation, this would call a facial verification API
-  // For demo purposes, we'll simulate a verification process
-  
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Simulate facial verification with 85% success rate
-  const isMatch = Math.random() > 0.15;
-  const livenessScore = 0.7 + (Math.random() * 0.3); // 0.7 to 1.0
-  const isLive = livenessScore > 0.8;
-  
-  if (!isMatch) {
-    return {
-      isMatch: false,
-      confidence: Math.random() * 0.6, // Low to medium confidence
-      livenessScore,
-      isLive,
-      errors: [
-        'Face in selfie does not match ID document',
-        'Please ensure your face is clearly visible'
-      ]
-    };
-  }
-  
-  // Simulate successful verification
-  return {
-    isMatch: true,
-    confidence: 0.75 + (Math.random() * 0.25), // High confidence
-    livenessScore,
-    isLive,
-    errors: []
-  };
-}
+// verifyFacialMatch function removed - no longer needed for document-only flow
+
+// detectLiveness function removed - no longer needed for document-only flow
 
 /**
- * Performs liveness detection on a selfie image
- * In a production environment, this would call an actual liveness detection API
- */
-export async function detectLiveness(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  selfieImage: string
-): Promise<{
-  isLive: boolean;
-  confidence: number;
-  errors: string[];
-}> {
-  // In a real implementation, this would call a liveness detection API
-  // For demo purposes, we'll simulate a detection process
-  
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Simulate liveness detection with 90% success rate
-  const isLive = Math.random() > 0.1;
-  const confidence = isLive ? 
-    (0.8 + (Math.random() * 0.2)) : // High confidence for positive result
-    (Math.random() * 0.7); // Lower confidence for negative result
-  
-  if (!isLive) {
-    return {
-      isLive: false,
-      confidence,
-      errors: [
-        'Liveness check failed',
-        'Please ensure you are in a well-lit environment'
-      ]
-    };
-  }
-  
-  // Simulate successful detection
-  return {
-    isLive: true,
-    confidence,
-    errors: []
-  };
-}
-
-/**
- * Calculate risk score based on verification results
+ * Calculate risk score based on document validation results
  * Returns a score from 0 (lowest risk) to 100 (highest risk)
  */
 export function calculateRiskScore(
   documentValidation: DocumentValidationResult,
-  facialVerification: FacialVerificationResult
+  facialVerification: {
+    isMatch: boolean;
+    confidence: number;
+    livenessScore: number;
+    isLive: boolean;
+    errors: string[];
+  }
 ): number {
   let riskScore = 50; // Start at medium risk
   
@@ -212,7 +124,13 @@ export function calculateRiskScore(
  */
 export function determineKycStatus(
   documentValidation: DocumentValidationResult,
-  facialVerification: FacialVerificationResult,
+  facialVerification: {
+    isMatch: boolean;
+    confidence: number;
+    livenessScore: number;
+    isLive: boolean;
+    errors: string[];
+  },
   riskScore: number
 ): KycStatus {
   // Automatic rejection criteria

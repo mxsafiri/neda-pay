@@ -15,6 +15,15 @@ export const blockradarClient = {
   getAddressBalance: (address: string) => getAddressBalance(address),
   getAddressTransactions: (address: string) => getAddressTransactions(address),
   
+  // Additional wallet methods
+  createAddress: (walletId: string, options: { name?: string; metadata?: Record<string, unknown> }) => 
+    createAddress(walletId, options),
+  getWalletBalances: (walletId: string) => getWalletBalances(walletId),
+  getTransactions: (walletId: string, options?: { limit?: number; offset?: number }) => 
+    getTransactions(walletId, options),
+  withdraw: (walletId: string, options: { to: string; amount: string; token: string }) => 
+    withdraw(walletId, options),
+  
   // Helper methods for common operations
   createUserWallet: async (userId: string, userName: string) => {
     try {
@@ -136,6 +145,95 @@ export async function getAddressTransactions(address: string) {
     return response.data;
   } catch (error) {
     console.error('Error getting address transactions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Creates a new address in a wallet
+ */
+export async function createAddress(walletId: string, options: { name?: string; metadata?: Record<string, unknown> }) {
+  try {
+    const response = await axios.post(
+      `${BLOCKRADAR_API_URL}/wallets/${walletId}/addresses`,
+      options,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': BLOCKRADAR_API_KEY
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating address:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets all balances for a wallet
+ */
+export async function getWalletBalances(walletId: string) {
+  try {
+    const response = await axios.get(
+      `${BLOCKRADAR_API_URL}/wallets/${walletId}/balances`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': BLOCKRADAR_API_KEY
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting wallet balances:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets all transactions for a wallet
+ */
+export async function getTransactions(walletId: string, options?: { limit?: number; offset?: number }) {
+  try {
+    const queryParams = new URLSearchParams();
+    if (options?.limit) queryParams.append('limit', options.limit.toString());
+    if (options?.offset) queryParams.append('offset', options.offset.toString());
+    
+    const url = `${BLOCKRADAR_API_URL}/wallets/${walletId}/transactions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': BLOCKRADAR_API_KEY
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error getting wallet transactions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Initiates a withdrawal from a wallet
+ */
+export async function withdraw(walletId: string, options: { to: string; amount: string; token: string }) {
+  try {
+    const response = await axios.post(
+      `${BLOCKRADAR_API_URL}/wallets/${walletId}/withdraw`,
+      options,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': BLOCKRADAR_API_KEY
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error initiating withdrawal:', error);
     throw error;
   }
 }

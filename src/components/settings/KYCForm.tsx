@@ -15,8 +15,7 @@ import {
   // verifyFacialMatch removed - no longer needed for document-only flow
   calculateRiskScore,
   determineKycStatus,
-  DocumentValidationResult,
-  FacialVerificationResult
+  DocumentValidationResult
 } from '@/lib/kyc-verification';
 import { KycStatus } from '@/types/kyc';
 
@@ -53,7 +52,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
   
   // Verification results
   const [documentResult, setDocumentResult] = useState<DocumentValidationResult | null>(null);
-  const [facialResult, setFacialResult] = useState<FacialVerificationResult | null>(null);
   const [verificationInProgress, setVerificationInProgress] = useState(false);
   // const [verificationError, setVerificationError] = useState('');
   const [riskScore, setRiskScore] = useState<number | null>(null);
@@ -153,26 +151,25 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       setDocumentResult(docResult);
       console.log('Document validation result:', docResult);
       
-      // Facial verification skipped (selfie step removed)
-      console.log('Facial verification skipped - document-only flow');
-      const faceResult: FacialVerificationResult = {
-        isMatch: true,
-        confidence: 100,
-        livenessScore: 100,
-        isLive: true,
-        errors: []
-      };
-      setFacialResult(faceResult);
-      console.log('Using default facial verification result:', faceResult);
+      // Document-only flow - no facial verification needed
       
-      // Calculate risk score
-      if (docResult && faceResult) {
-        const calculatedRiskScore = calculateRiskScore(docResult, faceResult);
+      // Calculate risk score based on document only
+      if (docResult) {
+        // Create a default successful verification result for document-only flow
+        const defaultVerificationResult = {
+          isMatch: true,
+          confidence: 100,
+          livenessScore: 100,
+          isLive: true,
+          errors: []
+        };
+        
+        const calculatedRiskScore = calculateRiskScore(docResult, defaultVerificationResult);
         setRiskScore(calculatedRiskScore);
         console.log('Risk score:', calculatedRiskScore);
         
         // Determine KYC status
-        const status = determineKycStatus(docResult, faceResult, calculatedRiskScore);
+        const status = determineKycStatus(docResult, defaultVerificationResult, calculatedRiskScore);
         setKycStatus(status);
         console.log('KYC status:', status);
       }
@@ -189,7 +186,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
         idNumber: formData.idNumber,
         documentUrl,
         documentValidation: documentResult,
-        facialVerification: facialResult,
         riskScore,
         kycStatus
       });
@@ -209,7 +205,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
           idNumber: formData.idNumber,
           documentUrl,
           documentValidation: documentResult,
-          facialVerification: facialResult,
           riskScore,
           kycStatus
         }),
@@ -658,9 +653,8 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       {/* Verification Results Step */}
       {currentStep === 'verification' && (
         <VerificationResults
-          isLoading={verificationInProgress && !documentResult && !facialResult}
+          isLoading={verificationInProgress && !documentResult}
           documentResult={documentResult}
-          facialResult={facialResult}
           riskScore={riskScore}
           kycStatus={kycStatus}
           onComplete={() => setCurrentStep('wallet')}

@@ -1,16 +1,14 @@
 'use client';
 
-import { Check, Loader2, ShieldCheck, AlertTriangle, X } from 'lucide-react';
+import { Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { 
-  DocumentValidationResult,
-  FacialVerificationResult
+  DocumentValidationResult
 } from '@/lib/kyc-verification';
 import { KycStatus } from '@/types/kyc';
 
 interface VerificationResultsProps {
   isLoading: boolean;
   documentResult: DocumentValidationResult | null;
-  facialResult: FacialVerificationResult | null;
   riskScore: number | null;
   kycStatus: KycStatus | null;
   onComplete: () => void;
@@ -20,7 +18,6 @@ interface VerificationResultsProps {
 export function VerificationResults({
   isLoading,
   documentResult,
-  facialResult,
   riskScore,
   kycStatus,
   onComplete,
@@ -33,7 +30,7 @@ export function VerificationResults({
         We&apos;re verifying your identity. This may take a moment.
       </p>
       
-      {isLoading && !documentResult && !facialResult && (
+      {isLoading && !documentResult && (
         <div className="flex flex-col items-center justify-center py-8">
           <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
           <p className="text-white/70">Processing your verification...</p>
@@ -94,69 +91,7 @@ export function VerificationResults({
         </div>
       )}
       
-      {/* Facial Verification Results */}
-      {facialResult && (
-        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-          <div className="flex items-center mb-3">
-            <div className={`p-2 rounded-full mr-3 ${facialResult.isMatch && facialResult.isLive ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-              {facialResult.isMatch && facialResult.isLive ? (
-                <ShieldCheck className="w-5 h-5 text-green-400" />
-              ) : (
-                <AlertTriangle className="w-5 h-5 text-red-400" />
-              )}
-            </div>
-            <div>
-              <h5 className="font-medium">Facial Verification</h5>
-              <p className="text-sm text-white/70">
-                {facialResult.isMatch && facialResult.isLive ? 
-                  'Your facial verification was successful.' : 
-                  'There was an issue with your facial verification.'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-white/10">
-            <div>
-              <p className="text-sm text-white/50 mb-1">Face Match:</p>
-              <div className="flex items-center">
-                {facialResult.isMatch ? (
-                  <Check className="w-4 h-4 text-green-400 mr-1" />
-                ) : (
-                  <X className="w-4 h-4 text-red-400 mr-1" />
-                )}
-                <span className="text-sm">
-                  {facialResult.isMatch ? 'Matched' : 'Not matched'}
-                </span>
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-sm text-white/50 mb-1">Liveness Check:</p>
-              <div className="flex items-center">
-                {facialResult.isLive ? (
-                  <Check className="w-4 h-4 text-green-400 mr-1" />
-                ) : (
-                  <X className="w-4 h-4 text-red-400 mr-1" />
-                )}
-                <span className="text-sm">
-                  {facialResult.isLive ? 'Passed' : 'Failed'}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {!facialResult.isMatch && facialResult.errors.length > 0 && (
-            <div className="mt-2 pt-2 border-t border-white/10">
-              <p className="text-sm text-red-400 mb-1">Issues found:</p>
-              <ul className="list-disc list-inside text-sm text-white/70">
-                {facialResult.errors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Facial Verification section removed - no longer needed for document-only flow */}
       
       {/* Risk Score and Status */}
       {riskScore !== null && kycStatus && (

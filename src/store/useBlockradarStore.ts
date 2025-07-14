@@ -186,10 +186,10 @@ export const useBlockradarStore = create<BlockradarState>()(
             return;
           }
           
+          // Update to match the implemented getTransactions signature
           const response = await blockradarClient.getTransactions(walletId, {
-            address: addressInfo.address,
             limit,
-            page
+            offset: page ? (page - 1) * (limit || 10) : 0
           });
           
           if (response?.data && Array.isArray(response.data.transactions)) {
@@ -220,10 +220,11 @@ export const useBlockradarStore = create<BlockradarState>()(
         set({ isLoading: true, error: null });
         
         try {
+          // Update to match the implemented withdraw signature
           const response = await blockradarClient.withdraw(walletId, {
-            toAddress,
+            to: toAddress,
             amount,
-            asset
+            token: asset
           });
           
           set({ isLoading: false });
