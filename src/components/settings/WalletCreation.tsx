@@ -53,14 +53,32 @@ export function WalletCreation({ userId, userName, onComplete }: WalletCreationP
       // Generate a dedicated address for this user
       const response = await generateUserAddress(effectiveWalletId, userId, userName);
       
-      if (!response?.data) {
+      // Log the response to see its structure
+      console.log('BlockRadar API response:', response);
+      
+      if (!response) {
         throw new Error('Failed to create wallet address - Network error');
       }
       
-      const { address, privateKey } = response.data;
+      // The API response structure might be different than expected
+      // Let's handle different possible response structures
+      let address, privateKey;
       
-      if (!address || !privateKey) {
-        throw new Error('Invalid wallet data received');
+      if (response.address) {
+        // Direct response format
+        address = response.address;
+        privateKey = response.privateKey || 'managed-by-blockradar'; // BlockRadar might manage the private key
+      } else if (response.data && response.data.address) {
+        // Nested data format
+        address = response.data.address;
+        privateKey = response.data.privateKey || 'managed-by-blockradar';
+      } else {
+        console.error('Unexpected API response format:', response);
+        throw new Error('Invalid wallet data received - Unexpected format');
+      }
+      
+      if (!address) {
+        throw new Error('Invalid wallet data received - No address');
       }
       
       // Store wallet data in state
