@@ -14,7 +14,7 @@ interface WalletLayoutProps {
 }
 
 const navItems = [
-  { name: 'Home', icon: Home, path: '/' },
+  { name: 'Home', icon: Home, path: '/wallet' },
   { name: 'Swap', icon: ArrowLeftRight, path: '/swap' },
   { name: 'Scan', icon: Scan, path: '/scan' },
   { name: 'Activity', icon: Activity, path: '/activity' },
