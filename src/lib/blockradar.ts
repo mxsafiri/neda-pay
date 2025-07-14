@@ -65,6 +65,9 @@ export const blockradarClient = {
  */
 export async function createMasterWallet(blockchain: string, stablecoins: string[], webhookUrl: string) {
   try {
+    // Log the request payload for debugging
+    console.log('Creating master wallet with payload:', { blockchain, stablecoins, webhookUrl });
+    
     const response = await axios.post(
       `${BLOCKRADAR_API_URL}/wallets`,
       {
@@ -76,9 +79,17 @@ export async function createMasterWallet(blockchain: string, stablecoins: string
         headers: getHeaders()
       }
     );
+    
+    console.log('Master wallet created successfully:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error creating master wallet:', error);
+    // More detailed error logging
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error creating master wallet - Status:', error.response.status);
+      console.error('Error creating master wallet - Data:', error.response.data);
+    } else {
+      console.error('Error creating master wallet:', error);
+    }
     throw error;
   }
 }
@@ -88,6 +99,9 @@ export async function createMasterWallet(blockchain: string, stablecoins: string
  */
 export async function generateUserAddress(walletId: string, userId: string, userName: string) {
   try {
+    // Log the request payload for debugging
+    console.log('Generating user address with payload:', { walletId, userId, userName, enableGaslessWithdraw: true });
+    
     const response = await axios.post(
       `${BLOCKRADAR_API_URL}/wallets/${walletId}/addresses`,
       {
@@ -99,9 +113,17 @@ export async function generateUserAddress(walletId: string, userId: string, user
         headers: getHeaders()
       }
     );
+    
+    console.log('User address generated successfully:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error generating user address:', error);
+    // More detailed error logging
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error generating user address - Status:', error.response.status);
+      console.error('Error generating user address - Data:', error.response.data);
+    } else {
+      console.error('Error generating user address:', error);
+    }
     throw error;
   }
 }
