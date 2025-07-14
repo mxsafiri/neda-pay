@@ -65,6 +65,10 @@ export const useBlockradarStore = create<BlockradarState>()(
       
       // Initialize with master wallet IDs
       initialize: (walletMap: Record<string, string>) => {
+        // Debug: Check if environment variables are available
+        console.log('BlockRadar API URL exists:', !!process.env.NEXT_PUBLIC_BLOCKRADAR_API_URL);
+        console.log('BlockRadar API Key exists:', !!process.env.NEXT_PUBLIC_BLOCKRADAR_API_KEY);
+        
         set({ masterWallets: walletMap, initialized: true });
         // Fetch balances for the first time
         get().fetchBalances(true);
