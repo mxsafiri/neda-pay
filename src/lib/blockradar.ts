@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BLOCKRADAR_API_URL = process.env.NEXT_PUBLIC_BLOCKRADAR_API_URL || 'https://api.blockradar.co/v1';
-const BLOCKRADAR_API_KEY = process.env.BLOCKRADAR_API_KEY;
+const BLOCKRADAR_API_KEY = process.env.NEXT_PUBLIC_BLOCKRADAR_API_KEY;
 
 /**
  * BlockRadar API client for making API calls
