@@ -1,22 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion } from 'framer-motion';
 import { Copy, CheckCircle } from 'lucide-react';
-import { useBlockradarStore } from '@/store/useBlockradarStore';
+// BlockRadar store no longer needed for direct wallet address usage
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { QRCode } from '@/components/ui/QRCode';
 
 export default function DepositPage() {
-  const { userAddresses, createUserAddress, isLoading, error, setError } = useBlockradarStore();
-  const { authenticated, activeAddress } = useAuth();
+  const { activeAddress } = useAuth();
   const [copied, setCopied] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState('USDC');
   
-  // Use the user's existing wallet address for deposits
-  const blockchain = 'base';
   // Use the active wallet address directly as the deposit address
   const depositAddress = activeAddress || '';
   
@@ -41,18 +38,6 @@ export default function DepositPage() {
           transition={{ duration: 0.3 }}
         >
           <h2 className="text-2xl font-bold mb-6">Deposit {selectedAsset}</h2>
-          
-          {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6">
-              <p>{error}</p>
-              <button 
-                className="text-sm underline mt-2"
-                onClick={() => setError(null)}
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
           
           <div className="space-y-6">
             <div className="bg-white/10 p-4 rounded-lg">
@@ -81,11 +66,7 @@ export default function DepositPage() {
             <div className="bg-white/10 p-4 rounded-lg">
               <h3 className="text-lg font-medium mb-4">Your Deposit Address</h3>
               
-              {isLoading ? (
-                <div className="flex justify-center py-8">
-                  <LoadingState size="lg" text="Generating your deposit address..." />
-                </div>
-              ) : depositAddress ? (
+              {depositAddress ? (
                 <div className="space-y-4">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 bg-white rounded-lg">
