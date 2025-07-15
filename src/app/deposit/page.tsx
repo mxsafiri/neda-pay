@@ -7,7 +7,7 @@ import { Copy, QrCode, ArrowRight, CheckCircle } from 'lucide-react';
 import { useBlockradarStore } from '@/store/useBlockradarStore';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingState } from '@/components/ui/LoadingState';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCode } from '@/components/ui/QRCode';
 
 export default function DepositPage() {
   const { userAddresses, createUserAddress, isLoading, error, setError } = useBlockradarStore();
@@ -104,7 +104,7 @@ export default function DepositPage() {
                 <div className="space-y-4">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 bg-white rounded-lg">
-                      <QRCodeSVG value={depositAddress} size={200} />
+                      <QRCode value={depositAddress} size={200} />
                     </div>
                   </div>
                   
