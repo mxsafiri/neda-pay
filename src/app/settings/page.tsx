@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
@@ -9,7 +9,6 @@ import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
-import { SUPPORTED_BLOCKCHAINS } from '@/lib/blockradar/config';
 import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEditModal';
 
 export default function SettingsPage() {
@@ -23,6 +22,17 @@ export default function SettingsPage() {
     walletAddress: '',
   });
   
+  // Initialize default profile function
+  const initializeDefaultProfile = useCallback(() => {
+    if (user?.wallet) {
+      setProfileData({
+        displayName: `User ${user.wallet.slice(0, 6)}`,
+        bio: '',
+        walletAddress: user.wallet,
+      });
+    }
+  }, [user]);
+
   // Use our custom hook to get KYC verification status
   const { verification, refetch } = useKycStatus(user?.id || '');
   
@@ -57,17 +67,9 @@ export default function SettingsPage() {
         initializeDefaultProfile();
       }
     }
-  }, [user]);
+  }, [user, initializeDefaultProfile]);
   
-  const initializeDefaultProfile = () => {
-    if (user?.wallet) {
-      setProfileData({
-        displayName: `User ${user.wallet.slice(0, 6)}`,
-        bio: '',
-        walletAddress: user.wallet,
-      });
-    }
-  };
+  // Function moved to useCallback above
   
   const handleSaveProfile = async (data: ProfileData) => {
     // Save profile data to localStorage

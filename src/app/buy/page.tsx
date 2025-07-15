@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 // Token options
 const TOKEN_OPTIONS = [

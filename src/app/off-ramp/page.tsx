@@ -111,7 +111,7 @@ export default function OffRampPage() {
   const [showProviderDropdown, setShowProviderDropdown] = useState(false);
   
   const { balances } = useWalletStore();
-  const { activeAddress } = useAuth();
+  // activeAddress removed as it was unused
   
   const availableBalance = balances.find(b => b.symbol === 'TZS')?.balance || '0';
   

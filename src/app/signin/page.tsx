@@ -35,9 +35,14 @@ export default function SignInPage() {
       
       // Redirect to wallet dashboard
       router.push('/wallet');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Sign-in error:', err);
-      setError(err.message || 'Failed to sign in. Please try again.');
+      // Handle error message safely for unknown type
+      let errorMessage = 'Failed to sign in. Please try again.';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +121,7 @@ export default function SignInPage() {
 
             <div className="text-center mt-6">
               <p className="text-gray-400">
-                Don't have a wallet yet?{' '}
+                Don&apos;t have a wallet yet?{' '}
                 <Link href="/onboarding" className="text-blue-400 hover:text-blue-300">
                   Create one now
                 </Link>
