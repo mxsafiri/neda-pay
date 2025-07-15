@@ -5,7 +5,7 @@ import { WalletLayout } from '@/components/wallet/WalletLayout'
 import { WalletBalance } from '@/components/wallet/WalletBalance'
 import { useWalletStore } from '@/store/useWalletStore'
 import { TransactionItem } from '@/components/wallet/TransactionItem'
-import { ArrowDownLeft, QrCode, Plus, TrendingUp, Download } from 'lucide-react'
+import { ArrowDownLeft, QrCode, Plus, Download } from 'lucide-react'
 import { DAppConnections } from '@/components/wallet/DAppConnections'
 
 export default function WalletPage() {

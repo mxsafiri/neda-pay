@@ -6,7 +6,6 @@ interface QRCodeProps {
   value: string;
   size?: number;
   bgColor?: string;
-  fgColor?: string;
 }
 
 /**
@@ -16,8 +15,7 @@ interface QRCodeProps {
 export const QRCode: React.FC<QRCodeProps> = ({
   value,
   size = 200,
-  bgColor = 'white',
-  fgColor = 'black'
+  bgColor = 'white'
 }) => {
   const encodedValue = encodeURIComponent(value);
   const src = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedValue}&chs=${size}x${size}&choe=UTF-8&chld=L|2`;
