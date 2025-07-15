@@ -5,7 +5,7 @@ import { WalletLayout } from '@/components/wallet/WalletLayout'
 import { WalletBalance } from '@/components/wallet/WalletBalance'
 import { useWalletStore } from '@/store/useWalletStore'
 import { TransactionItem } from '@/components/wallet/TransactionItem'
-import { ArrowDownLeft, QrCode, Plus, TrendingUp } from 'lucide-react'
+import { ArrowDownLeft, QrCode, Plus, TrendingUp, Download } from 'lucide-react'
 import { DAppConnections } from '@/components/wallet/DAppConnections'
 
 export default function WalletPage() {
@@ -52,18 +52,18 @@ export default function WalletPage() {
                 <span>Scan to Pay</span>
               </button>
               <button 
+                onClick={() => window.location.href = '/deposit'}
+                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all mt-3"
+              >
+                <Download className="mb-2 text-blue-400" />
+                <span>Deposit</span>
+              </button>
+              <button 
                 onClick={() => window.location.href = '/buy'}
                 className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all mt-3"
               >
                 <Plus className="mb-2 text-green-400" />
                 <span>Buy</span>
-              </button>
-              <button 
-                onClick={() => window.location.href = '/stake'}
-                className="bg-white/5 hover:bg-white/10 p-4 rounded-xl flex flex-col items-center justify-center transition-all mt-3"
-              >
-                <TrendingUp className="mb-2 text-yellow-400" />
-                <span>Stake</span>
               </button>
             </div>
           ) : (
