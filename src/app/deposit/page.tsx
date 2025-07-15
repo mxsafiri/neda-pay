@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Copy, CheckCircle } from 'lucide-react';
 // BlockRadar store no longer needed for direct wallet address usage
 import { useAuth } from '@/hooks/useAuth';
-import { LoadingState } from '@/components/ui/LoadingState';
+// LoadingState no longer needed as we're not showing loading state
 import { QRCode } from '@/components/ui/QRCode';
 
 export default function DepositPage() {
