@@ -60,7 +60,7 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Fund
+            Stake
           </motion.button>
         </Link>
       </div>
