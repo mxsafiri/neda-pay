@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface QRCodeProps {
   value: string;
@@ -21,12 +22,13 @@ export const QRCode: React.FC<QRCodeProps> = ({
   const src = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedValue}&chs=${size}x${size}&choe=UTF-8&chld=L|2`;
   
   return (
-    <img 
+    <Image 
       src={src}
       alt={`QR code for ${value}`}
       width={size}
       height={size}
       style={{ backgroundColor: bgColor }}
+      priority
     />
   );
 };

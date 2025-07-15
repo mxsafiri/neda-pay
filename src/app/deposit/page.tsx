@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion } from 'framer-motion';
-import { Copy, QrCode, CheckCircle } from 'lucide-react';
+import { Copy, CheckCircle } from 'lucide-react';
 import { useBlockradarStore } from '@/store/useBlockradarStore';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingState } from '@/components/ui/LoadingState';
