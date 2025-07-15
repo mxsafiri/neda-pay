@@ -15,27 +15,12 @@ export default function DepositPage() {
   const [copied, setCopied] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState('USDC');
   
-  // Get the user's deposit address for the selected blockchain (Base)
+  // Use the user's existing wallet address for deposits
   const blockchain = 'base';
-  const depositAddress = userAddresses[blockchain]?.address || '';
+  // Use the active wallet address directly as the deposit address
+  const depositAddress = activeAddress || '';
   
-  useEffect(() => {
-    // Create a user address if one doesn't exist yet
-    const createAddress = async () => {
-      if (!depositAddress && authenticated) {
-        try {
-          await createUserAddress(blockchain, `${activeAddress}-deposit`, { 
-            userId: activeAddress,
-            purpose: 'deposit'
-          });
-        } catch (err) {
-          console.error('Error creating deposit address:', err);
-        }
-      }
-    };
-    
-    createAddress();
-  }, [blockchain, depositAddress, authenticated, createUserAddress, activeAddress]);
+  // No need to create a new address - using the user's existing wallet address
   
   // Handle copy to clipboard
   const copyToClipboard = () => {
