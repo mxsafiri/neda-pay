@@ -5,7 +5,7 @@ import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion } from 'framer-motion';
 import { ArrowRight, AlertCircle, CheckCircle, CreditCard, Smartphone, Building, ChevronDown } from 'lucide-react';
 import { useWalletStore } from '@/store/useWalletStore';
-import { useAuth } from '@/hooks/useAuth';
+// useAuth removed as it was unused
 
 // Define withdrawal provider types
 type WithdrawalProvider = {
