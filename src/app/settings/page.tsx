@@ -4,18 +4,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X, Layers } from 'lucide-react';
+import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X, Layers, Key } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
 import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEditModal';
+import { RevealPrivateKeyModal } from '@/components/settings/RevealPrivateKeyModal';
 
 export default function SettingsPage() {
   const { authenticated, user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPrivateKeyModal, setShowPrivateKeyModal] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     displayName: '',
     bio: '',
@@ -117,6 +119,14 @@ export default function SettingsPage() {
           icon: Shield,
           label: 'Security',
           action: () => {},
+          subItems: [
+            {
+              icon: Key,
+              label: 'Reveal Private Key',
+              action: () => setShowPrivateKeyModal(true),
+              description: 'View your wallet private key securely',
+            },
+          ],
         },
         {
           icon: FileCheck,
@@ -316,6 +326,14 @@ export default function SettingsPage() {
               onClose={() => setShowProfileModal(false)}
               onSave={handleSaveProfile}
               initialData={profileData}
+            />
+          )}
+          
+          {/* Reveal Private Key Modal */}
+          {showPrivateKeyModal && (
+            <RevealPrivateKeyModal
+              isOpen={showPrivateKeyModal}
+              onClose={() => setShowPrivateKeyModal(false)}
             />
           )}
         </div>
