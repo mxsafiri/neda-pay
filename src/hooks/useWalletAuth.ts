@@ -45,6 +45,21 @@ export function useWalletAuth() {
    */
   const importPrivateKey = useCallback((privateKey: string) => {
     try {
+      // Check if input looks like an address instead of a private key
+      if (privateKey.match(/^0x[a-fA-F0-9]{40}$/)) {
+        console.error('User entered a wallet address instead of private key');
+        return { 
+          success: false, 
+          error: 'You entered a wallet address. Please enter your private key instead.'
+        };
+      }
+
+      // Validate private key format
+      if (!privateKey.startsWith('0x')) {
+        // Try to add 0x prefix if missing
+        privateKey = `0x${privateKey}`;
+      }
+      
       const wallet = new ethers.Wallet(privateKey);
       const address = wallet.address;
       
@@ -64,7 +79,10 @@ export function useWalletAuth() {
       return { success: true, address };
     } catch (error) {
       console.error('Invalid private key:', error);
-      return { success: false, error: 'Invalid private key' };
+      return { 
+        success: false, 
+        error: 'Invalid private key. Please check that you entered the correct private key.'
+      };
     }
   }, []);
 

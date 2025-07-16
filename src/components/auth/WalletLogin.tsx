@@ -213,11 +213,11 @@ export function WalletLogin() {
             {activeTab === 'import' && (
               <div className="mt-4 space-y-4">
                 <div>
-                  <label className="block text-sm text-white/70 mb-1">Private Key</label>
+                  <label className="block text-sm text-white/70 mb-1">Private Key <span className="text-amber-400">(required)</span></label>
                   <div className="relative">
                     <input
                       type={showPrivateKey ? "text" : "password"}
-                      placeholder="Enter your private key"
+                      placeholder="Enter your private key (not your wallet address)"
                       value={privateKey}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPrivateKey(e.target.value)}
                       className="w-full h-10 rounded-md border border-white/20 bg-white/10 px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -230,6 +230,7 @@ export function WalletLogin() {
                       {showPrivateKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  <p className="text-xs text-white/50 mt-1">Your private key starts with "0x" and contains 64 characters. Do not enter your wallet address.</p>
                 </div>
                 
                 {error && (
