@@ -230,7 +230,7 @@ export function WalletLogin() {
                       {showPrivateKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <p className="text-xs text-white/50 mt-1">Your private key starts with "0x" and contains 64 characters. Do not enter your wallet address.</p>
+                  <p className="text-xs text-white/50 mt-1">Your private key starts with &quot;0x&quot; and contains 64 characters. Do not enter your wallet address.</p>
                 </div>
                 
                 {error && (
