@@ -139,9 +139,32 @@ export function AnimatedCTA() {
             Start your journey today.
           </motion.p>
           
-          <PulseButton href="/onboarding">
-            <span>Get Started</span> <ChevronRight size={20} />
-          </PulseButton>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <PulseButton href="/create-wallet">
+              <span>Create Wallet</span> <ChevronRight size={20} />
+            </PulseButton>
+            
+            <motion.div
+              className="inline-block"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ 
+                duration: 0.8, 
+                delay: 0.7, 
+                type: "spring", 
+                stiffness: 200, 
+                damping: 10
+              }}
+            >
+              <Link 
+                href="/sign-in"
+                className="inline-block border-2 border-white text-white hover:bg-white/10 px-10 py-4 rounded-full text-xl font-medium flex items-center gap-2 transition-all"
+              >
+                <span>Sign In</span> <ChevronRight size={20} />
+              </Link>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>

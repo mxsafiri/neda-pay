@@ -10,14 +10,14 @@ import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
 import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEditModal';
-import { RevealPrivateKeyModal } from '@/components/settings/RevealPrivateKeyModal';
+import { RevealTokenModal } from '@/components/auth/RevealTokenModal';
 
 export default function SettingsPage() {
   const { authenticated, user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showPrivateKeyModal, setShowPrivateKeyModal] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     displayName: '',
     bio: '',
@@ -122,9 +122,9 @@ export default function SettingsPage() {
           subItems: [
             {
               icon: Key,
-              label: 'Reveal Private Key',
-              action: () => setShowPrivateKeyModal(true),
-              description: 'View your wallet private key securely',
+              label: 'Reveal Security Token',
+              action: () => setShowTokenModal(true),
+              description: 'View your wallet security token for recovery',
             },
           ],
         },
@@ -329,11 +329,11 @@ export default function SettingsPage() {
             />
           )}
           
-          {/* Reveal Private Key Modal */}
-          {showPrivateKeyModal && (
-            <RevealPrivateKeyModal
-              isOpen={showPrivateKeyModal}
-              onClose={() => setShowPrivateKeyModal(false)}
+          {/* Reveal Security Token Modal */}
+          {showTokenModal && (
+            <RevealTokenModal
+              isOpen={showTokenModal}
+              onClose={() => setShowTokenModal(false)}
             />
           )}
         </div>

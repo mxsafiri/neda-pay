@@ -1,23 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Copy, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Eye, EyeOff, Copy, CheckCircle2, AlertCircle, X, Key } from 'lucide-react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { getDeviceToken } from '@/utils/deviceAuth';
 
-interface RevealPrivateKeyModalProps {
+interface RevealTokenModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModalProps) {
+export function RevealTokenModal({ isOpen, onClose }: RevealTokenModalProps) {
   const [password, setPassword] = useState('');
-  const [showPrivateKey, setShowPrivateKey] = useState(false);
+  const [showToken, setShowToken] = useState(false);
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   
+  // Get device token instead of private key
+  const deviceToken = getDeviceToken();
   const { getPrivateKey } = useWalletAuth();
-  const privateKey = getPrivateKey();
+  // Get wallet address
+  const walletData = localStorage.getItem('neda_wallet');
+  const walletAddress = walletData ? JSON.parse(walletData).address : 'Unknown';
   
   // Simple password verification - in a real app, this should be more secure
   const verifyPassword = () => {
@@ -31,13 +36,13 @@ export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModal
     }
   };
   
-  const toggleShowPrivateKey = () => {
-    setShowPrivateKey(!showPrivateKey);
+  const toggleShowToken = () => {
+    setShowToken(!showToken);
   };
   
   const copyToClipboard = () => {
-    if (privateKey) {
-      navigator.clipboard.writeText(privateKey);
+    if (deviceToken) {
+      navigator.clipboard.writeText(deviceToken);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -49,7 +54,7 @@ export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModal
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-md overflow-hidden">
         <div className="flex justify-between items-center p-4 border-b border-slate-700">
-          <h3 className="text-lg font-semibold">Reveal Private Key</h3>
+          <h3 className="text-lg font-semibold">Reveal Security Token</h3>
           <button 
             onClick={onClose}
             className="p-1 rounded-full hover:bg-slate-800 transition-colors"
@@ -63,7 +68,7 @@ export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModal
             <div className="space-y-4">
               <div className="p-3 bg-amber-500/20 border border-amber-500/30 rounded-lg">
                 <p className="text-amber-300 text-sm">
-                  <strong>Security Warning:</strong> Your private key gives full access to your wallet. Never share it with anyone.
+                  <strong>Security Warning:</strong> Your security token is used to access your wallet on this device. Never share it with anyone.
                 </p>
               </div>
               
@@ -98,18 +103,27 @@ export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModal
             <div className="space-y-4">
               <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
                 <p className="text-red-400 text-sm">
-                  <strong>IMPORTANT:</strong> Never share your private key with anyone. Anyone with your private key has full access to your wallet.
+                  <strong>IMPORTANT:</strong> This security token is specific to this device. You'll need it to recover your wallet access if you clear your browser data.
+                </p>
+              </div>
+              
+              <div className="text-center mb-2">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-2">
+                  <Key className="h-8 w-8 text-primary" />
+                </div>
+                <p className="text-sm text-white/70">
+                  Wallet: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </p>
               </div>
               
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="block text-sm text-white/70">Your Private Key</label>
+                  <label className="block text-sm text-white/70">Your Security Token</label>
                   <button 
-                    onClick={toggleShowPrivateKey}
+                    onClick={toggleShowToken}
                     className="h-8 px-2 text-xs inline-flex items-center rounded-md hover:bg-white/10 transition-colors"
                   >
-                    {showPrivateKey ? (
+                    {showToken ? (
                       <>
                         <EyeOff className="h-3 w-3 mr-1" /> Hide
                       </>
@@ -122,12 +136,12 @@ export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModal
                 </div>
                 <div className="relative">
                   <div className="mt-1 p-3 bg-slate-800 rounded-md border border-slate-700 break-all font-mono text-sm">
-                    {showPrivateKey ? privateKey : '•'.repeat(64)}
+                    {showToken ? deviceToken : '•'.repeat(36)}
                   </div>
                   <button 
                     onClick={copyToClipboard}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-slate-700 transition-colors"
-                    disabled={!showPrivateKey}
+                    disabled={!showToken}
                   >
                     {copied ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
                   </button>
@@ -136,7 +150,7 @@ export function RevealPrivateKeyModal({ isOpen, onClose }: RevealPrivateKeyModal
               
               <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
                 <p className="text-blue-400 text-sm">
-                  Store your private key in a secure password manager or write it down and keep it in a safe place.
+                  Store this security token in a secure password manager. You'll need it along with your PIN to recover wallet access if you clear your browser data.
                 </p>
               </div>
             </div>
