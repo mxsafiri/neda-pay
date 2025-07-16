@@ -8,6 +8,7 @@ import { Home, ArrowLeftRight, Activity, Settings, QrCode, Scan } from 'lucide-r
 // import { LoginButton } from '@/components/auth/LoginButton' // Commented out as it's currently unused
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { SessionTimeoutHandler } from '@/components/auth/SessionTimeoutHandler'
 
 interface WalletLayoutProps {
   children: ReactNode
@@ -46,8 +47,12 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   }, [user])
   
   return (
-    <div 
-      className="min-h-screen bg-black text-white"
+    <>
+      {/* Session timeout handler for automatic PIN verification */}
+      <SessionTimeoutHandler />
+      
+      <div 
+        className="min-h-screen bg-black text-white"
       style={{ '--primary': theme.colors.primary } as React.CSSProperties}
     >
       <motion.div 
@@ -123,5 +128,6 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
         </motion.nav>
       </motion.div>
     </div>
+    </>
   )
 }
