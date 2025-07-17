@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+// Removed unused import: import { useRouter } from 'next/navigation';
 import { useAuth } from './useAuth';
 import { 
   generateDeviceToken, 
