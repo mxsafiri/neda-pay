@@ -161,7 +161,7 @@ export default function OffRampPage() {
       // Success
       setSuccess(true);
       setIsProcessing(false);
-    } catch (err) {
+    } catch {
       setError('Failed to process withdrawal. Please try again.');
       setIsProcessing(false);
     }

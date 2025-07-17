@@ -9,7 +9,6 @@ import {
   getDeviceToken, 
   hashPin, 
   storeWalletAuth, 
-  getWalletAuth, 
   verifyDeviceToken,
   verifyPin,
   createSession,
@@ -24,16 +23,6 @@ import {
 //   isAuthenticated: boolean;
 //   privateKey: string | null;
 // };
-
-type User = {
-  id?: string;
-  wallet?: string;
-};
-
-interface AuthState {
-  authenticated: boolean;
-  user: User | null;
-}
 
 /**
  * Hook for wallet authentication using private keys

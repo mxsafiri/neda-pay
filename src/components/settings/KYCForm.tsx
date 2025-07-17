@@ -47,7 +47,6 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
   const [uploadError, setUploadError] = useState('');
   const [currentStep, setCurrentStep] = useState<'info' | 'document' | 'review' | 'verification' | 'result'>('info');
   const [formData, setFormData] = useState<KYCFormData | null>(null);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   
   // Verification results
   const [documentResult, setDocumentResult] = useState<DocumentValidationResult | null>(null);
@@ -219,8 +218,12 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
       
       console.log('KYC data submitted successfully:', result);
       
-      // Move to wallet creation step instead of completing immediately
-      setCurrentStep('wallet');
+      // Complete the KYC process
+      setCurrentStep('result');
+      // Call onComplete if provided
+      if (onComplete) {
+        onComplete();
+      }
     } catch (error) {
       console.error('Error submitting KYC data:', error);
       let errorMessage = 'Failed to submit KYC data';
