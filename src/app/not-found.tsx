@@ -1,4 +1,7 @@
 import React from 'react';
+
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 

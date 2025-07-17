@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
+
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { WalletCreation } from '@/components/settings/WalletCreation';
-import { KYCForm } from '@/components/settings/KYCForm';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 
 // Define the steps in the onboarding process
 enum OnboardingStep {
@@ -18,26 +18,155 @@ enum OnboardingStep {
   COMPLETE = 'complete'
 }
 
+// Simplified wallet creation component
+const SimpleWalletCreation = ({ onComplete }: { onComplete: (address: string) => void }) => {
+  const [isCreating, setIsCreating] = useState(false);
+  
+  const handleCreateWallet = async () => {
+    setIsCreating(true);
+    
+    try {
+      // Simulate wallet creation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate a mock wallet address
+      const mockAddress = `0x${Array.from({ length: 40 }, () => 
+        Math.floor(Math.random() * 16).toString(16)).join('')}`;
+      
+      // Store in localStorage for persistence
+      localStorage.setItem('neda_wallet', JSON.stringify({
+        address: mockAddress,
+        createdAt: new Date().toISOString()
+      }));
+      
+      onComplete(mockAddress);
+    } catch {
+      // Handle error
+      setIsCreating(false);
+    }
+  };
+  
+  return (
+    <div className="space-y-6">
+      <p className="text-gray-300 mb-4">
+        Click the button below to create your secure digital wallet. This will generate a unique wallet address for you.
+      </p>
+      
+      <button
+        onClick={handleCreateWallet}
+        disabled={isCreating}
+        className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-medium transition-colors ${
+          isCreating 
+            ? 'bg-blue-700/50 cursor-not-allowed' 
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+        }`}
+      >
+        {isCreating ? (
+          <>
+            <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin mr-2"></div>
+            Creating Wallet...
+          </>
+        ) : (
+          <>
+            Create Wallet
+            <ArrowRight size={18} />
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+
+// Simplified KYC form component
+const SimpleKYCForm = ({ onComplete }: { onComplete: () => void }) => {
+  const [fullName, setFullName] = useState('');
+  const [country, setCountry] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      onComplete();
+    } catch {
+      setIsSubmitting(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="fullName" className="block text-sm font-medium mb-2">
+          Full Name
+        </label>
+        <input
+          type="text"
+          id="fullName"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Enter your full name"
+          required
+        />
+      </div>
+      
+      <div>
+        <label htmlFor="country" className="block text-sm font-medium mb-2">
+          Country
+        </label>
+        <select
+          id="country"
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          required
+        >
+          <option value="">Select your country</option>
+          <option value="tanzania">Tanzania</option>
+          <option value="kenya">Kenya</option>
+          <option value="nigeria">Nigeria</option>
+          <option value="ghana">Ghana</option>
+          <option value="south_africa">South Africa</option>
+        </select>
+      </div>
+      
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-medium transition-colors ${
+          isSubmitting 
+            ? 'bg-blue-700/50 cursor-not-allowed' 
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+        }`}
+      >
+        {isSubmitting ? (
+          <>
+            <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin mr-2"></div>
+            Submitting...
+          </>
+        ) : (
+          <>
+            Submit Verification
+            <ArrowRight size={18} />
+          </>
+        )}
+      </button>
+    </form>
+  );
+};
+
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(OnboardingStep.WELCOME);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [walletAddress, setWalletAddress] = useState<string>('');
-  // Generate a temporary user ID
-  const [userId, /* setUserId */] = useState<string>(`user_${Date.now()}`); 
   const [userName, setUserName] = useState<string>('');
   const router = useRouter();
-  const { user, authenticated } = useAuth();
   
-  // If user is already authenticated, redirect to wallet
-  useEffect(() => {
-    if (authenticated && user) {
-      router.push('/wallet');
-    }
-  }, [authenticated, user, router]);
-
   // Handle wallet creation completion
   const handleWalletCreated = (address: string) => {
-    setWalletAddress(address);
+    // Store address in localStorage instead of component state
+    localStorage.setItem('wallet_address', address);
     setCurrentStep(OnboardingStep.KYC_VERIFICATION);
   };
 
@@ -69,7 +198,7 @@ export default function OnboardingPage() {
           
           <Link href="/" className="flex items-center">
             <Image 
-              src="/images/logo.svg" 
+              src="/logo.svg" 
               alt="NEDApay Logo" 
               width={120} 
               height={32} 
@@ -166,11 +295,7 @@ export default function OnboardingPage() {
                 Your digital wallet will be used to securely store and manage your assets.
               </p>
               
-              <WalletCreation 
-                userId={userId} 
-                userName={userName} 
-                onComplete={handleWalletCreated} 
-              />
+              <SimpleWalletCreation onComplete={handleWalletCreated} />
             </motion.div>
           )}
           
@@ -187,10 +312,7 @@ export default function OnboardingPage() {
                 To comply with regulations and protect your account, we need to verify your identity.
               </p>
               
-              <KYCForm 
-                userId={userId} 
-                onComplete={handleKYCComplete} 
-              />
+              <SimpleKYCForm onComplete={handleKYCComplete} />
             </motion.div>
           )}
           

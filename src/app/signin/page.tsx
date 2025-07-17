@@ -1,19 +1,20 @@
 'use client';
 
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function SignInPage() {
   const [walletAddress, setWalletAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { importWallet } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,22 +26,21 @@ export default function SignInPage() {
         throw new Error('Please enter your wallet address');
       }
 
-      // Import existing wallet using address as private key
-      // Note: In a real app, you'd need to handle this more securely
-      const result = await importWallet(walletAddress);
+      // Store the private key in local storage for the signInWithWallet function to use
+      localStorage.setItem('neda_wallet', JSON.stringify({
+        address: walletAddress, // Using the address as the private key for now
+        createdAt: new Date().toISOString()
+      }));
       
-      if (!result || 'error' in result) {
-        throw new Error('Invalid wallet address or private key');
-      }
+      // Redirect to the wallet login page which will handle authentication
+      router.push('/auth/login');
       
-      // Redirect to wallet dashboard
-      router.push('/wallet');
-    } catch (err: unknown) {
-      console.error('Sign-in error:', err);
+    } catch (error) {
+      console.error('Sign-in error:', error);
       // Handle error message safely for unknown type
       let errorMessage = 'Failed to sign in. Please try again.';
-      if (err instanceof Error) {
-        errorMessage = err.message;
+      if (error instanceof Error) {
+        errorMessage = error.message;
       }
       setError(errorMessage);
     } finally {

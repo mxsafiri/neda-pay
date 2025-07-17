@@ -11,9 +11,8 @@ type UserInfo = {
 
 export function useAuth() {
   const { 
-    address,
-    isAuthenticated,
-    importPrivateKey,
+    walletAddress,
+    isWalletAuthenticated,
     createWallet: createNewWallet,
     logout: walletLogout,
   } = useWalletAuth();
@@ -22,11 +21,11 @@ export function useAuth() {
   
   // Generate a user ID based on wallet address
   const userId = useMemo(() => {
-    if (!address) return '';
-    return `wallet_${address.toLowerCase()}`;
-  }, [address]);
+    if (!walletAddress) return '';
+    return `wallet_${walletAddress.toLowerCase()}`;
+  }, [walletAddress]);
 
-  const activeAddress = address;
+  const activeAddress = walletAddress;
 
   const handleLogin = useCallback(() => {
     // Open wallet login modal
@@ -40,24 +39,23 @@ export function useAuth() {
 
   // Format user data for easier consumption in components
   const formattedUser = useMemo(() => {
-    if (!isAuthenticated || !address) return null;
+    if (!isWalletAuthenticated || !walletAddress) return null;
     
     const userInfo: UserInfo = {
       id: userId,
-      wallet: address,
+      wallet: walletAddress,
     };
 
     return userInfo;
-  }, [isAuthenticated, address, userId]);
+  }, [isWalletAuthenticated, walletAddress, userId]);
   
   return {
     ready: true,
-    authenticated: isAuthenticated,
+    authenticated: isWalletAuthenticated,
     user: formattedUser,
     activeAddress,
     login: handleLogin,
     logout: handleLogout,
-    createWallet: createNewWallet,
-    importWallet: importPrivateKey,
+    createWallet: createNewWallet
   };
 }

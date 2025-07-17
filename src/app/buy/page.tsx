@@ -1,167 +1,317 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
+
+import React, { useState } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { ArrowRight, AlertCircle, CheckCircle, CreditCard, Smartphone, Building, ChevronDown } from 'lucide-react';
 
-// Token options
-const TOKEN_OPTIONS = [
-  { symbol: 'TZS', name: 'NEDA Tanzanian Shilling', icon: '🇹🇿', price: 0.0004 },
-  { symbol: 'USDC', name: 'USD Coin', icon: '🇺🇸', price: 1.0 },
-  { symbol: 'EURC', name: 'Euro Coin', icon: '🇪🇺', price: 1.09 },
+// Define deposit provider types
+type DepositProvider = {
+  id: string;
+  name: string;
+  icon: React.ElementType;
+  fields: Array<{
+    id: string;
+    name: string;
+    type: string;
+    placeholder: string;
+    validation?: RegExp;
+    errorMessage?: string;
+  }>;
+};
+
+// Available deposit providers
+const depositProviders: DepositProvider[] = [
+  {
+    id: 'bank',
+    name: 'Bank Transfer',
+    icon: Building,
+    fields: [
+      {
+        id: 'accountName',
+        name: 'Your Bank Account Name',
+        type: 'text',
+        placeholder: 'Enter your account name',
+      },
+      {
+        id: 'bankName',
+        name: 'Your Bank Name',
+        type: 'text',
+        placeholder: 'Enter your bank name',
+      },
+    ],
+  },
+  {
+    id: 'mobile',
+    name: 'Mobile Money',
+    icon: Smartphone,
+    fields: [
+      {
+        id: 'phoneNumber',
+        name: 'Your Mobile Money Number',
+        type: 'tel',
+        placeholder: '+255 XXX XXX XXX',
+        validation: /^\+?\d{10,15}$/,
+        errorMessage: 'Please enter a valid phone number',
+      },
+      {
+        id: 'provider',
+        name: 'Provider',
+        type: 'select',
+        placeholder: 'Select provider',
+      },
+    ],
+  },
+  {
+    id: 'card',
+    name: 'Credit/Debit Card',
+    icon: CreditCard,
+    fields: [
+      {
+        id: 'cardNumber',
+        name: 'Card Number',
+        type: 'text',
+        placeholder: 'XXXX XXXX XXXX XXXX',
+        validation: /^\d{16}$/,
+        errorMessage: 'Please enter a valid 16-digit card number',
+      },
+      {
+        id: 'cardName',
+        name: 'Name on Card',
+        type: 'text',
+        placeholder: 'Enter name as shown on card',
+      },
+    ],
+  },
 ];
-
-// Payment method options
-const PAYMENT_METHODS = [
-  { id: 'bank', name: 'Bank Transfer', icon: '🏦', cards: ['Banks'] },
-  { id: 'mobile_money', name: 'Mobile Money', icon: '📱', cards: ['M-Pesa', 'Tigo Pesa'] },
-  { id: 'card', name: 'Credit Card', icon: '💳', cards: ['Visa', 'Mastercard'] },
-];
-
-// Network options removed - network selection handled automatically based on token
 
 export default function BuyPage() {
-  const router = useRouter();
   const [amount, setAmount] = useState('');
-  const [selectedToken, /* setSelectedToken */] = useState(TOKEN_OPTIONS[0]);
-  const [selectedPaymentMethod, /* setSelectedPaymentMethod */] = useState(PAYMENT_METHODS[0]);
-  const [selectedCard, /* setSelectedCard */] = useState(PAYMENT_METHODS[0].cards[0]);
-  // USDC equivalent calculation removed for cleaner UI
+  const [selectedProvider, setSelectedProvider] = useState<DepositProvider | null>(null);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false);
   
-  // Handle numeric keypad input
-  const handleKeypadPress = (value: string) => {
-    if (value === 'backspace') {
-      setAmount(prev => prev.slice(0, -1));
-      return;
+  const handleFieldChange = (fieldId: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
+  };
+
+  const selectProvider = (provider: DepositProvider) => {
+    setSelectedProvider(provider);
+    setShowProviderDropdown(false);
+    // Reset form data when changing providers
+    setFormData({});
+  };
+
+  const validateForm = () => {
+    if (!selectedProvider) return false;
+    if (!amount || parseFloat(amount) <= 0) return false;
+    
+    // Check if all required fields are filled and valid
+    for (const field of selectedProvider.fields) {
+      const value = formData[field.id] || '';
+      if (!value) return false;
+      
+      // Validate field if it has validation regex
+      if (field.validation && !field.validation.test(value)) {
+        return false;
+      }
     }
     
-    // Handle decimal point
-    if (value === '.') {
-      if (amount.includes('.')) return;
-      setAmount(prev => prev + '.');
-      return;
-    }
+    return true;
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    setError(null);
     
-    // Limit to 2 decimal places
-    if (amount.includes('.')) {
-      const parts = amount.split('.');
-      if (parts[1] && parts[1].length >= 2) return;
+    try {
+      // Here you would integrate with your on-ramp provider API based on the selected provider
+      console.log('Processing deposit with provider:', selectedProvider?.name);
+      console.log('Deposit amount:', amount);
+      console.log('Form data:', formData);
+      
+      // For now, we'll simulate a successful transaction after a delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Success state
+      setSuccess(true);
+      setAmount('');
+      setFormData({});
+    } catch (err) {
+      setError('Failed to process deposit. Please try again.');
+      console.error('On-ramp error:', err);
+    } finally {
+      setIsProcessing(false);
     }
-    
-    setAmount(prev => prev + value);
   };
   
   return (
     <WalletLayout>
-      <div className="mb-6 flex items-center">
-        <button 
-          onClick={() => router.back()}
-          className="mr-3 p-2 rounded-full hover:bg-white/10"
+      <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
         >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-2xl font-bold">Buy</h1>
+          <h1 className="text-2xl font-bold mb-6">Buy</h1>
+          
+          {success ? (
+            <div className="text-center py-8">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                className="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 text-green-400"
+              >
+                <CheckCircle size={32} />
+              </motion.div>
+              <h2 className="text-xl font-medium mb-2">Purchase Successful!</h2>
+              <p className="text-gray-400 mb-6">
+                Your purchase has been processed successfully.
+              </p>
+              <button
+                onClick={() => setSuccess(false)}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full text-white font-medium transition-colors"
+              >
+                Buy Again
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-2">
+                  Amount to Buy
+                </label>
+                <input
+                  type="number"
+                  id="amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              
+              {/* Deposit Provider Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Payment Method
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowProviderDropdown(!showProviderDropdown)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {selectedProvider ? (
+                      <div className="flex items-center gap-2">
+                        {React.createElement(selectedProvider.icon, { size: 18 })}
+                        <span>{selectedProvider.name}</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Select payment method</span>
+                    )}
+                    <ChevronDown size={18} className={`transition-transform ${showProviderDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {showProviderDropdown && (
+                    <div className="absolute z-10 mt-1 w-full bg-[#0A1F44] border border-white/10 rounded-lg shadow-lg overflow-hidden">
+                      {depositProviders.map(provider => (
+                        <button
+                          key={provider.id}
+                          type="button"
+                          onClick={() => selectProvider(provider)}
+                          className="w-full flex items-center gap-2 px-4 py-3 hover:bg-white/5 text-left transition-colors"
+                        >
+                          {React.createElement(provider.icon, { size: 18 })}
+                          <span>{provider.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Dynamic form fields based on selected provider */}
+              {selectedProvider && (
+                <div className="space-y-4">
+                  {selectedProvider.fields.map(field => (
+                    <div key={field.id}>
+                      <label htmlFor={field.id} className="block text-sm font-medium text-gray-300 mb-2">
+                        {field.name}
+                      </label>
+                      <input
+                        type={field.type}
+                        id={field.id}
+                        value={formData[field.id] || ''}
+                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                        placeholder={field.placeholder}
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                      {field.validation && formData[field.id] && !field.validation.test(formData[field.id]) && (
+                        <p className="mt-1 text-sm text-red-400">{field.errorMessage}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {error && (
+                <div className="flex items-center gap-2 text-red-400 bg-red-400/10 p-3 rounded-lg">
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
+              )}
+              
+              <button
+                type="submit"
+                disabled={isProcessing || !validateForm()}
+                className={`w-full py-4 rounded-full flex items-center justify-center gap-2 text-white text-lg font-medium transition-all ${
+                  isProcessing || !validateForm()
+                    ? 'bg-gray-700 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500'
+                }`}
+              >
+                {isProcessing ? (
+                  <>
+                    <span className="inline-block w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Buy Now</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+              
+              <div className="text-xs text-gray-400 text-center">
+                Purchases are typically processed within:
+                <br />
+                {selectedProvider?.id === 'bank' && '1-3 business days for bank transfers'}
+                {selectedProvider?.id === 'mobile' && '5-30 minutes for mobile money'}
+                {selectedProvider?.id === 'card' && '1-2 business days for card purchases'}
+                {!selectedProvider && '5-30 minutes to 3 business days depending on method'}
+                <br />
+                A small processing fee may apply.
+              </div>
+            </form>
+          )}
+        </motion.div>
       </div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
-        {/* Amount Input */}
-        <div className="bg-gray-900 rounded-xl p-6">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-gray-400">Amount</span>
-            <div className="flex items-center gap-1">
-              <span className="text-blue-500 font-medium">{selectedToken.symbol}</span>
-              <ChevronRight className="w-4 h-4 text-gray-500" />
-            </div>
-          </div>
-          
-          <div className="text-center mb-2">
-            <input
-              type="text"
-              inputMode="decimal"
-              className="text-5xl font-bold bg-transparent text-center w-full outline-none"
-              placeholder="0"
-              value={amount}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
-                  setAmount(value);
-                }
-              }}
-              readOnly // Use keypad instead
-            />
-          </div>
-          
-          {/* USDC equivalent display removed */}
-        </div>
-        
-        {/* Network Selection removed - network is automatically selected based on token */}
-        
-        {/* Payment Method */}
-        <div className="bg-gray-900 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">{selectedPaymentMethod.icon}</span>
-              <div>
-                <div>Pay with</div>
-                <div className="text-gray-400">{selectedPaymentMethod.name}</div>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-500" />
-          </div>
-        </div>
-        
-        {/* Card Selection */}
-        <div className="bg-gray-900 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div>
-                <div>Using</div>
-                <div className="text-gray-400">{selectedCard}</div>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-500" />
-          </div>
-        </div>
-        
-        {/* Numeric Keypad */}
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0].map((key) => (
-            <button
-              key={key}
-              onClick={() => handleKeypadPress(key.toString())}
-              className="bg-gray-800 hover:bg-gray-700 rounded-full h-14 flex items-center justify-center text-xl font-medium"
-            >
-              {key}
-            </button>
-          ))}
-          <button
-            onClick={() => handleKeypadPress('backspace')}
-            className="bg-gray-800 hover:bg-gray-700 rounded-full h-14 flex items-center justify-center"
-          >
-            ←
-          </button>
-        </div>
-        
-        {/* Continue Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          disabled={!amount || parseFloat(amount) <= 0}
-          className={`w-full py-4 rounded-full text-white text-xl font-medium mt-6 ${
-            !amount || parseFloat(amount) <= 0
-              ? 'bg-gray-800 text-gray-400'
-              : 'bg-gradient-to-r from-blue-600 to-blue-400'
-          }`}
-        >
-          Continue to payment
-        </motion.button>
-      </motion.div>
     </WalletLayout>
   );
 }

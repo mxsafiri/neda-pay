@@ -1,5 +1,8 @@
 'use client';
 
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { ImmersiveHeader } from '@/components/immersive/ImmersiveHeader';
 import { ImmersiveHero } from '@/components/immersive/ImmersiveHero';

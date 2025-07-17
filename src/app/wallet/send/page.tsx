@@ -1,5 +1,8 @@
 'use client';
 
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';

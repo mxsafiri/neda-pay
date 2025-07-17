@@ -6,8 +6,8 @@ import { useWalletAuth } from '@/hooks/useWalletAuth';
 // Define the context type
 type WalletAuthContextType = {
   isInitialized: boolean;
-  isAuthenticated: boolean;
-  address: string | null;
+  isAuthenticated: boolean; // Keep the same name in the context for backward compatibility
+  address: string | null; // Keep the same name in the context for backward compatibility
   error: string | null;
 };
 
@@ -22,7 +22,7 @@ export const WalletAuthContext = createContext<WalletAuthContextType>({
 export function WalletAuthProvider({ children }: PropsWithChildren) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated, address } = useWalletAuth();
+  const { isWalletAuthenticated, walletAddress } = useWalletAuth();
   
   // Initialize wallet auth
   useEffect(() => {
@@ -72,8 +72,8 @@ export function WalletAuthProvider({ children }: PropsWithChildren) {
     <WalletAuthContext.Provider 
       value={{
         isInitialized,
-        isAuthenticated,
-        address,
+        isAuthenticated: isWalletAuthenticated, // Map from new name to old name for context compatibility
+        address: walletAddress, // Map from new name to old name for context compatibility
         error,
       }}
     >

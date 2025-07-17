@@ -1,5 +1,8 @@
 'use client';
 
+// Prevent Next.js from prerendering this page
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout'
 import { WalletBalance } from '@/components/wallet/WalletBalance'

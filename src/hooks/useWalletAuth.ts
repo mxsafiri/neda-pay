@@ -2,15 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 // Removed unused import: import { useRouter } from 'next/navigation';
-import { useAuth } from './useAuth';
+// Removed circular dependency: import { useAuth } from './useAuth';
 import { 
   generateDeviceToken, 
   storeDeviceToken, 
   getDeviceToken, 
   hashPin, 
   storeWalletAuth, 
-  // getWalletAuth, 
-  // authenticate, 
+  getWalletAuth, 
   verifyDeviceToken,
   verifyPin,
   createSession,
@@ -42,7 +41,7 @@ interface AuthState {
  */
 export const useWalletAuth = () => {
   // const router = useRouter();
-  const { authenticated, user } = useAuth() as AuthState;
+  // Removed circular dependency with useAuth
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isWalletAuthenticated, setIsWalletAuthenticated] = useState(false);
   const [isPinRequired, setIsPinRequired] = useState(false);
@@ -53,43 +52,41 @@ export const useWalletAuth = () => {
 
   // Check if user has a wallet, if PIN is required, and if session has timed out
   useEffect(() => {
-    if (authenticated && user) {
-      // Check if session has timed out
-      if (isSessionTimedOut()) {
-        setIsSessionExpired(true);
-        setIsPinRequired(true);
-        console.log('Session has timed out, PIN verification required');
-      } else {
-        // Update session activity timestamp
-        updateSessionActivity();
-      }
-      
-      // Check if wallet exists in local storage
-      const walletData = localStorage.getItem('neda_wallet');
-      if (walletData) {
-        try {
-          const parsedData = JSON.parse(walletData);
-          setWalletAddress(parsedData.address);
-          setIsWalletAuthenticated(true);
-          
-          // Check if device token exists and is valid
-          const deviceToken = getDeviceToken();
-          if (!deviceToken) {
-            setIsNewDevice(true);
-          } else {
-            // Check if PIN verification is required (due to new device or session timeout)
-            const isDeviceValid = verifyDeviceToken();
-            if (!isDeviceValid || isSessionTimedOut()) {
-              setIsPinRequired(true);
-            }
+    // Check if session has timed out
+    if (isSessionTimedOut()) {
+      setIsSessionExpired(true);
+      setIsPinRequired(true);
+      console.log('Session has timed out, PIN verification required');
+    } else {
+      // Update session activity timestamp
+      updateSessionActivity();
+    }
+    
+    // Check if wallet exists in local storage
+    const walletData = localStorage.getItem('neda_wallet');
+    if (walletData) {
+      try {
+        const parsedData = JSON.parse(walletData);
+        setWalletAddress(parsedData.address);
+        setIsWalletAuthenticated(true);
+        
+        // Check if device token exists and is valid
+        const deviceToken = getDeviceToken();
+        if (!deviceToken) {
+          setIsNewDevice(true);
+        } else {
+          // Check if PIN verification is required (due to new device or session timeout)
+          const isDeviceValid = verifyDeviceToken();
+          if (!isDeviceValid || isSessionTimedOut()) {
+            setIsPinRequired(true);
           }
-        } catch (err) {
-          console.error('Failed to parse wallet data:', err);
-          setError('Failed to load wallet data');
         }
+      } catch (err) {
+        console.error('Failed to parse wallet data:', err);
+        setError('Failed to load wallet data');
       }
     }
-  }, [authenticated, user]);
+  }, []);
 
   /**
    * Create a new wallet
