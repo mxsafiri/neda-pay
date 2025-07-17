@@ -22,28 +22,39 @@ export function WalletLogin() {
   const [activeTab, setActiveTab] = useState('import');
   const [newWallet, setNewWallet] = useState<{ address: string; privateKey: string } | null>(null);
   const [copied, setCopied] = useState(false);
-  const { importPrivateKey, createWallet, isAuthenticated, address } = useWalletAuth();
+  const { signInWithWallet, createWallet, isWalletAuthenticated, walletAddress } = useWalletAuth();
   const router = useRouter();
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!privateKey) {
       setError('Please enter your private key');
       return;
     }
 
-    const result = importPrivateKey(privateKey);
-    if (!result.success) {
-      setError(result.error || 'Failed to import wallet');
-    } else {
+    try {
+      // Store the private key in local storage for the signInWithWallet function to use
+      localStorage.setItem('neda_wallet', JSON.stringify({
+        address: privateKey, // Using the private key as the address for now
+        createdAt: new Date().toISOString()
+      }));
+      
+      await signInWithWallet();
       setPrivateKey(''); // Clear for security
       router.push('/wallet'); // Redirect to wallet page
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to import wallet');
     }
   };
 
-  const handleCreateWallet = () => {
+  const handleCreateWallet = async () => {
+    setError(null);
     try {
-      const wallet = createWallet();
-      setNewWallet(wallet);
+      const newAddress = await createWallet();
+      // Create a wallet object with the new address
+      setNewWallet({
+        address: newAddress,
+        privateKey: 'Not available in custodial wallet' // BlockRadar uses custodial wallets
+      });
     } catch {
       setError('Failed to create wallet. Please try again.');
     }
@@ -63,7 +74,7 @@ export function WalletLogin() {
     router.push('/wallet');
   };
 
-  if (isAuthenticated && !newWallet) {
+  if (isWalletAuthenticated && !newWallet) {
     return (
       <div className="w-full max-w-md mx-auto bg-white/5 border border-white/10 rounded-lg overflow-hidden">
         <div className="p-4 border-b border-white/10">
@@ -77,7 +88,7 @@ export function WalletLogin() {
         </div>
         <div className="p-4">
           <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-md mb-4">
-            <p className="text-sm text-green-400 font-medium">Address: {address}</p>
+            <p className="text-sm text-green-400 font-medium">Address: {walletAddress}</p>
           </div>
         </div>
         <div className="p-4 border-t border-white/10">
