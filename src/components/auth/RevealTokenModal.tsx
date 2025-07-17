@@ -111,7 +111,7 @@ export function RevealTokenModal({ isOpen, onClose }: RevealTokenModalProps) {
             <>
               <div className="mb-6">
                 <p className="mb-4 text-slate-300">
-                  This is your security token. Store it securely as you'll need it to recover your wallet on new devices.
+                  This is your security token. Store it securely as you&apos;ll need it to recover your wallet on new devices.
                 </p>
               </div>
               

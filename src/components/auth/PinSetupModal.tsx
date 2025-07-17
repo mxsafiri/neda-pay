@@ -77,14 +77,14 @@ export function PinSetupModal({ isOpen, onClose, onComplete, walletAddress }: Pi
               <h4 className="text-xl font-medium mb-2">PIN Set Successfully</h4>
               <p className="text-white/70">
                 Your wallet is now secured with a PIN.
-                Keep this PIN safe as you'll need it to access your wallet.
+                Keep this PIN safe as you&apos;ll need it to access your wallet.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
                 <p className="text-blue-400 text-sm">
-                  Create a secure PIN to protect your wallet. You'll need this PIN to access your wallet in the future.
+                  Create a secure PIN to protect your wallet. You&apos;ll need this PIN to access your wallet in the future.
                 </p>
               </div>
               

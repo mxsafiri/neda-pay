@@ -19,7 +19,7 @@ export function RevealTokenModal({ isOpen, onClose }: RevealTokenModalProps) {
   
   // Get device token instead of private key
   const deviceToken = getDeviceToken();
-  const { getPrivateKey } = useWalletAuth();
+  const { } = useWalletAuth(); // Using empty destructuring to maintain import
   // Get wallet address
   const walletData = localStorage.getItem('neda_wallet');
   const walletAddress = walletData ? JSON.parse(walletData).address : 'Unknown';
@@ -103,7 +103,7 @@ export function RevealTokenModal({ isOpen, onClose }: RevealTokenModalProps) {
             <div className="space-y-4">
               <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
                 <p className="text-red-400 text-sm">
-                  <strong>IMPORTANT:</strong> This security token is specific to this device. You'll need it to recover your wallet access if you clear your browser data.
+                  <strong>IMPORTANT:</strong> This security token is specific to this device. You&apos;ll need it to recover your wallet access if you clear your browser data.
                 </p>
               </div>
               
@@ -150,7 +150,7 @@ export function RevealTokenModal({ isOpen, onClose }: RevealTokenModalProps) {
               
               <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
                 <p className="text-blue-400 text-sm">
-                  Store this security token in a secure password manager. You'll need it along with your PIN to recover wallet access if you clear your browser data.
+                  Store this security token in a secure password manager. You&apos;ll need it along with your PIN to recover wallet access if you clear your browser data.
                 </p>
               </div>
             </div>

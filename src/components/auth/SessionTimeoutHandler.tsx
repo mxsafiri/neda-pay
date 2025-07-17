@@ -6,7 +6,7 @@ import { PinVerificationModal } from './PinVerificationModal';
 import { isSessionTimedOut, updateSessionActivity } from '@/utils/deviceAuth';
 
 export function SessionTimeoutHandler() {
-  const { walletAddress, isWalletAuthenticated, isSessionExpired } = useWalletAuth();
+  const { walletAddress, isWalletAuthenticated } = useWalletAuth();
   const [showPinModal, setShowPinModal] = useState(false);
   
   // Check for session timeout periodically

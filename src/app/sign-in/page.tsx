@@ -9,7 +9,7 @@ import { useWalletAuth } from '@/hooks/useWalletAuth';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { isWalletAuthenticated, signInWithWallet } = useWalletAuth();
+  const { signInWithWallet } = useWalletAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [showAuthFlow, setShowAuthFlow] = useState(false);
   
@@ -71,7 +71,7 @@ export default function SignInPage() {
                   <div>
                     <h3 className="font-medium">Device Recognition</h3>
                     <p className="text-sm text-white/70">
-                      We'll verify this device is authorized to access your wallet
+                      We&apos;ll verify this device is authorized to access your wallet
                     </p>
                   </div>
                 </div>

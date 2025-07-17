@@ -13,7 +13,7 @@ interface PinVerificationModalProps {
 }
 
 export function PinVerificationModal({ isOpen, onClose, onSuccess, walletAddress, isSessionExpired }: PinVerificationModalProps) {
-  const { verifyPinAndRefreshSession, isLoading, error: authError } = useWalletAuth();
+  const { verifyPinAndRefreshSession } = useWalletAuth();
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

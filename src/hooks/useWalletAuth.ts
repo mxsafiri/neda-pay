@@ -9,8 +9,8 @@ import {
   getDeviceToken, 
   hashPin, 
   storeWalletAuth, 
-  getWalletAuth, 
-  authenticate, 
+  // getWalletAuth, 
+  // authenticate, 
   verifyDeviceToken,
   verifyPin,
   createSession,
@@ -19,11 +19,12 @@ import {
   clearSession
 } from '@/utils/deviceAuth';
 
-type WalletAuthState = {
-  address: string | null;
-  isAuthenticated: boolean;
-  privateKey: string | null;
-};
+// Commented out unused type
+// type WalletAuthState = {
+//   address: string | null;
+//   isAuthenticated: boolean;
+//   privateKey: string | null;
+// };
 
 type User = {
   id?: string;
@@ -40,7 +41,7 @@ interface AuthState {
  * Handles wallet import, storage, and authentication state
  */
 export const useWalletAuth = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const { authenticated, user } = useAuth() as AuthState;
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isWalletAuthenticated, setIsWalletAuthenticated] = useState(false);

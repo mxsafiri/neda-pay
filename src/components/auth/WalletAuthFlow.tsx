@@ -18,9 +18,7 @@ export function WalletAuthFlow({ onComplete }: WalletAuthFlowProps) {
     walletAddress, 
     isPinRequired, 
     isNewDevice,
-    createWallet,
-    signInWithWallet,
-    recoverWalletAccess
+    createWallet
   } = useWalletAuth();
   
   const [showPinSetup, setShowPinSetup] = useState(false);
@@ -45,7 +43,7 @@ export function WalletAuthFlow({ onComplete }: WalletAuthFlowProps) {
   }, [isWalletAuthenticated, isPinRequired, isNewDevice, onComplete]);
   
   // Handle PIN setup completion
-  const handlePinSetupComplete = async (deviceToken: string) => {
+  const handlePinSetupComplete = async () => {
     setShowPinSetup(false);
     
     // Create wallet with the new PIN

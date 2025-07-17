@@ -46,7 +46,7 @@ const AVAILABLE_DAPPS: DApp[] = [
 ];
 
 export const DAppConnections: FC = () => {
-  const { isAuthenticated, address } = useWalletAuth();
+  const { isWalletAuthenticated, walletAddress } = useWalletAuth();
   // const { user } = useAuth(); // Commented out as it's currently unused
   const router = useRouter();
   const [connecting, setConnecting] = useState<string>('');
@@ -58,7 +58,7 @@ export const DAppConnections: FC = () => {
     setConnecting(dApp.id);
     
     try {
-      if (!isAuthenticated) {
+      if (!isWalletAuthenticated) {
         console.log('User not authenticated, redirecting to login');
         // If user is not authenticated, redirect to login page
         router.push('/auth/login');
@@ -81,7 +81,7 @@ export const DAppConnections: FC = () => {
         // For ecosystem apps, pass the wallet address for seamless sign-in
         try {
           // Get wallet address for SSO between apps
-          const walletAddress = address;
+          // walletAddress is already destructured from useWalletAuth()
           
           // Open the dApp with the wallet address for automatic authentication
           if (walletAddress) {
