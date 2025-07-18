@@ -271,6 +271,42 @@ export const useWalletAuth = () => {
     // This allows for quick re-login with PIN
   }, []);
 
+  /**
+   * Reset PIN using recovery phrase
+   * @param walletAddress The wallet address
+   * @param newPin The new PIN to set
+   * @returns True if PIN reset was successful
+   */
+  const resetPin = useCallback(async (walletAddress: string, newPin: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Generate a new device token (or use existing one)
+      const deviceToken = getDeviceToken() || generateDeviceToken();
+      if (!getDeviceToken()) {
+        storeDeviceToken(deviceToken);
+      }
+      
+      // Hash new PIN and store auth data
+      const hashedPin = hashPin(newPin, deviceToken);
+      storeWalletAuth(walletAddress, hashedPin, deviceToken);
+      
+      // Create a new session
+      createSession();
+      setIsSessionExpired(false);
+      setIsPinRequired(false);
+      
+      return true;
+    } catch (err) {
+      console.error('Failed to reset PIN:', err);
+      setError('Failed to reset PIN');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return {
     walletAddress,
     isWalletAuthenticated,
@@ -284,6 +320,7 @@ export const useWalletAuth = () => {
     recoverWalletAccess,
     getWalletToken,
     verifyPinAndRefreshSession,
+    resetPin,
     logout
   };
 };

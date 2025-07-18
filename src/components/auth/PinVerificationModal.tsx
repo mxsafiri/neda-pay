@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle, Key, Clock } from 'lucide-react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { motion } from 'framer-motion';
 
 interface PinVerificationModalProps {
   isOpen: boolean;
@@ -18,6 +19,24 @@ export function PinVerificationModal({ isOpen, onClose, onSuccess, walletAddress
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  
+  // Auto-focus the PIN input when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        const pinInput = document.getElementById('pin-input');
+        if (pinInput) pinInput.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+  
+  // Handle PIN input keydown for Enter key
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleVerifyPin();
+    }
+  };
   
   const handleVerifyPin = async () => {
     // Validate PIN format
@@ -59,22 +78,40 @@ export function PinVerificationModal({ isOpen, onClose, onSuccess, walletAddress
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-md overflow-hidden">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    >
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-md overflow-hidden shadow-xl"
+      >
         <div className="flex justify-between items-center p-4 border-b border-slate-700">
-          <h3 className="text-lg font-semibold">Enter Your PIN</h3>
+          <h3 className="text-lg font-semibold text-white">
+            {isSessionExpired ? 'Session Expired' : 'Enter Your PIN'}
+          </h3>
           <button 
             onClick={onClose}
             className="p-1 rounded-full hover:bg-slate-800 transition-colors"
             disabled={success}
+            aria-label="Close"
           >
             <X size={20} />
           </button>
         </div>
         
-        <div className="p-4">
+        <div className="p-6">
           {success ? (
-            <div className="text-center py-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-6"
+            >
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 mb-4">
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
               </div>
@@ -82,84 +119,74 @@ export function PinVerificationModal({ isOpen, onClose, onSuccess, walletAddress
               <p className="text-white/70">
                 You have successfully authenticated to your wallet.
               </p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="space-y-4">
-              <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-                <p className="text-blue-400 text-sm">
-                  Enter your PIN to access your wallet.
-                </p>
-              </div>
-              
-              <div className="text-center mb-2">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-2">
-                  <Key className="h-8 w-8 text-primary" />
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#0A1F44]/20 mb-3">
+                  <Key className="h-8 w-8 text-[#0A1F44]" />
                 </div>
                 <p className="text-sm text-white/70">
                   Wallet: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </p>
               </div>
               
-              <div>
-                <label className="block text-sm text-white/70 mb-1">Enter PIN</label>
-                <input
-                  type="password"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="Enter your PIN"
-                  className="w-full h-10 rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                <p className="text-blue-400 text-sm">
+                  {isSessionExpired 
+                    ? 'Your session has expired for security reasons. Please enter your PIN to continue.' 
+                    : 'Enter your PIN to access your wallet.'}
+                </p>
               </div>
               
-              {error && (
-                <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                  <div className="flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-2" />
-                    {error}
-                  </div>
+              <div>
+                <div className="mb-2">
+                  <label htmlFor="pin-input" className="block text-sm font-medium text-white/90 mb-1">PIN</label>
+                  <input
+                    id="pin-input"
+                    type="password"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="••••••"
+                    className="w-full h-12 rounded-md border border-white/20 bg-white/5 px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-[#0A1F44]/50 transition-all"
+                    autoComplete="current-password"
+                  />
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-        
-        <div className="p-4 border-t border-slate-700">
-          {!success && (
-            <div className="flex flex-col items-center justify-center p-6 text-center">
-              {success ? (
-                <div className="flex flex-col items-center space-y-4">
-                  <CheckCircle2 className="h-16 w-16 text-green-500" />
-                  <h3 className="text-xl font-bold">PIN Verified</h3>
-                  <p>Wallet access granted.</p>
-                </div>
-              ) : (
-                <>
-                  {isSessionExpired ? (
-                    <Clock className="h-16 w-16 text-amber-500 mb-4" />
-                  ) : (
-                    <Key className="h-16 w-16 text-primary mb-4" />
-                  )}
-                  <h3 className="text-xl font-bold mb-2">
-                    {isSessionExpired ? 'Session Expired' : 'Verify Your PIN'}
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    {isSessionExpired 
-                      ? 'Your session has timed out for security. Please enter your PIN to continue.' 
-                      : 'Please enter your wallet PIN to continue.'}
-                  </p>
-                  <button 
-                    onClick={handleVerifyPin} 
-                    className="w-full p-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
-                    disabled={attempts >= 5}
+                
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm mb-4"
                   >
-                    Verify PIN
-                  </button>
-                </>
-              )}
+                    <div className="flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  </motion.div>
+                )}
+                
+                <button 
+                  onClick={handleVerifyPin} 
+                  className="w-full p-3 bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white rounded-md transition-colors font-medium mt-2"
+                  disabled={attempts >= 5 || pin.length === 0}
+                >
+                  {attempts >= 5 ? 'Too Many Attempts' : 'Verify PIN'}
+                </button>
+                
+                <button
+                  onClick={onClose}
+                  className="w-full p-2 text-white/70 hover:text-white text-sm mt-3 transition-colors"
+                  type="button"
+                >
+                  Forgot PIN? Use Recovery Phrase
+                </button>
+              </div>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

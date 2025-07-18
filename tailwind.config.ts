@@ -14,7 +14,8 @@ const config: Config = {
         secondary: theme.colors.secondary,
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)'],
+        sans: ['Coinbase Sans', 'var(--font-geist-sans)'],
+        display: ['Coinbase Display', 'var(--font-geist-sans)'],
         mono: ['var(--font-geist-mono)'],
       },
       backgroundImage: {
@@ -25,10 +26,15 @@ const config: Config = {
         loadingBar: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' }
+        },
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' }
         }
       },
       animation: {
-        loadingBar: 'loadingBar 1.5s infinite'
+        loadingBar: 'loadingBar 1.5s infinite',
+        blink: 'blink 1s step-end infinite'
       }
     },
   },

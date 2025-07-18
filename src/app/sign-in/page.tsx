@@ -5,23 +5,30 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { ArrowRight, Key, Shield } from 'lucide-react';
-import { WalletAuthFlow } from '@/components/auth/WalletAuthFlow';
+import { motion, Variants } from 'framer-motion';
+import { ArrowRight, Key, Shield, LockKeyhole } from 'lucide-react';
+import { PinVerificationModal } from '@/components/auth/PinVerificationModal';
+import { PinRecoveryModal } from '@/components/auth/PinRecoveryModal';
+import { RecoveryPhraseModal } from '@/components/auth/RecoveryPhraseModal';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { signInWithWallet } = useWalletAuth();
+  const { walletAddress, signInWithWallet, verifyPinAndRefreshSession } = useWalletAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [showAuthFlow, setShowAuthFlow] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+  const [showSetupRecoveryModal, setShowSetupRecoveryModal] = useState(false);
+  const [walletData, setWalletData] = useState<string | null>(null);
   
   // Check if wallet exists in local storage
   useEffect(() => {
-    const walletData = localStorage.getItem('neda_wallet');
-    if (!walletData) {
+    const storedWalletData = localStorage.getItem('neda_wallet');
+    if (!storedWalletData) {
       // No wallet found, redirect to create wallet
       router.push('/create-wallet');
+    } else {
+      setWalletData(storedWalletData);
     }
   }, [router]);
   
@@ -29,76 +36,165 @@ export default function SignInPage() {
     setIsSigningIn(true);
     try {
       await signInWithWallet();
-      setShowAuthFlow(true);
+      setShowPinModal(true);
     } catch (error) {
       console.error('Failed to sign in:', error);
       setIsSigningIn(false);
     }
   };
   
-  const handleAuthComplete = () => {
+  const handlePinSuccess = () => {
     // Redirect to wallet dashboard
     router.push('/wallet');
+  };
+  
+  const handleRecoverySuccess = () => {
+    // Redirect to wallet dashboard after successful recovery
+    router.push('/wallet');
+  };
+  
+  const handleShowRecovery = () => {
+    setShowPinModal(false);
+    setShowRecoveryModal(true);
+  };
+  
+  // Animation variants with proper TypeScript typing
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const itemVariants: Variants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 24
+      }
+    }
   };
   
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Access Your Wallet</h1>
-            <p className="text-white/70">
-              Sign in to your secure digital wallet
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full"
+        >
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <h1 className="text-4xl font-bold mb-3 text-white">Access Your Wallet</h1>
+            <p className="text-white/70 text-lg">
+              Sign in with your PIN to access your wallet
             </p>
-          </div>
+          </motion.div>
           
-          {!showAuthFlow ? (
-            <div className="space-y-6">
-              <div className="bg-slate-900 border border-slate-800 rounded-lg p-5">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                    <Key className="text-primary h-5 w-5" />
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
+          >
+            <motion.div 
+              variants={itemVariants}
+              className="bg-[#0A1F44]/10 border border-[#0A1F44]/20 rounded-lg p-6 shadow-lg"
+            >
+              <div className="space-y-5">
+                <motion.div 
+                  variants={itemVariants}
+                  className="flex items-start"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#0A1F44]/20 flex items-center justify-center mr-4">
+                    <Key className="text-[#0A1F44] h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Secure Access</h3>
-                    <p className="text-sm text-white/70">
-                      Verify your identity with your security PIN
+                    <h3 className="font-semibold text-lg mb-1 text-white">PIN Access</h3>
+                    <p className="text-white/70">
+                      Enter your 6-digit PIN to securely access your wallet
                     </p>
                   </div>
-                </div>
+                </motion.div>
                 
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                    <Shield className="text-primary h-5 w-5" />
+                <motion.div 
+                  variants={itemVariants}
+                  className="flex items-start"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#0A1F44]/20 flex items-center justify-center mr-4">
+                    <Shield className="text-[#0A1F44] h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Device Recognition</h3>
-                    <p className="text-sm text-white/70">
-                      We&apos;ll verify this device is authorized to access your wallet
+                    <h3 className="font-semibold text-lg mb-1 text-white">Protected Access</h3>
+                    <p className="text-white/70">
+                      Your wallet is protected with industry-standard encryption
                     </p>
                   </div>
-                </div>
+                </motion.div>
               </div>
-              
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={handleSignIn}
-                disabled={isSigningIn}
-                className="w-full p-4 bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center transition-colors"
-              >
-                {isSigningIn ? (
-                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Access Wallet <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </motion.button>
-            </div>
-          ) : (
-            <WalletAuthFlow onComplete={handleAuthComplete} />
+            </motion.div>
+            
+            <motion.button
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSignIn}
+              disabled={isSigningIn}
+              className="w-full p-4 bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white rounded-md flex items-center justify-center transition-all shadow-lg font-medium text-lg"
+            >
+              {isSigningIn ? (
+                <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <LockKeyhole className="mr-2 h-5 w-5" />
+                  Continue to PIN <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </motion.button>
+          </motion.div>
+          
+          {/* PIN Verification Modal */}
+          {showPinModal && walletAddress && (
+            <PinVerificationModal
+              isOpen={showPinModal}
+              onClose={() => handleShowRecovery()} // Changed to show recovery when "Forgot PIN?" is clicked
+              onSuccess={handlePinSuccess}
+              walletAddress={walletAddress}
+            />
           )}
-        </div>
+          
+          {/* PIN Recovery Modal */}
+          {showRecoveryModal && walletAddress && (
+            <PinRecoveryModal
+              isOpen={showRecoveryModal}
+              onClose={() => setShowRecoveryModal(false)}
+              onSuccess={handleRecoverySuccess}
+              walletAddress={walletAddress}
+            />
+          )}
+          
+          {/* Recovery Phrase Setup Modal (for onboarding) */}
+          {showSetupRecoveryModal && walletAddress && (
+            <RecoveryPhraseModal
+              isOpen={showSetupRecoveryModal}
+              onClose={() => setShowSetupRecoveryModal(false)}
+              onComplete={handlePinSuccess}
+              walletAddress={walletAddress}
+            />
+          )}
+        </motion.div>
       </div>
     </div>
   );

@@ -3,31 +3,51 @@
 // Prevent Next.js from prerendering this page
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
-import { ImmersiveHeader } from '@/components/immersive/ImmersiveHeader';
-import { ImmersiveHero } from '@/components/immersive/ImmersiveHero';
-import { ScrollFeatures } from '@/components/immersive/ScrollFeatures';
-import { AnimatedCTA } from '@/components/immersive/AnimatedCTA';
-import { ParticleBackground } from '@/components/immersive/ParticleBackground';
+import React, { useState, useEffect } from 'react';
+import { ModernHeader } from '../../components/landing/ModernHeader';
+import { ModernHero } from '../../components/landing/ModernHero';
+// ModernFeatures removed as requested
+import { ModernCTA } from '../../components/landing/ModernCTA';
 
 export default function LandingPage() {
+  // Theme state (light/dark)
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  
+  // Check for user's preferred theme on initial load
+  useEffect(() => {
+    // Check if user has a saved preference
+    const savedTheme = localStorage.getItem('neda-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme);
+      return;
+    }
+    
+    // Otherwise check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      setTheme('light');
+    }
+  }, []);
+  
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('neda-theme', newTheme);
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#061328] via-primary to-black text-white overflow-x-hidden">
-      {/* Particle background for the entire page */}
-      <ParticleBackground />
-      
-      {/* Immersive header with scroll effects */}
-      <ImmersiveHeader />
+    <div className={`min-h-screen ${theme === 'light' ? 'bg-white' : 'bg-black'}`}>
+      {/* Modern header with theme toggle */}
+      <ModernHeader theme={theme} onThemeToggle={toggleTheme} />
       
       <main>
-        {/* Hero section with animated text and interactive elements */}
-        <ImmersiveHero />
+        {/* Hero section */}
+        <ModernHero theme={theme} />
         
-        {/* Features section with scroll-triggered animations */}
-        <ScrollFeatures />
+        {/* Features section removed as requested */}
         
-        {/* CTA section with dynamic background and interactive elements */}
-        <AnimatedCTA />
+        {/* CTA section */}
+        <ModernCTA theme={theme} />
       </main>
     </div>
   );

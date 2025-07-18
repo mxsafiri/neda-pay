@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { Wallet } from 'lucide-react';
+import { LockKeyhole } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface LoginButtonProps {
@@ -15,7 +15,7 @@ export const LoginButton: FC<LoginButtonProps> = ({
   className = '',
   size = 'md',
 }) => {
-  const { authenticated, login, activeAddress } = useAuth();
+  const { authenticated, activeAddress } = useAuth();
   const router = useRouter();
   
   const sizeClasses = {
@@ -32,19 +32,20 @@ export const LoginButton: FC<LoginButtonProps> = ({
     if (authenticated) {
       router.push('/wallet');
     } else {
-      login();
+      // Direct to PIN-based sign-in
+      router.push('/sign-in');
     }
   };
 
   return (
     <motion.button
-      className={`flex items-center gap-2 bg-primary hover:bg-primary/90 text-white rounded-xl transition-colors font-medium ${sizeClasses[size]} ${className}`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      className={`flex items-center gap-2 bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white rounded-md transition-colors font-medium ${sizeClasses[size]} ${className}`}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       onClick={handleClick}
     >
-      <Wallet className="w-5 h-5" />
-      {authenticated ? displayAddress : 'Connect Wallet'}
+      <LockKeyhole className="w-5 h-5" />
+      {authenticated ? displayAddress : 'Sign In'}
     </motion.button>
   );
 };
