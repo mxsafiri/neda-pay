@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { PinSetupForm } from '@/components/auth/PinSetupForm';
 import { useRouter } from 'next/navigation';
 
 // Define the steps in the onboarding process
@@ -15,6 +16,7 @@ enum OnboardingStep {
   WELCOME = 'welcome',
   CREATE_WALLET = 'create_wallet',
   KYC_VERIFICATION = 'kyc_verification',
+  PIN_SETUP = 'pin_setup',
   COMPLETE = 'complete'
 }
 
@@ -172,6 +174,11 @@ export default function OnboardingPage() {
 
   // Handle KYC completion
   const handleKYCComplete = () => {
+    setCurrentStep(OnboardingStep.PIN_SETUP);
+  };
+
+  // Handle PIN setup completion
+  const handlePinSetupComplete = () => {
     setCurrentStep(OnboardingStep.COMPLETE);
     // Redirect to wallet after a short delay to show completion screen
     setTimeout(() => {
@@ -313,6 +320,23 @@ export default function OnboardingPage() {
               </p>
               
               <SimpleKYCForm onComplete={handleKYCComplete} />
+            </motion.div>
+          )}
+          
+          {/* PIN Setup step */}
+          {currentStep === OnboardingStep.PIN_SETUP && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-gray-900/50 backdrop-blur-md rounded-xl p-8 shadow-xl"
+            >
+              <h1 className="text-3xl font-bold mb-6 text-center">Create Security PIN</h1>
+              <p className="text-white/70 text-center mb-8">
+                Create a secure PIN to protect your wallet. You'll need this PIN to access your wallet in the future.
+              </p>
+              
+              <PinSetupForm onComplete={handlePinSetupComplete} walletAddress={localStorage.getItem('wallet_address') || ''} />
             </motion.div>
           )}
           
