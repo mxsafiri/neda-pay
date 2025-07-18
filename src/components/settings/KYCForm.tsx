@@ -285,13 +285,13 @@ export function KYCForm({ onComplete, userId }: KYCFormProps) {
         {steps.map((step, index) => {
           const isActive = step.value === currentStep;
           const isCompleted = (
-            (step.id === 'info' && formData) ||
-            (step.id === 'document' && uploadedFile) ||
+            (step.value === 'info' && formData) ||
+            (step.value === 'document' && uploadedFile) ||
             false
           );
           
           return (
-            <div key={step.id} className="flex flex-col items-center relative">
+            <div key={step.value} className="flex flex-col items-center relative">
               <div className="flex items-center">
                 {index > 0 && (
                   <div className={`h-0.5 w-10 -ml-5 ${isCompleted ? 'bg-blue-500' : 'bg-white/20'}`} />
