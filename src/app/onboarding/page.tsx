@@ -333,7 +333,7 @@ export default function OnboardingPage() {
             >
               <h1 className="text-3xl font-bold mb-6 text-center">Create Security PIN</h1>
               <p className="text-white/70 text-center mb-8">
-                Create a secure PIN to protect your wallet. You'll need this PIN to access your wallet in the future.
+                Create a secure PIN to protect your wallet. You&apos;ll need this PIN to access your wallet in the future.
               </p>
               
               <PinSetupForm onComplete={handlePinSetupComplete} walletAddress={localStorage.getItem('wallet_address') || ''} />
