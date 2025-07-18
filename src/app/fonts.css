@@ -1,0 +1,31 @@
+/* Font declarations for NEDApay */
+
+@font-face {
+  font-family: 'Coinbase Display';
+  src: url('/fonts/Coinbase Display-normal-400-100.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Coinbase Sans';
+  src: url('/fonts/coinbaseSans-normal-400-100.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Coinbase Sans';
+  src: url('/fonts/coinbaseSans-normal-500-100.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font variables */
+:root {
+  --font-display: 'Coinbase Display', system-ui, sans-serif;
+  --font-sans: 'Coinbase Sans', system-ui, sans-serif;
+}
