@@ -175,15 +175,30 @@ export default function SettingsPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
+            className="backdrop-blur-md p-6 rounded-2xl border transition-colors duration-200"
+            style={{
+              backgroundColor: themeColors.background.card,
+              borderColor: themeColors.border.primary
+            }}
           >
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-primary/30 rounded-full flex items-center justify-center">
-                <User size={32} className="text-white/80" />
+              <div 
+                className="w-16 h-16 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: `${themeColors.brand.primary}30` }}
+              >
+                <User size={32} style={{ color: themeColors.text.primary }} />
               </div>
               <div>
-                <h2 className="text-xl font-bold">{user?.wallet ? `${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}` : 'NEDApay User'}</h2>
-                <p className="text-white/60 text-sm">
+                <h2 
+                  className="text-xl font-bold"
+                  style={{ color: themeColors.text.primary }}
+                >
+                  {user?.wallet ? `${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}` : 'NEDApay User'}
+                </h2>
+                <p 
+                  className="text-sm"
+                  style={{ color: themeColors.text.secondary }}
+                >
                   {user?.wallet ? 
                     (typeof user.wallet === 'string' ? 
                       `${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}` : 
@@ -207,40 +222,75 @@ export default function SettingsPage() {
                 borderColor: themeColors.border.primary
               }}
             >
-              <h3 className="text-lg font-medium mb-4">{section.title}</h3>
+              <h3 
+                className="text-lg font-medium mb-4"
+                style={{ color: themeColors.text.primary }}
+              >
+                {section.title}
+              </h3>
               <div className="space-y-2">
                 {section.items.map((item) => (
                   <button
                     key={item.label}
                     onClick={item.action}
                     disabled={'disabled' in item && item.disabled === true}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
-                      'disabled' in item && item.disabled === true 
-                        ? 'opacity-50 cursor-not-allowed' 
-                        : 'hover:bg-white/10 cursor-pointer'
-                    }`}
+                    className="w-full flex items-center justify-between p-3 rounded-xl transition-colors"
+                    style={{
+                      opacity: ('disabled' in item && item.disabled === true) ? 0.5 : 1,
+                      cursor: ('disabled' in item && item.disabled === true) ? 'not-allowed' : 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!('disabled' in item && item.disabled === true)) {
+                        e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!('disabled' in item && item.disabled === true)) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className="w-5 h-5 text-white/70" />
+                      <item.icon 
+                        className="w-5 h-5" 
+                        style={{ color: themeColors.text.secondary }}
+                      />
                       <div className="flex flex-col items-start">
-                        <span>{item.label}</span>
+                        <span style={{ color: themeColors.text.primary }}>{item.label}</span>
                         {'description' in item && (
-                          <span className="text-xs text-white/60">{item.description}</span>
+                          <span 
+                            className="text-xs"
+                            style={{ color: themeColors.text.tertiary }}
+                          >
+                            {item.description}
+                          </span>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {item.value && (
-                        <span className={`text-sm px-2 py-0.5 rounded-full ${
-                          'status' in item && item.status === 'warning' ? 'bg-yellow-500/20 text-yellow-300' :
-                          'status' in item && item.status === 'pending' ? 'bg-blue-500/20 text-blue-300' :
-                          'status' in item && item.status === 'success' ? 'bg-green-500/20 text-green-300' :
-                          'text-white/60'
-                        }`}>
+                        <span 
+                          className="text-sm px-2 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: 
+                              'status' in item && item.status === 'warning' ? themeColors.brand.warning + '20' :
+                              'status' in item && item.status === 'pending' ? themeColors.brand.secondary + '20' :
+                              'status' in item && item.status === 'success' ? themeColors.brand.success + '20' :
+                              themeColors.background.tertiary,
+                            color: 
+                              'status' in item && item.status === 'warning' ? themeColors.brand.warning :
+                              'status' in item && item.status === 'pending' ? themeColors.brand.secondary :
+                              'status' in item && item.status === 'success' ? themeColors.brand.success :
+                              themeColors.text.secondary
+                          }}
+                        >
                           {item.value}
                         </span>
                       )}
-                      <ChevronRight className="w-4 h-4 text-white/60" />
+                      <ChevronRight 
+                        className="w-4 h-4" 
+                        style={{ color: themeColors.text.tertiary }}
+                      />
                     </div>
                   </button>
                 ))}
@@ -255,7 +305,17 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-red-400"
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-xl transition-colors"
+            style={{
+              backgroundColor: theme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)',
+              color: themeColors.brand.error
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)';
+            }}
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
@@ -266,9 +326,18 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
+            className="backdrop-blur-md p-6 rounded-2xl border transition-colors duration-200"
+            style={{
+              backgroundColor: themeColors.background.card,
+              borderColor: themeColors.border.primary
+            }}
           >
-            <h3 className="text-lg font-medium mb-4">Identity Verification Status</h3>
+            <h3 
+              className="text-lg font-medium mb-4"
+              style={{ color: themeColors.text.primary }}
+            >
+              Identity Verification Status
+            </h3>
             {user?.id ? (
               <KYCStatus 
                 userId={user.id} 
@@ -276,7 +345,9 @@ export default function SettingsPage() {
                 onUpdateClick={() => setShowKYCModal(true)} 
               />
             ) : (
-              <p className="text-white/60">Please connect your wallet to view verification status</p>
+              <p style={{ color: themeColors.text.secondary }}>
+                Please connect your wallet to view verification status
+              </p>
             )}
           </motion.div>
           
@@ -313,8 +384,19 @@ export default function SettingsPage() {
 
         </div>
       ) : (
-        <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 text-center py-12">
-          <p className="text-lg mb-4">Please connect your wallet to view settings</p>
+        <div 
+          className="backdrop-blur-md p-6 rounded-2xl border text-center py-12 transition-colors duration-200"
+          style={{
+            backgroundColor: themeColors.background.card,
+            borderColor: themeColors.border.primary
+          }}
+        >
+          <p 
+            className="text-lg mb-4"
+            style={{ color: themeColors.text.primary }}
+          >
+            Please connect your wallet to view settings
+          </p>
         </div>
       )}
     </WalletLayout>
