@@ -48,7 +48,7 @@ export function ModernCTA({ theme }: ModernCTAProps) {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
               >
-                Join thousands of users who are already enjoying the benefits of NEDApay's secure and intuitive wallet.
+                Join thousands of users who are already enjoying the benefits of NEDApay&apos;s secure and intuitive wallet.
               </motion.p>
               
               <motion.div

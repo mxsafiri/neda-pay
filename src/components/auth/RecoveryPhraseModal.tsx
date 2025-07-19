@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Copy, CheckCircle2, AlertCircle, Shield, Eye, EyeOff } from 'lucide-react';
-import { generateRecoveryPhrase, storeRecoveryPhrase } from '@/utils/recoveryPhrase';
+import { generateRecoveryPhrase } from '@/utils/recoveryPhrase';
 
 interface RecoveryPhraseModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface RecoveryPhraseModalProps {
   walletAddress: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function RecoveryPhraseModal({ isOpen, onClose, onComplete, walletAddress }: RecoveryPhraseModalProps) {
   const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
   const [showPhrase, setShowPhrase] = useState(false);
@@ -71,8 +72,8 @@ export function RecoveryPhraseModal({ isOpen, onClose, onComplete, walletAddress
     
     if (isCorrect) {
       setSuccess(true);
-      // Store the recovery phrase
-      storeRecoveryPhrase(walletAddress, recoveryPhrase);
+      // Note: Recovery phrase storage is handled by the hybrid auth system
+      // This component is used in legacy wallet creation flow
       
       // Show success message and complete after delay
       setTimeout(() => {
@@ -197,7 +198,7 @@ export function RecoveryPhraseModal({ isOpen, onClose, onComplete, walletAddress
                   className="w-full p-3 bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white rounded-md transition-colors font-medium"
                   disabled={!showPhrase}
                 >
-                  I've saved my recovery phrase
+                  I&apos;ve saved my recovery phrase
                 </button>
               </div>
             ) : (
@@ -210,7 +211,7 @@ export function RecoveryPhraseModal({ isOpen, onClose, onComplete, walletAddress
                   <div>
                     <h4 className="font-medium text-white mb-1">Verify Your Recovery Phrase</h4>
                     <p className="text-white/70 text-sm">
-                      Select the words in the correct order to verify you've saved your recovery phrase.
+                      Select the words in the correct order to verify you&apos;ve saved your recovery phrase.
                     </p>
                   </div>
                 </div>

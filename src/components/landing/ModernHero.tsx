@@ -11,13 +11,11 @@ interface ModernHeroProps {
 }
 
 export function ModernHero({ theme }: ModernHeroProps) {
-  const [currentWord, setCurrentWord] = useState(0);
+
   const [text, setText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [loopNum, setLoopNum] = useState(0);
   const [typingSpeed, setTypingSpeed] = useState(100); // Faster typing speed
-  
-  const words = ['FASTER', 'SECURED', 'CONNECTED', 'DISTRIBUTED'];
   
   // Multiple messages for typewriter effect - starting with "It pays to be here"
   const messages = [
@@ -29,14 +27,7 @@ export function ModernHero({ theme }: ModernHeroProps) {
   
   const currentMessage = messages[loopNum % messages.length];
   
-  // Handle word cycling with a timer
-  useEffect(() => {
-    const wordChangeInterval = setInterval(() => {
-      setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 3000);
-    
-    return () => clearInterval(wordChangeInterval);
-  }, [words.length]);
+
   
   // Typewriter effect
   useEffect(() => {

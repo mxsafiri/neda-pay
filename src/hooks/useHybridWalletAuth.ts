@@ -15,7 +15,6 @@ import {
   registerWalletUser,
   authenticateWithPin,
   resetPinWithRecoveryPhrase,
-  getDevices,
   submitKycVerification,
   getKycVerificationStatus
 } from '@/lib/supabaseAuth';
@@ -351,7 +350,7 @@ export const useHybridWalletAuth = () => {
    */
   const submitKyc = useCallback(async (
     verificationType: string,
-    verificationData: Record<string, any>
+    verificationData: Record<string, unknown>
   ) => {
     setIsLoading(true);
     setError(null);

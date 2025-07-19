@@ -31,7 +31,7 @@ export interface KycVerification {
   wallet_address: string;
   verification_status: 'pending' | 'approved' | 'rejected';
   verification_type: string;
-  verification_data: Record<string, any>;
+  verification_data: Record<string, unknown>;
   verified_at?: string;
   created_at: string;
   updated_at: string;
@@ -305,7 +305,7 @@ export async function getDevices(
 export async function submitKycVerification(
   walletAddress: string,
   verificationType: string,
-  verificationData: Record<string, any>
+  verificationData: Record<string, unknown>
 ): Promise<{ success: boolean; error?: string; verificationId?: string }> {
   try {
     const { data, error } = await supabase

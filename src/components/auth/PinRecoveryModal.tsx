@@ -166,7 +166,7 @@ export function PinRecoveryModal({ isOpen, onClose, onSuccess, walletAddress }: 
                       disabled={isProcessing}
                     />
                     <p className="text-xs text-white/50 mt-1">
-                      Words should be separated by spaces, e.g., "word1 word2 word3..."
+                      Words should be separated by spaces, e.g., &quot;word1 word2 word3...&quot;
                     </p>
                   </div>
                   
