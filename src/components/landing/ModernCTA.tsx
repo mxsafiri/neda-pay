@@ -59,7 +59,16 @@ export function ModernCTA({ theme }: ModernCTAProps) {
               >
                 <Link 
                   href="/onboarding" 
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full text-lg font-medium hover:bg-blue-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white rounded-full text-lg font-medium transition-colors"
+                  style={{
+                    color: '#0254e6'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f0f7ff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                  }}
                 >
                   Get Started Now <ArrowRight size={18} />
                 </Link>

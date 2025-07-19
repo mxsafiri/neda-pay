@@ -39,7 +39,7 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link href="/landing" className="flex items-center gap-2 font-display">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
               theme === 'light' ? 'bg-[#0254e6]' : 'bg-[#0254e6]'
             }`}>
               <Image 
@@ -82,22 +82,35 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
             {/* Desktop buttons */}
             <Link 
               href="/sign-in" 
-              className={`hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                theme === 'light'
-                  ? 'text-gray-700 hover:text-[#0A1F44]'
-                  : 'text-gray-300 hover:text-white'
-              }`}
+              className="hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium transition-all duration-200"
+              style={{
+                color: theme === 'light' ? '#6b7280' : '#d1d5db'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#0254e6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = theme === 'light' ? '#6b7280' : '#d1d5db';
+              }}
             >
               Sign In
             </Link>
             
             <Link 
               href="/onboarding" 
-              className={`hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                theme === 'light'
-                  ? 'bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white'
-                  : 'bg-[#0A1F44] hover:bg-[#0A1F44]/80 text-white'
-              }`}
+              className="hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200"
+              style={{
+                backgroundColor: '#0254e6',
+                boxShadow: '0 2px 8px rgba(2, 84, 230, 0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#0242c7';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(2, 84, 230, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#0254e6';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(2, 84, 230, 0.2)';
+              }}
             >
               Open App
             </Link>
