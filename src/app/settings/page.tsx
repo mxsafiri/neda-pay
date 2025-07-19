@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme, financeTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import { ChevronRight, LogOut, Moon, Sun, User, Bell, Globe, FileCheck, X, Layers } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
@@ -17,9 +18,13 @@ import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEdit
 
 export default function SettingsPage() {
   const { authenticated, user, logout } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { theme, toggleTheme } = useTheme();
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  
+  // Get current theme colors
+  const themeColors = financeTheme[theme];
+  const isDarkMode = theme === 'dark';
 
   const [profileData, setProfileData] = useState<ProfileData>({
     displayName: '',
@@ -86,27 +91,7 @@ export default function SettingsPage() {
     return Promise.reject('User not authenticated');
   };
   
-  // Handle theme toggle with localStorage persistence
-  useEffect(() => {
-    // Check if theme preference exists in localStorage
-    const savedTheme = localStorage.getItem('theme_preference');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-    }
-  }, []);
-  
-  const handleThemeToggle = () => {
-    const newThemeValue = !isDarkMode;
-    setIsDarkMode(newThemeValue);
-    localStorage.setItem('theme_preference', newThemeValue ? 'dark' : 'light');
-    
-    // Apply theme to document
-    if (newThemeValue) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
+  // Theme toggle is now handled by the ThemeContext
   
   const settingsSections = [
     {
@@ -160,7 +145,7 @@ export default function SettingsPage() {
         {
           icon: isDarkMode ? Sun : Moon,
           label: 'Theme',
-          action: handleThemeToggle,
+          action: toggleTheme,
           value: isDarkMode ? 'Dark' : 'Light',
         },
         {
@@ -209,14 +194,18 @@ export default function SettingsPage() {
             </div>
           </motion.div>
           
-          {/* Settings Sections */}
-          {settingsSections.map((section) => (
+          <div className="space-y-6">
+          {settingsSections.map((section, sectionIndex) => (
             <motion.div
               key={section.title}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10"
+              transition={{ delay: sectionIndex * 0.1 }}
+              className="backdrop-blur-md p-6 rounded-2xl border transition-colors duration-200"
+              style={{
+                backgroundColor: themeColors.background.card,
+                borderColor: themeColors.border.primary
+              }}
             >
               <h3 className="text-lg font-medium mb-4">{section.title}</h3>
               <div className="space-y-2">
@@ -258,6 +247,7 @@ export default function SettingsPage() {
               </div>
             </motion.div>
           ))}
+          </div>
           
           {/* Logout Button */}
           <motion.button

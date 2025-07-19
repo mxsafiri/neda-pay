@@ -3,7 +3,7 @@
 import { FC, ReactNode, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Logo } from '@/components/ui/Logo'
-import { theme } from '@/styles/theme'
+import { useTheme, financeTheme } from '@/contexts/ThemeContext'
 import { Home, ArrowLeftRight, Activity, Settings, QrCode, Scan } from 'lucide-react'
 // import { LoginButton } from '@/components/auth/LoginButton' // Commented out as it's currently unused
 import { usePathname, useRouter } from 'next/navigation'
@@ -25,7 +25,11 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   const router = useRouter()
   const pathname = usePathname()
   const { user } = useAuth()
+  const { theme } = useTheme()
   const [displayName, setDisplayName] = useState('')
+  
+  // Get current theme colors
+  const themeColors = financeTheme[theme]
   
   // Load profile data from localStorage
   useEffect(() => {
@@ -52,9 +56,12 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
       <SessionTimeoutHandler />
       
       <div 
-        className="min-h-screen bg-black text-white"
-      style={{ '--primary': theme.colors.primary } as React.CSSProperties}
-    >
+        className="min-h-screen transition-colors duration-200"
+        style={{ 
+          backgroundColor: themeColors.background.primary,
+          color: themeColors.text.primary 
+        }}
+      >
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -63,8 +70,11 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
       >
         <header className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-              <Logo variant="white" size={24} />
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: themeColors.brand.primary }}
+            >
+              <Logo variant={theme === 'dark' ? 'white' : 'primary'} size={24} />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
@@ -79,7 +89,14 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              className="p-2 rounded-full transition-colors"
+              style={{ color: themeColors.text.secondary }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
               aria-label="QR Code"
             >
               <QrCode className="w-6 h-6" />
@@ -87,7 +104,14 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              className="p-2 rounded-full transition-colors"
+              style={{ color: themeColors.text.secondary }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
               onClick={() => router.push('/settings')}
               aria-label="Settings"
             >
@@ -104,7 +128,11 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
           initial={{ y: 100 }}
           animate={{ y: 0 }}
           transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
-          className="fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 p-4 z-20"
+          className="fixed bottom-0 left-0 right-0 p-4 z-20 transition-colors duration-200"
+          style={{ 
+            backgroundColor: themeColors.background.secondary,
+            borderTop: `1px solid ${themeColors.border.primary}`
+          }}
         >
           <div className="flex justify-around max-w-md mx-auto">
             {navItems.map(({ name, icon: Icon, path }) => {
@@ -117,9 +145,25 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => router.push(path)}
-                  className={`flex flex-col items-center gap-1 text-xs font-medium transition-colors ${isActive ? 'text-white' : 'text-white/70 hover:text-white/90'}`}
+                  className="flex flex-col items-center gap-1 text-xs font-medium transition-colors"
+                  style={{
+                    color: isActive ? themeColors.brand.primary : themeColors.text.secondary
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.color = themeColors.text.primary;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.color = themeColors.text.secondary;
+                    }
+                  }}
                 >
-                  <Icon className={`w-6 h-6 ${isActive ? 'text-white' : ''}`} />
+                  <Icon 
+                    className="w-6 h-6" 
+                    style={{ color: isActive ? themeColors.brand.primary : themeColors.text.secondary }}
+                  />
                   <span>{name}</span>
                 </motion.button>
               );

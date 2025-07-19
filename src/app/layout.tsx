@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletAuthProvider } from "@/providers/WalletAuthProvider";
 import { BlockradarProvider } from "@/components/blockradar/BlockradarProvider";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,11 +62,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <WalletAuthProvider>
-          <BlockradarProvider>
-            {children}
-          </BlockradarProvider>
-        </WalletAuthProvider>
+        <ThemeProvider>
+          <WalletAuthProvider>
+            <BlockradarProvider>
+              {children}
+            </BlockradarProvider>
+          </WalletAuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
