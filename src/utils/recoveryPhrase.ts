@@ -1,7 +1,11 @@
 /**
  * Utility functions for generating and validating recovery phrases
  * Used for account recovery when a user forgets their PIN
+ * Now integrated with Supabase for secure, cross-device storage
  */
+
+import supabase from '@/lib/supabase';
+import { encryptData, decryptData, deriveKeyFromPin, hashPin, generateSalt } from '@/lib/encryption';
 
 // List of common words for recovery phrase generation
 // Using a subset of BIP39 wordlist for simplicity
@@ -40,8 +44,136 @@ export function generateRecoveryPhrase(wordCount = 12): string {
   return selectedWords.join(' ');
 }
 
+
+
 /**
- * Validates if a provided phrase matches the stored recovery phrase
+ * Stores the recovery phrase in Supabase database (encrypted)
+ * @param userId The user ID associated with the recovery phrase
+ * @param recoveryPhrase The recovery phrase to store
+ * @param pin The user's PIN for encryption key derivation
+ * @returns Promise indicating success or failure
+ */
+export async function storeRecoveryPhrase(
+  userId: string, 
+  recoveryPhrase: string, 
+  pin: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Derive encryption key from PIN and user ID
+    const encryptionKey = deriveKeyFromPin(pin, userId);
+    
+    // Encrypt the recovery phrase
+    const encryptedRecoveryPhrase = encryptData(recoveryPhrase, encryptionKey);
+    
+    // Create a hash of the recovery phrase for validation (without requiring PIN)
+    const salt = generateSalt();
+    const recoveryPhraseHash = hashPin(recoveryPhrase.toLowerCase().trim(), salt);
+    
+    // Store in Supabase
+    const { error } = await supabase
+      .from('recovery_tokens')
+      .upsert({
+        user_id: userId,
+        encrypted_recovery_phrase: encryptedRecoveryPhrase,
+        pin_hash: recoveryPhraseHash,
+        salt: salt,
+        updated_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Error storing recovery phrase:', error);
+      return { success: false, error: error.message };
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Unexpected error storing recovery phrase:', error);
+    return { success: false, error: 'Failed to store recovery phrase' };
+  }
+}
+
+/**
+ * Retrieves the stored recovery phrase from Supabase database (decrypted)
+ * @param userId The user ID to retrieve the recovery phrase for
+ * @param pin The user's PIN for decryption key derivation
+ * @returns Promise with the decrypted recovery phrase or null if not found
+ */
+export async function getStoredRecoveryPhrase(
+  userId: string, 
+  pin: string
+): Promise<{ success: boolean; recoveryPhrase?: string; error?: string }> {
+  try {
+    // Retrieve encrypted recovery phrase from Supabase
+    const { data, error } = await supabase
+      .from('recovery_tokens')
+      .select('encrypted_recovery_phrase')
+      .eq('user_id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Error retrieving recovery phrase:', error);
+      return { success: false, error: 'Recovery phrase not found' };
+    }
+    
+    if (!data?.encrypted_recovery_phrase) {
+      return { success: false, error: 'No recovery phrase found for this user' };
+    }
+    
+    // Derive decryption key from PIN and user ID
+    const decryptionKey = deriveKeyFromPin(pin, userId);
+    
+    // Decrypt the recovery phrase
+    const decryptedRecoveryPhrase = decryptData(data.encrypted_recovery_phrase, decryptionKey);
+    
+    return { success: true, recoveryPhrase: decryptedRecoveryPhrase };
+  } catch (error) {
+    console.error('Unexpected error retrieving recovery phrase:', error);
+    return { success: false, error: 'Failed to retrieve recovery phrase' };
+  }
+}
+
+/**
+ * Validates a recovery phrase against the stored hash (without requiring PIN)
+ * @param userId The user ID to validate the recovery phrase for
+ * @param providedPhrase The phrase provided by the user
+ * @returns Promise indicating if the phrase is valid
+ */
+export async function validateStoredRecoveryPhrase(
+  userId: string,
+  providedPhrase: string
+): Promise<{ success: boolean; isValid?: boolean; error?: string }> {
+  try {
+    // Retrieve the stored hash and salt from Supabase
+    const { data, error } = await supabase
+      .from('recovery_tokens')
+      .select('pin_hash, salt')
+      .eq('user_id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Error retrieving recovery phrase hash:', error);
+      return { success: false, error: 'Recovery phrase not found' };
+    }
+    
+    if (!data?.pin_hash || !data?.salt) {
+      return { success: false, error: 'No recovery phrase found for this user' };
+    }
+    
+    // Hash the provided phrase with the stored salt
+    const providedPhraseHash = hashPin(providedPhrase.toLowerCase().trim(), data.salt);
+    
+    // Compare hashes
+    const isValid = providedPhraseHash === data.pin_hash;
+    
+    return { success: true, isValid };
+  } catch (error) {
+    console.error('Error validating recovery phrase:', error);
+    return { success: false, error: 'Failed to validate recovery phrase' };
+  }
+}
+
+/**
+ * Legacy synchronous validation function for backward compatibility
  * @param providedPhrase The phrase provided by the user during recovery
  * @param storedPhrase The phrase stored during account creation
  * @returns Boolean indicating if the phrases match
@@ -52,24 +184,4 @@ export function validateRecoveryPhrase(providedPhrase: string, storedPhrase: str
   const normalizedStored = storedPhrase.trim().toLowerCase();
   
   return normalizedProvided === normalizedStored;
-}
-
-/**
- * Stores the recovery phrase in local storage (encrypted in a real implementation)
- * @param walletAddress The wallet address associated with the recovery phrase
- * @param recoveryPhrase The recovery phrase to store
- */
-export function storeRecoveryPhrase(walletAddress: string, recoveryPhrase: string): void {
-  // In a production environment, this should be encrypted
-  // For now, we'll store it in local storage with a prefix
-  localStorage.setItem(`neda_recovery_${walletAddress}`, recoveryPhrase);
-}
-
-/**
- * Retrieves the stored recovery phrase for a wallet address
- * @param walletAddress The wallet address to retrieve the recovery phrase for
- * @returns The stored recovery phrase or null if not found
- */
-export function getStoredRecoveryPhrase(walletAddress: string): string | null {
-  return localStorage.getItem(`neda_recovery_${walletAddress}`);
 }

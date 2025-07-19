@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { X, CheckCircle2, AlertCircle, Key, ArrowRight } from 'lucide-react';
-import { validateRecoveryPhrase, getStoredRecoveryPhrase } from '@/utils/recoveryPhrase';
+import { validateStoredRecoveryPhrase } from '@/utils/recoveryPhrase';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 
 interface PinRecoveryModalProps {
@@ -24,24 +24,25 @@ export function PinRecoveryModal({ isOpen, onClose, onSuccess, walletAddress }: 
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Handle recovery phrase verification
-  const handleVerifyPhrase = () => {
+  const handleVerifyPhrase = async () => {
     setError(null);
     setIsProcessing(true);
     
     try {
-      // Get stored recovery phrase
-      const storedPhrase = getStoredRecoveryPhrase(walletAddress);
+      // For now, we'll use walletAddress as userId (this should be updated to use proper user mapping)
+      // In a production system, you'd want to map walletAddress to userId properly
+      const userId = walletAddress;
       
-      if (!storedPhrase) {
-        setError('No recovery phrase found for this wallet. Please contact support.');
+      // Validate the provided phrase against stored hash
+      const result = await validateStoredRecoveryPhrase(userId, recoveryPhrase);
+      
+      if (!result.success) {
+        setError(result.error || 'Failed to validate recovery phrase');
         setIsProcessing(false);
         return;
       }
       
-      // Validate the provided phrase
-      const isValid = validateRecoveryPhrase(recoveryPhrase, storedPhrase);
-      
-      if (isValid) {
+      if (result.isValid) {
         // Move to PIN reset step
         setStep('reset');
       } else {
@@ -146,7 +147,7 @@ export function PinRecoveryModal({ isOpen, onClose, onSuccess, walletAddress }: 
                   <div>
                     <h4 className="font-medium text-white mb-1">Enter Your Recovery Phrase</h4>
                     <p className="text-white/70 text-sm">
-                      Please enter the 12-word recovery phrase you saved during wallet setup.
+                      Enter the 12-word recovery phrase you saved during wallet creation. This phrase is the &quot;master key&quot; to your wallet.
                     </p>
                   </div>
                 </div>
