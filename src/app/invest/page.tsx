@@ -10,6 +10,7 @@ import { ArrowLeft, TrendingUp, Info, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useWalletStore } from '@/store/useWalletStore';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme, financeTheme } from '@/contexts/ThemeContext';
 // import Image from 'next/image';
 
 // Mock data for index funds
@@ -66,6 +67,8 @@ export default function InvestPage() {
   const router = useRouter();
   const { /* authenticated */ } = useAuth();
   const { balances } = useWalletStore();
+  const { theme } = useTheme();
+  const themeColors = financeTheme[theme];
   
   const [selectedFund, setSelectedFund] = useState<string | null>(null);
   const [investAmount, setInvestAmount] = useState('');
@@ -154,11 +157,25 @@ export default function InvestPage() {
         >
           <button 
             onClick={() => router.back()}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              color: themeColors.text.primary
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-2xl font-bold">Invest & Earn</h1>
+          <h1 
+            className="text-2xl font-bold"
+            style={{ color: themeColors.text.primary }}
+          >
+            Invest & Earn
+          </h1>
           <div className="w-10" /> {/* Spacer */}
         </motion.div>
 
@@ -167,25 +184,46 @@ export default function InvestPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex bg-white/5 rounded-xl p-1"
+          className="flex rounded-xl p-1 transition-colors duration-200"
+          style={{ backgroundColor: themeColors.background.tertiary }}
         >
           <button
             onClick={() => setActiveTab('funds')}
-            className={`flex-1 py-3 px-4 rounded-lg transition-all ${
-              activeTab === 'funds' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-white/60 hover:text-white'
-            }`}
+            className="flex-1 py-3 px-4 rounded-lg transition-all"
+            style={{
+              backgroundColor: activeTab === 'funds' ? themeColors.brand.primary : 'transparent',
+              color: activeTab === 'funds' ? '#ffffff' : themeColors.text.secondary
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'funds') {
+                e.currentTarget.style.color = themeColors.text.primary;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'funds') {
+                e.currentTarget.style.color = themeColors.text.secondary;
+              }
+            }}
           >
             Investment Funds
           </button>
           <button
             onClick={() => setActiveTab('positions')}
-            className={`flex-1 py-3 px-4 rounded-lg transition-all ${
-              activeTab === 'positions' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-white/60 hover:text-white'
-            }`}
+            className="flex-1 py-3 px-4 rounded-lg transition-all"
+            style={{
+              backgroundColor: activeTab === 'positions' ? themeColors.brand.primary : 'transparent',
+              color: activeTab === 'positions' ? '#ffffff' : themeColors.text.secondary
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'positions') {
+                e.currentTarget.style.color = themeColors.text.primary;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'positions') {
+                e.currentTarget.style.color = themeColors.text.secondary;
+              }
+            }}
           >
             My Investments
           </button>
@@ -201,17 +239,34 @@ export default function InvestPage() {
           >
             {/* Available Funds */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Available Investment Funds</h2>
+              <h2 
+                className="text-xl font-semibold"
+                style={{ color: themeColors.text.primary }}
+              >
+                Available Investment Funds
+              </h2>
               {indexFunds.map((fund) => (
                 <motion.div
                   key={fund.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                    selectedFund === fund.id
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
-                  }`}
+                  className="p-4 rounded-xl border-2 transition-all cursor-pointer"
+                  style={{
+                    borderColor: selectedFund === fund.id ? themeColors.brand.primary : themeColors.border.primary,
+                    backgroundColor: selectedFund === fund.id 
+                      ? (theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)')
+                      : themeColors.background.card
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedFund !== fund.id) {
+                      e.currentTarget.style.borderColor = theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedFund !== fund.id) {
+                      e.currentTarget.style.borderColor = themeColors.border.primary;
+                    }
+                  }}
                   onClick={() => setSelectedFund(fund.id)}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -220,19 +275,43 @@ export default function InvestPage() {
                         <TrendingUp className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold">{fund.name}</h3>
-                        <p className="text-sm text-white/60">{fund.description}</p>
+                        <h3 
+                          className="font-semibold"
+                          style={{ color: themeColors.text.primary }}
+                        >
+                          {fund.name}
+                        </h3>
+                        <p 
+                          className="text-sm"
+                          style={{ color: themeColors.text.secondary }}
+                        >
+                          {fund.description}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-green-400">{fund.apy}%</div>
-                      <div className="text-xs text-white/60">APY</div>
+                      <div 
+                        className="text-2xl font-bold"
+                        style={{ color: themeColors.brand.success }}
+                      >
+                        {fund.apy}%
+                      </div>
+                      <div 
+                        className="text-xs"
+                        style={{ color: themeColors.text.secondary }}
+                      >
+                        APY
+                      </div>
                     </div>
                   </div>
                   
                   <div className="flex justify-between text-sm">
-                    <span className="text-white/60">Risk Level: <span className="text-white">{fund.risk}</span></span>
-                    <span className="text-white/60">Min Amount: <span className="text-white">{fund.minAmount} {fund.currency}</span></span>
+                    <span style={{ color: themeColors.text.secondary }}>
+                      Risk Level: <span style={{ color: themeColors.text.primary }}>{fund.risk}</span>
+                    </span>
+                    <span style={{ color: themeColors.text.secondary }}>
+                      Min Amount: <span style={{ color: themeColors.text.primary }}>{fund.minAmount} {fund.currency}</span>
+                    </span>
                   </div>
                 </motion.div>
               ))}
@@ -243,28 +322,67 @@ export default function InvestPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/5 rounded-xl p-6 border border-white/10"
+                className="rounded-xl p-6 border transition-colors duration-200"
+                style={{
+                  backgroundColor: themeColors.background.card,
+                  borderColor: themeColors.border.primary
+                }}
               >
-                <h3 className="text-lg font-medium">Investment Details</h3>
+                <h3 
+                  className="text-lg font-medium"
+                  style={{ color: themeColors.text.primary }}
+                >
+                  Investment Details
+                </h3>
                 
                 <div className="mt-4 space-y-4">
                   {/* Amount Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">Investment Amount</label>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: themeColors.text.primary }}
+                    >
+                      Investment Amount
+                    </label>
                     <div className="relative">
                       <input
                         type="number"
                         placeholder="0.00"
-                        className="w-full p-3 bg-white/5 border border-white/10 rounded-lg focus:border-blue-500 focus:outline-none"
+                        className="w-full p-3 rounded-lg focus:outline-none transition-colors duration-200"
+                        style={{
+                          backgroundColor: themeColors.background.tertiary,
+                          border: `1px solid ${themeColors.border.primary}`,
+                          color: themeColors.text.primary
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = themeColors.brand.primary;
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = themeColors.border.primary;
+                        }}
                         value={investAmount}
                         onChange={(e) => setInvestAmount(e.target.value)}
                       />
-                      <div className="absolute right-3 top-3 text-white/60">TZS</div>
+                      <div 
+                        className="absolute right-3 top-3"
+                        style={{ color: themeColors.text.secondary }}
+                      >
+                        TZS
+                      </div>
                     </div>
                     <div className="flex justify-between mt-2 text-sm">
-                      <span className="text-white/60">Available: {tzsBalance} TZS</span>
+                      <span style={{ color: themeColors.text.secondary }}>
+                        Available: {tzsBalance} TZS
+                      </span>
                       <button 
-                        className="text-blue-400 hover:text-blue-300"
+                        className="transition-colors"
+                        style={{ color: themeColors.brand.primary }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = theme === 'dark' ? '#60a5fa' : '#1d4ed8';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = themeColors.brand.primary;
+                        }}
                         onClick={() => setInvestAmount(tzsBalance)}
                       >
                         Use Max
@@ -274,17 +392,35 @@ export default function InvestPage() {
 
                   {/* Duration Selection */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">Investment Duration</label>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: themeColors.text.primary }}
+                    >
+                      Investment Duration
+                    </label>
                     <div className="grid grid-cols-4 gap-2">
                       {[3, 6, 12, 24].map((months) => (
                         <button
                           key={months}
                           onClick={() => setInvestDuration(months)}
-                          className={`p-3 rounded-lg border transition-all ${
-                            investDuration === months 
-                              ? 'border-blue-500 bg-blue-500/20 text-blue-400' 
-                              : 'border-white/10 bg-white/5 hover:border-white/20'
-                          }`}
+                          className="p-3 rounded-lg border transition-all"
+                          style={{
+                            borderColor: investDuration === months ? themeColors.brand.primary : themeColors.border.primary,
+                            backgroundColor: investDuration === months 
+                              ? (theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)')
+                              : themeColors.background.tertiary,
+                            color: investDuration === months ? themeColors.brand.primary : themeColors.text.primary
+                          }}
+                          onMouseEnter={(e) => {
+                            if (investDuration !== months) {
+                              e.currentTarget.style.borderColor = theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (investDuration !== months) {
+                              e.currentTarget.style.borderColor = themeColors.border.primary;
+                            }
+                          }}
                         >
                           {months}M
                         </button>

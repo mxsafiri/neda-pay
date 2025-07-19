@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion } from 'framer-motion';
 import { ArrowRight, AlertCircle, CheckCircle, Smartphone, Building, ChevronDown } from 'lucide-react';
+import { useTheme, financeTheme } from '@/contexts/ThemeContext';
 
 // Define withdrawal provider types
 type WithdrawalProvider = {
@@ -111,6 +112,8 @@ const withdrawalProviders: WithdrawalProvider[] = [
 ];
 
 export default function OffRampPage() {
+  const { theme } = useTheme();
+  const themeColors = financeTheme[theme];
   const [selectedProvider, setSelectedProvider] = useState<WithdrawalProvider>(withdrawalProviders[0]);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
@@ -176,24 +179,55 @@ export default function OffRampPage() {
   return (
     <WalletLayout>
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Off-Ramp</h1>
+        <h1 
+          className="text-2xl font-bold mb-6"
+          style={{ color: themeColors.text.primary }}
+        >
+          Cash Out
+        </h1>
         
         {success ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-green-900/20 border border-green-800 rounded-lg p-6 mb-6"
+            className="rounded-lg p-6 mb-6 transition-colors duration-200"
+            style={{
+              backgroundColor: theme === 'dark' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(34, 197, 94, 0.05)',
+              borderColor: themeColors.brand.success,
+              border: `1px solid ${themeColors.brand.success}`
+            }}
           >
             <div className="flex items-center mb-4">
-              <CheckCircle className="text-green-500 mr-3 h-6 w-6" />
-              <h2 className="text-xl font-semibold">Withdrawal Request Submitted</h2>
+              <CheckCircle 
+                className="mr-3 h-6 w-6" 
+                style={{ color: themeColors.brand.success }}
+              />
+              <h2 
+                className="text-xl font-semibold"
+                style={{ color: themeColors.text.primary }}
+              >
+                Withdrawal Request Submitted
+              </h2>
             </div>
-            <p className="mb-4 text-white/80">
+            <p 
+              className="mb-4"
+              style={{ color: themeColors.text.secondary }}
+            >
               Your withdrawal request has been successfully submitted. You will receive your funds within 1-3 business days.
             </p>
             <button
               onClick={resetForm}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
+              className="px-4 py-2 rounded-lg transition-colors"
+              style={{
+                backgroundColor: themeColors.brand.primary,
+                color: '#ffffff'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1d4ed8' : '#2563eb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.brand.primary;
+              }}
             >
               Make Another Withdrawal
             </button>
@@ -203,28 +237,66 @@ export default function OffRampPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Withdraw Funds</h2>
+            <div 
+              className="rounded-lg p-6 mb-6 border transition-colors duration-200"
+              style={{
+                backgroundColor: themeColors.background.card,
+                borderColor: themeColors.border.primary
+              }}
+            >
+              <h2 
+                className="text-xl font-semibold mb-4"
+                style={{ color: themeColors.text.primary }}
+              >
+                Withdraw Funds
+              </h2>
               
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Withdrawal Method</label>
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: themeColors.text.primary }}
+                >
+                  Withdrawal Method
+                </label>
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => setShowProviderDropdown(!showProviderDropdown)}
-                    className="w-full flex items-center justify-between p-3 bg-slate-800 border border-slate-700 rounded-lg"
+                    className="w-full flex items-center justify-between p-3 border rounded-lg transition-colors duration-200"
+                    style={{
+                      backgroundColor: themeColors.background.tertiary,
+                      borderColor: themeColors.border.primary,
+                      color: themeColors.text.primary
+                    }}
                   >
                     <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                        {React.createElement(selectedProvider.icon, { className: "text-primary h-4 w-4" })}
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                        style={{
+                          backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)'
+                        }}
+                      >
+                        {React.createElement(selectedProvider.icon, { 
+                          className: "h-4 w-4",
+                          style: { color: themeColors.brand.primary }
+                        })}
                       </div>
                       <span>{selectedProvider.name}</span>
                     </div>
-                    <ChevronDown className={`h-5 w-5 transition-transform ${showProviderDropdown ? 'rotate-180' : ''}`} />
+                    <ChevronDown 
+                      className={`h-5 w-5 transition-transform ${showProviderDropdown ? 'rotate-180' : ''}`}
+                      style={{ color: themeColors.text.secondary }}
+                    />
                   </button>
                   
                   {showProviderDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg shadow-lg">
+                    <div 
+                      className="absolute z-10 mt-1 w-full border rounded-lg shadow-lg transition-colors duration-200"
+                      style={{
+                        backgroundColor: themeColors.background.card,
+                        borderColor: themeColors.border.primary
+                      }}
+                    >
                       {withdrawalProviders.map(provider => (
                         <button
                           key={provider.id}
@@ -233,10 +305,25 @@ export default function OffRampPage() {
                             setSelectedProvider(provider);
                             setShowProviderDropdown(false);
                           }}
-                          className="w-full flex items-center p-3 hover:bg-slate-700 transition-colors"
+                          className="w-full flex items-center p-3 transition-colors"
+                          style={{ color: themeColors.text.primary }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
                         >
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                            {React.createElement(provider.icon, { className: "text-primary h-4 w-4" })}
+                          <div 
+                            className="w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                            style={{
+                              backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)'
+                            }}
+                          >
+                            {React.createElement(provider.icon, { 
+                              className: "h-4 w-4",
+                              style: { color: themeColors.brand.primary }
+                            })}
                           </div>
                           <span>{provider.name}</span>
                         </button>

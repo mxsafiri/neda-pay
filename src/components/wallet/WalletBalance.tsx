@@ -2,10 +2,10 @@
 
 import { FC, useEffect } from 'react'
 import { motion } from 'framer-motion'
-// import { theme } from '@/styles/theme' // Commented out as it's currently unused
 import { useWalletStore } from '@/store/useWalletStore'
 import { useAuth } from '@/hooks/useAuth'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { useTheme } from '@/contexts/ThemeContext'
 import Link from 'next/link'
 
 interface WalletBalanceProps {
@@ -13,6 +13,7 @@ interface WalletBalanceProps {
 }
 
 export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
+  const { theme } = useTheme()
   const { balances, isLoading, fetchBalances } = useWalletStore()
   const { authenticated, activeAddress } = useAuth()
   
@@ -47,8 +48,22 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
       <div className="grid grid-cols-2 gap-4 mt-8">
         <Link href="/buy" className="w-full">
           <motion.button 
-            className="w-full py-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white text-xl font-medium"
-            whileHover={{ scale: 1.02 }}
+            className="w-full py-4 rounded-full text-xl font-medium transition-all duration-200"
+            style={{
+              background: theme === 'dark' 
+                ? 'linear-gradient(to right, #2563eb, #60a5fa)' 
+                : 'linear-gradient(to right, #1d4ed8, #3b82f6)',
+              color: '#ffffff',
+              boxShadow: theme === 'dark' 
+                ? '0 4px 14px 0 rgba(37, 99, 235, 0.25)' 
+                : '0 4px 14px 0 rgba(29, 78, 216, 0.3)'
+            }}
+            whileHover={{ 
+              scale: 1.02,
+              boxShadow: theme === 'dark' 
+                ? '0 6px 20px 0 rgba(37, 99, 235, 0.35)' 
+                : '0 6px 20px 0 rgba(29, 78, 216, 0.4)'
+            }}
             whileTap={{ scale: 0.98 }}
           >
             Buy
@@ -56,8 +71,22 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
         </Link>
         <Link href="/invest" className="w-full">
           <motion.button 
-            className="w-full py-4 rounded-full bg-gradient-to-r from-green-600 to-green-400 text-white text-xl font-medium"
-            whileHover={{ scale: 1.02 }}
+            className="w-full py-4 rounded-full text-xl font-medium transition-all duration-200"
+            style={{
+              background: theme === 'dark' 
+                ? 'linear-gradient(to right, #16a34a, #4ade80)' 
+                : 'linear-gradient(to right, #15803d, #22c55e)',
+              color: '#ffffff',
+              boxShadow: theme === 'dark' 
+                ? '0 4px 14px 0 rgba(22, 163, 74, 0.25)' 
+                : '0 4px 14px 0 rgba(21, 128, 61, 0.3)'
+            }}
+            whileHover={{ 
+              scale: 1.02,
+              boxShadow: theme === 'dark' 
+                ? '0 6px 20px 0 rgba(22, 163, 74, 0.35)' 
+                : '0 6px 20px 0 rgba(21, 128, 61, 0.4)'
+            }}
             whileTap={{ scale: 0.98 }}
           >
             Invest
