@@ -54,13 +54,13 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
             Buy
           </motion.button>
         </Link>
-        <Link href="/stake" className="w-full">
+        <Link href="/invest" className="w-full">
           <motion.button 
             className="w-full py-4 rounded-full bg-gradient-to-r from-green-600 to-green-400 text-white text-xl font-medium"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Stake
+            Invest
           </motion.button>
         </Link>
       </div>
