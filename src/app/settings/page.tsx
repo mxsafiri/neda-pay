@@ -7,20 +7,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { ChevronRight, LogOut, Moon, Sun, User, Shield, Bell, Globe, FileCheck, X, Layers, Key } from 'lucide-react';
+import { ChevronRight, LogOut, Moon, Sun, User, Bell, Globe, FileCheck, X, Layers } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
 import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEditModal';
-import { RevealTokenModal } from '@/components/auth/RevealTokenModal';
+
 
 export default function SettingsPage() {
   const { authenticated, user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showTokenModal, setShowTokenModal] = useState(false);
+
   const [profileData, setProfileData] = useState<ProfileData>({
     displayName: '',
     bio: '',
@@ -118,19 +118,7 @@ export default function SettingsPage() {
           action: () => setShowProfileModal(true),
           value: profileData.displayName || 'Set up profile',
         },
-        {
-          icon: Shield,
-          label: 'Security',
-          action: () => {},
-          subItems: [
-            {
-              icon: Key,
-              label: 'Reveal Security Token',
-              action: () => setShowTokenModal(true),
-              description: 'View your wallet security token for recovery',
-            },
-          ],
-        },
+
         {
           icon: FileCheck,
           label: 'Identity Verification',
@@ -332,13 +320,7 @@ export default function SettingsPage() {
             />
           )}
           
-          {/* Reveal Security Token Modal */}
-          {showTokenModal && (
-            <RevealTokenModal
-              isOpen={showTokenModal}
-              onClose={() => setShowTokenModal(false)}
-            />
-          )}
+
         </div>
       ) : (
         <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 text-center py-12">
