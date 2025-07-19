@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, AlertCircle, Key, Clock } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, Key } from 'lucide-react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { motion } from 'framer-motion';
 

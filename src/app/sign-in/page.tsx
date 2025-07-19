@@ -9,17 +9,15 @@ import { motion, Variants } from 'framer-motion';
 import { ArrowRight, Key, Shield, LockKeyhole } from 'lucide-react';
 import { PinVerificationModal } from '@/components/auth/PinVerificationModal';
 import { PinRecoveryModal } from '@/components/auth/PinRecoveryModal';
-import { RecoveryPhraseModal } from '@/components/auth/RecoveryPhraseModal';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { walletAddress, signInWithWallet, verifyPinAndRefreshSession } = useWalletAuth();
+  const { walletAddress, signInWithWallet } = useWalletAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
-  const [showSetupRecoveryModal, setShowSetupRecoveryModal] = useState(false);
-  const [walletData, setWalletData] = useState<string | null>(null);
+
   
   // Check if wallet exists in local storage
   useEffect(() => {
@@ -27,8 +25,6 @@ export default function SignInPage() {
     if (!storedWalletData) {
       // No wallet found, redirect to create wallet
       router.push('/create-wallet');
-    } else {
-      setWalletData(storedWalletData);
     }
   }, [router]);
   
@@ -185,15 +181,7 @@ export default function SignInPage() {
             />
           )}
           
-          {/* Recovery Phrase Setup Modal (for onboarding) */}
-          {showSetupRecoveryModal && walletAddress && (
-            <RecoveryPhraseModal
-              isOpen={showSetupRecoveryModal}
-              onClose={() => setShowSetupRecoveryModal(false)}
-              onComplete={handlePinSuccess}
-              walletAddress={walletAddress}
-            />
-          )}
+
         </motion.div>
       </div>
     </div>
