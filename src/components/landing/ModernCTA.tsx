@@ -19,8 +19,8 @@ export function ModernCTA({ theme }: ModernCTAProps) {
       <div className="container mx-auto px-4">
         <div className={`rounded-3xl overflow-hidden ${
           theme === 'light'
-            ? 'bg-[#0A1F44]'
-            : 'bg-[#0A1F44]'
+            ? 'bg-[#0254e6]'
+            : 'bg-[#0254e6]'
         }`}>
           <div className="relative">
             {/* Background pattern */}

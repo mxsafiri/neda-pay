@@ -39,15 +39,15 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link href="/landing" className="flex items-center gap-2 font-display">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+            <div className={`w-10 h-10 flex items-center justify-center ${
               theme === 'light' ? 'bg-[#0254e6]' : 'bg-[#0254e6]'
             }`}>
               <Image 
                 src="/logo.svg" 
                 alt="NEDApay Logo" 
-                width={24} 
-                height={24} 
-                className="w-6 h-6"
+                width={32} 
+                height={32} 
+                className="w-8 h-8"
               />
             </div>
             <span className={`text-xl font-medium ${
