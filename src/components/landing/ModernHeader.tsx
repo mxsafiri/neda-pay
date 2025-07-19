@@ -40,7 +40,7 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
         <div className="flex justify-between items-center">
           <Link href="/landing" className="flex items-center gap-2 font-display">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              theme === 'light' ? 'bg-[#0A1F44]' : 'bg-[#0A1F44]'
+              theme === 'light' ? 'bg-[#0254e6]' : 'bg-[#0254e6]'
             }`}>
               <Image 
                 src="/logo.svg" 

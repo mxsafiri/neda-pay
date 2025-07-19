@@ -99,8 +99,8 @@ export function ModernHero({ theme }: ModernHeroProps) {
                 href="/onboarding" 
                 className={`px-8 py-4 text-lg font-medium flex items-center gap-2 transition-all ${
                   theme === 'light'
-                    ? 'bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white'
-                    : 'bg-[#0A1F44] hover:bg-[#0A1F44]/80 text-white'
+                    ? 'bg-[#0254e6] hover:bg-[#0254e6]/90 text-white'
+                    : 'bg-[#0254e6] hover:bg-[#0254e6]/80 text-white'
                 }`}
               >
                 Get Started <ArrowRight size={18} />
