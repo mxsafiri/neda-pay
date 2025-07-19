@@ -20,9 +20,8 @@ export function ModernHero({ theme }: ModernHeroProps) {
   // Multiple messages for typewriter effect - starting with "It pays to be here"
   const messages = [
     "It pays to be here",
-    "Money moves here",
-    "Invest better here",
-    "Grow wealth here"
+    "Stablecoins are here",
+    "Fast payments are here"
   ];
   
   const currentMessage = messages[loopNum % messages.length];
@@ -69,13 +68,13 @@ export function ModernHero({ theme }: ModernHeroProps) {
               {text.includes('here') ? (
                 <>
                   {text.split('here')[0]}
-                  <span className={theme === 'light' ? 'text-[#0A1F44]' : 'text-[#4A6FD1]'}>
+                  <span className="text-[#0254e6]">
                     here
                   </span>
                   {text.split('here')[1] || ''}
                 </>
               ) : text}
-              <span className="inline-block w-1 h-12 ml-1 bg-[#0A1F44] animate-blink"></span>
+              <span className="inline-block w-1 h-12 ml-1 bg-[#0254e6] animate-blink"></span>
             </motion.h1>
             
             <motion.p 
