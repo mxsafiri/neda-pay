@@ -8,7 +8,7 @@ import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme, financeTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
-import { ChevronRight, LogOut, Moon, Sun, User, Bell, Globe, FileCheck, X, Layers, Shield, Key } from 'lucide-react';
+import { ChevronRight, LogOut, Moon, Sun, User, Bell, Globe, FileCheck, X, Layers, Key } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';

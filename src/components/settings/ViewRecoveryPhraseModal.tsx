@@ -4,9 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Eye, EyeOff, Copy, Download, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useTheme, financeTheme } from '@/contexts/ThemeContext';
-import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 import { decryptData, deriveKeyFromPin } from '@/lib/encryption';
-import { supabase } from '@/lib/supabase';
+import supabase from '@/lib/supabase';
 
 interface ViewRecoveryPhraseModalProps {
   isOpen: boolean;
@@ -17,7 +16,6 @@ interface ViewRecoveryPhraseModalProps {
 export function ViewRecoveryPhraseModal({ isOpen, onClose, walletAddress }: ViewRecoveryPhraseModalProps) {
   const { theme } = useTheme();
   const themeColors = financeTheme[theme];
-  const { authenticateWithPin } = useHybridWalletAuth();
   
   const [step, setStep] = useState<'warning' | 'pin' | 'phrase'>('warning');
   const [pin, setPin] = useState('');
