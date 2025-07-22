@@ -2,15 +2,14 @@
 
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { generateDeviceToken, hashPin, storeDeviceToken, storeWalletAuth } from '@/utils/deviceAuth';
+
 import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 
 interface PinSetupFormProps {
   onComplete: () => void;
-  walletAddress: string;
 }
 
-export function PinSetupForm({ onComplete, walletAddress }: PinSetupFormProps) {
+export function PinSetupForm({ onComplete }: PinSetupFormProps) {
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [error, setError] = useState<string | null>(null);

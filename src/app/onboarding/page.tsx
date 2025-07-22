@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { PinSetupForm } from '@/components/auth/PinSetupForm';
 import { useRouter } from 'next/navigation';
-import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
+
 
 // Define the steps in the onboarding process
 enum OnboardingStep {
@@ -24,7 +24,7 @@ enum OnboardingStep {
 // Simplified wallet creation component
 const SimpleWalletCreation = ({ onComplete }: { onComplete: (address: string) => void }) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
   
   const handleCreateWallet = async () => {
     setIsCreating(true);
@@ -40,7 +40,6 @@ const SimpleWalletCreation = ({ onComplete }: { onComplete: (address: string) =>
         createdAt: new Date().toISOString()
       }));
       
-      setWalletAddress(newAddress);
       onComplete(newAddress);
     } catch (error) {
       console.error('Error creating wallet:', error);
@@ -336,7 +335,7 @@ export default function OnboardingPage() {
                 Create a secure PIN to protect your wallet. You&apos;ll need this PIN to access your wallet in the future.
               </p>
               
-              <PinSetupForm onComplete={handlePinSetupComplete} walletAddress={localStorage.getItem('wallet_address') || ''} />
+              <PinSetupForm onComplete={handlePinSetupComplete} />
             </motion.div>
           )}
           
