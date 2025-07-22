@@ -9,32 +9,39 @@ import { motion, Variants } from 'framer-motion';
 import { ArrowRight, Key, Shield, LockKeyhole } from 'lucide-react';
 import { PinVerificationModal } from '@/components/auth/PinVerificationModal';
 import { PinRecoveryModal } from '@/components/auth/PinRecoveryModal';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { walletAddress, signInWithWallet } = useWalletAuth();
+  const { } = useHybridWalletAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
 
   
-  // Check if wallet exists in local storage
+  // Check if wallet exists in local storage or user is already authenticated
   useEffect(() => {
     const storedWalletData = localStorage.getItem('neda_wallet');
     if (!storedWalletData) {
-      // No wallet found, redirect to create wallet
-      router.push('/create-wallet');
+      // No wallet found, redirect to onboarding
+      router.push('/onboarding');
     }
   }, [router]);
   
   const handleSignIn = async () => {
     setIsSigningIn(true);
     try {
-      await signInWithWallet();
-      setShowPinModal(true);
+      // Check if wallet data exists in localStorage
+      const storedWalletData = localStorage.getItem('neda_wallet');
+      if (storedWalletData) {
+        setShowPinModal(true);
+      } else {
+        throw new Error('No wallet found');
+      }
     } catch (error) {
       console.error('Failed to sign in:', error);
+      router.push('/onboarding');
+    } finally {
       setIsSigningIn(false);
     }
   };
@@ -162,22 +169,22 @@ export default function SignInPage() {
           </motion.div>
           
           {/* PIN Verification Modal */}
-          {showPinModal && walletAddress && (
+          {showPinModal && (
             <PinVerificationModal
               isOpen={showPinModal}
               onClose={() => handleShowRecovery()} // Changed to show recovery when "Forgot PIN?" is clicked
               onSuccess={handlePinSuccess}
-              walletAddress={walletAddress}
+              walletAddress={JSON.parse(localStorage.getItem('neda_wallet') || '{}').address || ''}
             />
           )}
           
           {/* PIN Recovery Modal */}
-          {showRecoveryModal && walletAddress && (
+          {showRecoveryModal && (
             <PinRecoveryModal
               isOpen={showRecoveryModal}
               onClose={() => setShowRecoveryModal(false)}
               onSuccess={handleRecoverySuccess}
-              walletAddress={walletAddress}
+              walletAddress={JSON.parse(localStorage.getItem('neda_wallet') || '{}').address || ''}
             />
           )}
           

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { X, CheckCircle2, AlertCircle, Key, ArrowRight } from 'lucide-react';
 import { validateStoredRecoveryPhrase } from '@/utils/recoveryPhrase';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 
 interface PinRecoveryModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface PinRecoveryModalProps {
 }
 
 export function PinRecoveryModal({ isOpen, onClose, onSuccess, walletAddress }: PinRecoveryModalProps) {
-  const { resetPin } = useWalletAuth();
+  const { resetPin } = useHybridWalletAuth();
   const [recoveryPhrase, setRecoveryPhrase] = useState('');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -76,8 +76,8 @@ export function PinRecoveryModal({ isOpen, onClose, onSuccess, walletAddress }: 
         return;
       }
       
-      // Reset the PIN
-      await resetPin(walletAddress, newPin);
+      // Reset the PIN using recovery phrase
+      await resetPin(recoveryPhrase, newPin);
       
       // Show success message
       setSuccess(true);

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle, Key } from 'lucide-react';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 import { motion } from 'framer-motion';
 
 interface PinVerificationModalProps {
@@ -14,7 +14,7 @@ interface PinVerificationModalProps {
 }
 
 export function PinVerificationModal({ isOpen, onClose, onSuccess, walletAddress, isSessionExpired }: PinVerificationModalProps) {
-  const { verifyPinAndRefreshSession } = useWalletAuth();
+  const { verifyPinAndRefreshSession } = useHybridWalletAuth();
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -46,7 +46,7 @@ export function PinVerificationModal({ isOpen, onClose, onSuccess, walletAddress
     }
     
     try {
-      // Verify PIN and refresh session
+      // Verify PIN and refresh session using hybrid auth system
       const isAuthenticated = await verifyPinAndRefreshSession(pin);
       
       if (isAuthenticated) {
