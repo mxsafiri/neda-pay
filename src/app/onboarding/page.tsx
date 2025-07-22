@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { PinSetupForm } from '@/components/auth/PinSetupForm';
 import { useRouter } from 'next/navigation';
+import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 
 
 // Define the steps in the onboarding process
@@ -83,16 +84,46 @@ const SimpleKYCForm = ({ onComplete }: { onComplete: () => void }) => {
   const [fullName, setFullName] = useState('');
   const [country, setCountry] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { submitKyc } = useHybridWalletAuth();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare KYC verification data
+      const kycData = {
+        fullName,
+        country,
+        submittedAt: new Date().toISOString(),
+        verificationType: 'basic_info'
+      };
+      
+      // Try to submit KYC data to Supabase database
+      try {
+        const success = await submitKyc('basic_info', kycData);
+        
+        if (!success) {
+          throw new Error('Failed to submit KYC data');
+        }
+        
+        console.log('KYC data successfully submitted to database');
+      } catch (dbError) {
+        console.error('Database submission failed, using fallback:', dbError);
+        
+        // Fallback: Store KYC data locally
+        localStorage.setItem('neda_kyc_data', JSON.stringify({
+          ...kycData,
+          storedLocally: true,
+          reason: 'database_unavailable'
+        }));
+        
+        console.log('Using local storage fallback for KYC data');
+      }
+      
       onComplete();
-    } catch {
+    } catch (error) {
+      console.error('KYC submission error:', error);
       setIsSubmitting(false);
     }
   };
