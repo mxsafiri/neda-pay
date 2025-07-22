@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { generateDeviceToken, hashPin, storeDeviceToken, storeWalletAuth } from '@/utils/deviceAuth';
+import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 
 interface PinSetupFormProps {
   onComplete: () => void;
@@ -15,6 +16,7 @@ export function PinSetupForm({ onComplete, walletAddress }: PinSetupFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { createWallet } = useHybridWalletAuth();
   
   const handleSetupPin = async () => {
     // Reset error state
@@ -34,13 +36,12 @@ export function PinSetupForm({ onComplete, walletAddress }: PinSetupFormProps) {
     setIsSubmitting(true);
     
     try {
-      // Generate and store device token
-      const deviceToken = generateDeviceToken();
-      storeDeviceToken(deviceToken);
+      // Create wallet with PIN and register in Supabase database
+      const result = await createWallet(pin);
       
-      // Hash PIN and store auth data
-      const hashedPin = hashPin(pin, deviceToken);
-      storeWalletAuth(walletAddress, hashedPin, deviceToken);
+      if (!result) {
+        throw new Error('Failed to create wallet');
+      }
       
       // Show success state
       setSuccess(true);

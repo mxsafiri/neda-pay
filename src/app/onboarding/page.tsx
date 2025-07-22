@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { PinSetupForm } from '@/components/auth/PinSetupForm';
 import { useRouter } from 'next/navigation';
+import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
 
 // Define the steps in the onboarding process
 enum OnboardingStep {
@@ -23,27 +24,26 @@ enum OnboardingStep {
 // Simplified wallet creation component
 const SimpleWalletCreation = ({ onComplete }: { onComplete: (address: string) => void }) => {
   const [isCreating, setIsCreating] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   
   const handleCreateWallet = async () => {
     setIsCreating(true);
     
     try {
-      // Simulate wallet creation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate a mock wallet address
-      const mockAddress = `0x${Array.from({ length: 40 }, () => 
+      // Generate a wallet address (this will be replaced with actual wallet creation later)
+      const newAddress = `0x${Array.from({ length: 40 }, () => 
         Math.floor(Math.random() * 16).toString(16)).join('')}`;
       
-      // Store in localStorage for persistence
+      // Store basic wallet info in localStorage (PIN will be set in next step)
       localStorage.setItem('neda_wallet', JSON.stringify({
-        address: mockAddress,
+        address: newAddress,
         createdAt: new Date().toISOString()
       }));
       
-      onComplete(mockAddress);
-    } catch {
-      // Handle error
+      setWalletAddress(newAddress);
+      onComplete(newAddress);
+    } catch (error) {
+      console.error('Error creating wallet:', error);
       setIsCreating(false);
     }
   };
