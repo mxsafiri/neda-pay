@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletAuthProvider } from "@/providers/WalletAuthProvider";
-import { BlockradarProvider } from "@/components/blockradar/BlockradarProvider";
+import { PrivyWalletProvider } from "@/components/wallet/PrivyWalletProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const geistSans = Geist({
@@ -63,11 +63,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <ThemeProvider>
-          <WalletAuthProvider>
-            <BlockradarProvider>
+          <PrivyWalletProvider>
+            <WalletAuthProvider>
               {children}
-            </BlockradarProvider>
-          </WalletAuthProvider>
+            </WalletAuthProvider>
+          </PrivyWalletProvider>
         </ThemeProvider>
       </body>
     </html>

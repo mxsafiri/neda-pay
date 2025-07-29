@@ -8,10 +8,8 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { PinSetupForm } from '@/components/auth/PinSetupForm';
 import { useRouter } from 'next/navigation';
-import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
-
+import { SocialLoginForm } from '@/components/auth/SocialLoginForm';
 
 // Define the steps in the onboarding process
 enum OnboardingStep {
@@ -22,60 +20,14 @@ enum OnboardingStep {
   COMPLETE = 'complete'
 }
 
-// Simplified wallet creation component
-const SimpleWalletCreation = ({ onComplete }: { onComplete: (address: string) => void }) => {
-  const [isCreating, setIsCreating] = useState(false);
-
-  
-  const handleCreateWallet = async () => {
-    setIsCreating(true);
-    
-    try {
-      // Generate a wallet address (this will be replaced with actual wallet creation later)
-      const newAddress = `0x${Array.from({ length: 40 }, () => 
-        Math.floor(Math.random() * 16).toString(16)).join('')}`;
-      
-      // Store basic wallet info in localStorage (PIN will be set in next step)
-      localStorage.setItem('neda_wallet', JSON.stringify({
-        address: newAddress,
-        createdAt: new Date().toISOString()
-      }));
-      
-      onComplete(newAddress);
-    } catch (error) {
-      console.error('Error creating wallet:', error);
-      setIsCreating(false);
-    }
-  };
-  
+// Privy social login component
+const PrivySocialLogin = ({ onComplete }: { onComplete: (address: string) => void }) => {
   return (
-    <div className="space-y-6">
-      <p className="text-gray-300 mb-4">
-        Click the button below to create your secure digital wallet. This will generate a unique wallet address for you.
-      </p>
-      
-      <button
-        onClick={handleCreateWallet}
-        disabled={isCreating}
-        className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-medium transition-colors ${
-          isCreating 
-            ? 'bg-blue-700/50 cursor-not-allowed' 
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
-        }`}
-      >
-        {isCreating ? (
-          <>
-            <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin mr-2"></div>
-            Creating Wallet...
-          </>
-        ) : (
-          <>
-            Create Wallet
-            <ArrowRight size={18} />
-          </>
-        )}
-      </button>
-    </div>
+    <SocialLoginForm 
+      onComplete={onComplete}
+      title="Welcome to NEDApay"
+      subtitle="Create your secure wallet with social login. No downloads or seed phrases required."
+    />
   );
 };
 
@@ -84,7 +36,7 @@ const SimpleKYCForm = ({ onComplete }: { onComplete: () => void }) => {
   const [fullName, setFullName] = useState('');
   const [country, setCountry] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { submitKyc } = useHybridWalletAuth();
+  // KYC will be handled separately with Privy
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,9 +51,13 @@ const SimpleKYCForm = ({ onComplete }: { onComplete: () => void }) => {
         verificationType: 'basic_info'
       };
       
+      console.log('KYC data:', { fullName, country });
+      
       // Try to submit KYC data to Supabase database
       try {
-        const success = await submitKyc('basic_info', kycData);
+        // KYC submission will be implemented with Privy integration
+        console.log('KYC data to be submitted:', kycData);
+        const success = true; // Placeholder - will integrate with Privy KYC
         
         if (!success) {
           throw new Error('Failed to submit KYC data');
@@ -332,7 +288,7 @@ export default function OnboardingPage() {
                 Your digital wallet will be used to securely store and manage your assets.
               </p>
               
-              <SimpleWalletCreation onComplete={handleWalletCreated} />
+              <PrivySocialLogin onComplete={handleWalletCreated} />
             </motion.div>
           )}
           
@@ -366,7 +322,10 @@ export default function OnboardingPage() {
                 Create a secure PIN to protect your wallet. You&apos;ll need this PIN to access your wallet in the future.
               </p>
               
-              <PinSetupForm onComplete={handlePinSetupComplete} />
+              {/* PIN setup no longer needed with Privy social login */}
+              <div className="text-center text-gray-400">
+                <p>Wallet created successfully! Proceeding to completion...</p>
+              </div>
             </motion.div>
           )}
           

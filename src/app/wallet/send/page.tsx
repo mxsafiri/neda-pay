@@ -10,7 +10,7 @@ import { ArrowLeft, Send, CheckCircle2, Loader, AlertCircle } from 'lucide-react
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 
-import { useBlockradar } from '@/hooks/useBlockradar';
+import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 import { z } from 'zod';
 
 // Validation schema for the form
@@ -28,13 +28,16 @@ type SendFormData = z.infer<typeof sendFormSchema>;
 
 export default function SendPage() {
   const router = useRouter();
-  const { } = useAuth();
+  const { authenticated } = useAuth();
   const { 
-    selectedBlockchain, // This will always be 'base' during trial period
-    withdraw,
-    fetchTransactions,
-    getBalancesForCurrentChain
-  } = useBlockradar();
+    sendTransaction,
+    getBalance,
+    walletAddress,
+    embeddedWallet
+  } = usePrivyWallet();
+  
+  // Privy defaults to Base chain (no need for selectedBlockchain)
+  const selectedBlockchain = 'base';
   
   // Form state
   const [formData, setFormData] = useState<SendFormData>({
@@ -74,13 +77,20 @@ export default function SendPage() {
     }
   };
   
-  const getMaxAmount = () => {
-    const token = getBalancesForCurrentChain().find(b => b.symbol === formData.token);
-    return token?.balance || '0.00';
+  const getMaxAmount = async () => {
+    // With Privy, we'll get balance for the selected token
+    try {
+      const balance = await getBalance();
+      return balance || '0.00';
+    } catch (error) {
+      console.error('Error getting balance:', error);
+      return '0.00';
+    }
   };
   
-  const handleSetMax = () => {
-    setFormData(prev => ({ ...prev, amount: getMaxAmount() }));
+  const handleSetMax = async () => {
+    const maxAmount = await getMaxAmount();
+    setFormData(prev => ({ ...prev, amount: maxAmount }));
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,8 +101,8 @@ export default function SendPage() {
     setIsSubmitting(true);
     
     try {
-      // Call the Blockradar API to send the transaction
-      await withdraw(
+      // Call Privy to send the transaction
+      await sendTransaction(
         formData.recipient,
         formData.amount,
         formData.token
@@ -103,10 +113,8 @@ export default function SendPage() {
       
       // Simulate blockchain confirmation
       
-      // Refresh transactions to show the new one
-      setTimeout(() => {
-        fetchTransactions();
-      }, 1000);
+      // Transaction completed - Privy handles transaction history
+      console.log('Transaction completed successfully');
       
     } catch (error) {
       console.error('Transaction failed', error);
@@ -207,9 +215,10 @@ export default function SendPage() {
                   onChange={handleInputChange}
                   className="mt-1 block w-full py-2 px-3 border border-gray-700 bg-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-white"
                 >
-                  {getBalancesForCurrentChain().map((token) => (
-                    <option key={token.symbol} value={token.symbol}>
-                      {token.symbol}
+                  {/* Available tokens on Base chain with Privy */}
+                  {['USDC', 'ETH', 'TZS', 'KES', 'UGX', 'RWF'].map((tokenSymbol) => (
+                    <option key={tokenSymbol} value={tokenSymbol}>
+                      {tokenSymbol}
                     </option>
                   ))}
                 </select>

@@ -1,7 +1,7 @@
 'use client';
 
 import { PropsWithChildren, createContext, useEffect, useState } from 'react';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 
 // Define the context type
 type WalletAuthContextType = {
@@ -22,7 +22,7 @@ export const WalletAuthContext = createContext<WalletAuthContextType>({
 export function WalletAuthProvider({ children }: PropsWithChildren) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { isWalletAuthenticated, walletAddress } = useWalletAuth();
+  const { authenticated: isWalletAuthenticated, walletAddress } = usePrivyWallet();
   
   // Initialize wallet auth
   useEffect(() => {

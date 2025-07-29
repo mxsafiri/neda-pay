@@ -6,11 +6,11 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Wallet, Shield, KeyRound } from 'lucide-react';
 import { PinSetupModal } from '@/components/auth/PinSetupModal';
 import { RecoveryPhraseModal } from '@/components/auth/RecoveryPhraseModal';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 
 export default function CreateWalletContent() {
   const router = useRouter();
-  const { createWallet } = useWalletAuth();
+  const { createWallet } = usePrivyWallet();
   const [isCreating, setIsCreating] = useState(false);
   const [walletCreated, setWalletCreated] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);

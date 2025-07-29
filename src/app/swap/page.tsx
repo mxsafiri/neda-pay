@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowDownUp, RefreshCcw, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokenSwap } from '@/hooks/useTokenSwap';
-import { useBlockradar } from '@/hooks/useBlockradar';
+import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 
 import { TokenSelector, Token } from '@/components/swap/TokenSelector';
 import { SwapInput } from '@/components/swap/SwapInput';
@@ -29,59 +29,41 @@ const TOKEN_METADATA: Record<string, { name: string, logoUrl: string, icon: stri
 export default function SwapPage() {
   const router = useRouter();
   const { authenticated } = useAuth();
-  const { getBalancesForCurrentChain } = useBlockradar();
+  const { } = usePrivyWallet(); // Wallet connection for future balance integration
   const { swap, status: swapStatus, error: swapError, reset } = useTokenSwap();
   const [amount, setAmount] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   
-  // Convert Blockradar balances to Token format
+  // Default tokens available for swap (Privy will handle actual balances)
   const availableTokens = useMemo(() => {
-    const baseBalances = getBalancesForCurrentChain();
-    
-    // Map balances to Token format
-    return baseBalances.map(balance => {
-      const symbol = balance.symbol || '';
-      const metadata = TOKEN_METADATA[symbol] || { 
-        name: symbol, 
-        logoUrl: '', 
-        icon: 'us', 
-        country: 'Unknown' 
-      };
-      
-      return {
-        symbol,
-        name: metadata.name,
-        balance: balance.balance ? balance.balance.toString() : '0.00',
-        logoUrl: metadata.logoUrl,
-        icon: metadata.icon,
-        country: metadata.country
-      };
-    });
-  }, [getBalancesForCurrentChain]);
+    return Object.entries(TOKEN_METADATA).map(([symbol, metadata]) => ({
+      symbol,
+      name: metadata.name,
+      balance: '0.00', // Privy will update this when connected
+      logoUrl: metadata.logoUrl,
+      icon: metadata.icon,
+      country: metadata.country
+    }));
+  }, []);
   
-  // Default to TZS and USDC tokens if available, otherwise use empty tokens
-  const [fromToken, setFromToken] = useState<Token>(
-    availableTokens.find(t => t.symbol === 'TZS') || availableTokens[0] || { 
-      symbol: 'TZS', 
-      name: 'NEDA Tanzanian Shilling', 
-      balance: '0', 
-      logoUrl: '', 
-      icon: 'tz', 
-      country: 'Tanzania' 
-    }
-  )
+  // Default to TZS and USDC tokens
+  const [fromToken, setFromToken] = useState<Token>({
+    symbol: 'TZS',
+    name: 'NEDA Tanzanian Shilling',
+    balance: '0',
+    logoUrl: '',
+    icon: 'tz',
+    country: 'Tanzania'
+  });
   
-  const [toToken, setToToken] = useState<Token>(
-    availableTokens.find(t => t.symbol === 'USDC') || 
-    (availableTokens.length > 1 ? availableTokens[1] : { 
-      symbol: 'USDC', 
-      name: 'USD Coin', 
-      balance: '0.00', 
-      logoUrl: '/tokens/usdc.svg', 
-      icon: 'us', 
-      country: 'United States' 
-    })
-  );
+  const [toToken, setToToken] = useState<Token>({
+    symbol: 'USDC',
+    name: 'USD Coin',
+    balance: '0',
+    logoUrl: '',
+    icon: 'us',
+    country: 'United States'
+  });
   
   // Update tokens when balances change
   useEffect(() => {
