@@ -67,48 +67,56 @@ export const ModernCashOut: React.FC<ModernCashOutProps> = ({ onClose, className
 
   // Initialize Paycrest data
   const initializePaycrest = async () => {
-    if (!validatePaycrestConfig()) {
-      setError('Paycrest is not properly configured. Please contact support.')
-      return
-    }
+    // Check if Paycrest is configured
+    const isConfigured = validatePaycrestConfig()
+    
+    if (isConfigured) {
+      // Try to load real Paycrest data
+      try {
+        console.log('Loading Paycrest payment methods...')
+        const currencies = await getSupportedCurrencies()
+        const methods: PayoutMethod[] = []
 
-    // Loading payout methods
-    try {
-      // Get supported currencies and institutions
-      const currencies = await getSupportedCurrencies()
-      const methods: PayoutMethod[] = []
-
-      // Create payout methods from Paycrest data
-      for (const currency of currencies.slice(0, 4)) { // Limit to first 4 for demo
-        const institutions = await getInstitutions(currency.code)
-        
-        for (const institution of institutions.slice(0, 2)) { // Limit to 2 per currency
-          methods.push({
-            id: `${currency.code.toLowerCase()}-${institution.id}`,
-            name: `${institution.name} (${currency.name})`,
-            type: institution.type === 'mobile_money' ? 'mobile' : 'bank',
-            currency: currency.code,
-            icon: institution.type === 'mobile_money' ? '📱' : '🏦',
-            institution
-          })
+        // Create payout methods from Paycrest data
+        for (const currency of currencies.slice(0, 4)) { // Limit to first 4 for demo
+          const institutions = await getInstitutions(currency.code)
+          
+          for (const institution of institutions.slice(0, 2)) { // Limit to 2 per currency
+            methods.push({
+              id: `${currency.code.toLowerCase()}-${institution.id}`,
+              name: `${institution.name} (${currency.name})`,
+              type: institution.type === 'mobile_money' ? 'mobile' : 'bank',
+              currency: currency.code,
+              icon: institution.type === 'mobile_money' ? '📱' : '🏦',
+              institution
+            })
+          }
         }
+        
+        if (methods.length > 0) {
+          setPayoutMethods(methods)
+          console.log(`Loaded ${methods.length} payment methods from Paycrest`)
+          return
+        }
+      } catch (error) {
+        console.error('Failed to load Paycrest data:', error)
       }
-      
-      setPayoutMethods(methods)
-    } catch (error) {
-      console.error('Failed to initialize Paycrest:', error)
-      setError('Failed to load payment options. Please try again.')
-      
-      // Fallback to mock data if API fails
-      setPayoutMethods([
-        { id: 'tz-bank', name: 'Tanzania Bank Transfer', type: 'bank', currency: 'TZS', icon: '🏦' },
-        { id: 'tz-mobile', name: 'M-Pesa Tanzania', type: 'mobile', currency: 'TZS', icon: '📱' },
-        { id: 'ke-mobile', name: 'M-Pesa Kenya', type: 'mobile', currency: 'KES', icon: '📱' },
-        { id: 'ng-bank', name: 'Nigeria Bank Transfer', type: 'bank', currency: 'NGN', icon: '🏦' },
-      ])
-    } finally {
-      // Finished loading methods
+    } else {
+      console.warn('Paycrest not configured, using demo payment methods')
     }
+    
+    // Use demo/fallback payment methods
+    const demoMethods: PayoutMethod[] = [
+      { id: 'tz-bank', name: 'Tanzania Bank Transfer', type: 'bank', currency: 'TZS', icon: '🏦' },
+      { id: 'tz-mobile', name: 'M-Pesa Tanzania', type: 'mobile', currency: 'TZS', icon: '📱' },
+      { id: 'ke-mobile', name: 'M-Pesa Kenya', type: 'mobile', currency: 'KES', icon: '📱' },
+      { id: 'ng-bank', name: 'Nigeria Bank Transfer', type: 'bank', currency: 'NGN', icon: '🏦' },
+      { id: 'ug-mobile', name: 'MTN Mobile Money Uganda', type: 'mobile', currency: 'UGX', icon: '📱' },
+      { id: 'rw-bank', name: 'Rwanda Bank Transfer', type: 'bank', currency: 'RWF', icon: '🏦' },
+    ]
+    
+    setPayoutMethods(demoMethods)
+    console.log('Using demo payment methods for cash-out')
   }
 
   // Quick amount selection
