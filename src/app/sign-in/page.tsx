@@ -3,8 +3,7 @@
 // Prevent Next.js from prerendering this page
 export const dynamic = 'force-dynamic';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useLogin } from '@privy-io/react-auth';
 import { Wallet, Shield, Zap, ArrowRight } from 'lucide-react';
@@ -12,7 +11,6 @@ import { ModernLayout, ModernPageContainer, ModernCard, ModernButton } from '@/c
 import { useModernTheme } from '@/contexts/ModernThemeContext';
 
 export default function SignInPage() {
-  const router = useRouter();
   const { login } = useLogin();
 
   // Authentication is now handled directly on this page with Privy Connect button
