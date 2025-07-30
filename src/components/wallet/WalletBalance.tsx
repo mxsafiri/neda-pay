@@ -1,9 +1,8 @@
 'use client';
 
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useWalletStore } from '@/store/useWalletStore'
-import { useAuth } from '@/hooks/useAuth'
+import { usePrivyWallet } from '@/hooks/usePrivyWallet'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { useTheme } from '@/contexts/ThemeContext'
 import Link from 'next/link'
@@ -12,18 +11,38 @@ interface WalletBalanceProps {
   currency?: string
 }
 
-export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
+export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'ETH' }) => {
   const { theme } = useTheme()
-  const { balances, isLoading, fetchBalances } = useWalletStore()
-  const { authenticated, activeAddress } = useAuth()
+  const { authenticated, walletAddress, getBalance, ready } = usePrivyWallet()
+  const [balance, setBalance] = useState('0')
+  const [isLoading, setIsLoading] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   
-  const balance = balances.find(b => b.symbol === currency)?.balance || '0'
-  
+  // Fetch balance when wallet is ready
   useEffect(() => {
-    if (authenticated && activeAddress) {
-      fetchBalances(activeAddress)
+    const fetchWalletBalance = async () => {
+      if (authenticated && walletAddress && ready) {
+        setIsLoading(true)
+        try {
+          const ethBalance = await getBalance()
+          setBalance(ethBalance)
+          setLastUpdated(new Date())
+        } catch (error) {
+          console.error('Error fetching balance:', error)
+          setBalance('0')
+        } finally {
+          setIsLoading(false)
+        }
+      }
     }
-  }, [authenticated, activeAddress, fetchBalances])
+    
+    fetchWalletBalance()
+    
+    // Set up interval to refresh balance every 30 seconds to detect deposits
+    const interval = setInterval(fetchWalletBalance, 30000)
+    
+    return () => clearInterval(interval)
+  }, [authenticated, walletAddress, ready, getBalance])
 
   return (
     <div className="mb-8">
@@ -37,13 +56,28 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
           <LoadingState size="lg" text="" />
         ) : (
           <>
-            <span className="text-blue-500">{balance}</span>
-            <span className="text-gray-300">|{currency}</span>
+            <span className="text-blue-500">{parseFloat(balance).toFixed(4)}</span>
+            <span className="text-gray-300"> {currency}</span>
           </>
         )}
       </motion.h1>
       
-      {/* Secondary balance display removed to reduce confusion */}
+      {/* Balance update indicator */}
+      {lastUpdated && (
+        <p className="text-xs text-gray-400 mt-2">
+          Last updated: {lastUpdated.toLocaleTimeString()}
+        </p>
+      )}
+      
+      {/* Wallet address display for deposits */}
+      {walletAddress && (
+        <div className="mt-4 p-3 bg-gray-800/30 rounded-lg">
+          <p className="text-xs text-gray-400 mb-1">Your wallet address:</p>
+          <p className="text-xs font-mono text-gray-300 break-all">
+            {walletAddress}
+          </p>
+        </div>
+      )}
       
       <div className="grid grid-cols-2 gap-4 mt-8">
         <Link href="/buy" className="w-full">

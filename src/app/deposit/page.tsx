@@ -6,19 +6,17 @@ export const dynamic = 'force-dynamic';
 import React, { useState } from 'react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { motion } from 'framer-motion';
-import { Copy, CheckCircle } from 'lucide-react';
-// BlockRadar store no longer needed for direct wallet address usage
-import { useAuth } from '@/hooks/useAuth';
-// LoadingState no longer needed as we're not showing loading state
+import { Copy, CheckCircle, Wallet, AlertCircle } from 'lucide-react';
+import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 import { QRCode } from '@/components/ui/QRCode';
 
 export default function DepositPage() {
-  const { activeAddress } = useAuth();
+  const { walletAddress, authenticated, ready } = usePrivyWallet();
   const [copied, setCopied] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState('USDC');
   
-  // Use the active wallet address directly as the deposit address
-  const depositAddress = activeAddress || '';
+  // Use the Privy wallet address as the deposit address
+  const depositAddress = walletAddress || '';
   
   // No need to create a new address - using the user's existing wallet address
   
@@ -69,7 +67,23 @@ export default function DepositPage() {
             <div className="bg-white/10 p-4 rounded-lg">
               <h3 className="text-lg font-medium mb-4">Your Deposit Address</h3>
               
-              {depositAddress ? (
+              {!ready ? (
+                <div className="text-center py-6">
+                  <div className="w-8 h-8 border-t-2 border-blue-500 border-solid rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-white/60">Loading wallet...</p>
+                </div>
+              ) : !authenticated ? (
+                <div className="text-center py-6">
+                  <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                  <p className="text-white/60 mb-4">Please connect your wallet to view deposit address</p>
+                  <button 
+                    onClick={() => window.location.href = '/onboarding'}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                  >
+                    Connect Wallet
+                  </button>
+                </div>
+              ) : depositAddress ? (
                 <div className="space-y-4">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 bg-white rounded-lg">
@@ -97,8 +111,15 @@ export default function DepositPage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-6 text-white/60">
-                  <p>No deposit address available. Please try again later.</p>
+                <div className="text-center py-6">
+                  <Wallet className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-white/60 mb-4">Wallet address not available</p>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Refresh
+                  </button>
                 </div>
               )}
             </div>
