@@ -116,100 +116,87 @@ export const DAppConnections: FC = () => {
   };
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 
-            className="text-xl font-semibold"
-            style={{ color: theme.text.primary }}
-          >
-            Connect to Apps
-          </h3>
-          <div 
-            className="text-sm px-3 py-1 rounded-full"
-            style={{ 
-              backgroundColor: theme.background.secondary,
-              color: theme.text.secondary 
-            }}
-          >
-            {AVAILABLE_DAPPS.length} Available
-          </div>
-        </div>
-
-        {connectionError && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-xl border border-red-500/20 bg-red-500/10"
-          >
-            <p className="text-red-400 text-sm">Error: {connectionError}</p>
-          </motion.div>
-        )}
-        
-        <div className="grid grid-cols-1 gap-3">
-          {AVAILABLE_DAPPS.map((dApp, index) => (
-            <motion.div
-              key={dApp.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              className="group relative p-4 rounded-xl border transition-all duration-300 hover:shadow-md cursor-pointer"
-              style={{
-                backgroundColor: theme.background.card,
-                borderColor: theme.border.primary
-              }}
-              whileHover={{ y: -1 }}
-              onClick={() => handleConnect(dApp)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="p-2 rounded-lg"
-                    style={{ backgroundColor: theme.background.secondary }}
-                  >
-                    <dApp.icon 
-                      className="w-5 h-5" 
-                      style={{ color: theme.text.accent }}
-                    />
-                  </div>
-                  <div>
-                    <h4 
-                      className="text-base font-medium"
-                      style={{ color: theme.text.primary }}
-                    >
-                      {dApp.name}
-                    </h4>
-                    <p 
-                      className="text-sm"
-                      style={{ color: theme.text.secondary }}
-                    >
-                      {dApp.description}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  {connecting === dApp.id ? (
-                    <motion.div
-                      className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
-                      style={{ color: theme.text.accent }}
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    />
-                  ) : (
-                    <ArrowRight 
-                      className="w-4 h-4 transition-transform group-hover:translate-x-1" 
-                      style={{ color: theme.text.accent }}
-                    />
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+    <div className="space-y-4">
+      {/* Section Header - blends with background */}
+      <div className="mb-6">
+        <h3 
+          className="text-xl font-semibold mb-1"
+          style={{ color: theme.text.primary }}
+        >
+          Connect to Apps
+        </h3>
+        <p 
+          className="text-sm"
+          style={{ color: theme.text.secondary }}
+        >
+          {AVAILABLE_DAPPS.length} available apps
+        </p>
       </div>
 
-
-    </>
+      {connectionError && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+        >
+          <p className="text-red-400 text-sm">Error: {connectionError}</p>
+        </motion.div>
+      )}
+      
+      {/* Apps List - no cards, blend with background */}
+      <div className="space-y-3">
+        {AVAILABLE_DAPPS.map((dApp, index) => (
+          <motion.div
+            key={dApp.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+            className="group relative p-3 transition-all duration-200 cursor-pointer hover:bg-white/5 rounded-lg"
+            whileHover={{ x: 4 }}
+            onClick={() => handleConnect(dApp)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <dApp.icon 
+                  className="w-5 h-5" 
+                  style={{ color: theme.text.accent }}
+                />
+                <div>
+                  <h4 
+                    className="text-base font-medium"
+                    style={{ color: theme.text.primary }}
+                  >
+                    {dApp.name}
+                  </h4>
+                  <p 
+                    className="text-sm"
+                    style={{ color: theme.text.secondary }}
+                  >
+                    {dApp.description}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                {connecting === dApp.id ? (
+                  <motion.div
+                    className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+                    style={{ color: theme.text.accent }}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                ) : (
+                  <ArrowRight 
+                    className="w-4 h-4 transition-transform group-hover:translate-x-1" 
+                    style={{ color: theme.text.accent }}
+                  />
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 };
