@@ -3,6 +3,7 @@
 import { FC, useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { usePrivyWallet } from '@/hooks/usePrivyWallet'
 import { useTheme } from '@/contexts/ThemeContext'
 import { LoadingState } from '@/components/ui/LoadingState'
@@ -251,7 +252,7 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="text-4xl font-bold bg-gradient-to-r from-green-400 via-yellow-400 to-green-500 bg-clip-text text-transparent">
+                <div className="text-4xl font-bold text-white">
                   {selectedCurrency === 'ETH' 
                     ? parseFloat(ethBalance).toFixed(4)
                     : selectedCurrency === 'USDC'
@@ -274,17 +275,28 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
               
               {/* Currency Selector */}
               <motion.div 
-                className="mb-3"
+                className="mb-3 flex items-center justify-center gap-2"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
               >
+                {/* USDC Logo - only show when USDC is selected */}
+                {selectedCurrency === 'USDC' && (
+                  <Image 
+                    src="/tokens/usdc.svg" 
+                    alt="USDC" 
+                    width={20}
+                    height={20}
+                    className="w-5 h-5"
+                  />
+                )}
+                
                 <select 
                   value={selectedCurrency}
                   onChange={(e) => handleCurrencyChange(e.target.value as 'USDC' | 'ETH' | 'TZS')}
                   className="bg-gray-800/80 border border-gray-600/50 rounded-lg px-3 py-1.5 text-sm text-gray-200 cursor-pointer hover:bg-gray-700/80 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/50"
                 >
-                  <option value="USDC">💰 USDC</option>
+                  <option value="USDC">USDC</option>
                   <option value="ETH">⚡ ETH</option>
                   <option value="TZS">🇹🇿 TZS</option>
                 </select>
