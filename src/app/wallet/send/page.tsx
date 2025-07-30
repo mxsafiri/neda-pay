@@ -28,12 +28,11 @@ type SendFormData = z.infer<typeof sendFormSchema>;
 
 export default function SendPage() {
   const router = useRouter();
-  const { authenticated } = useAuth();
-  const { 
-    sendTransaction,
+  const {
+    user,
+    login,
     getBalance,
-    walletAddress,
-    embeddedWallet
+    sendTransaction
   } = usePrivyWallet();
   
   // Privy defaults to Base chain (no need for selectedBlockchain)

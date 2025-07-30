@@ -160,11 +160,6 @@ export default function OnboardingPage() {
 
   // Handle KYC completion
   const handleKYCComplete = () => {
-    setCurrentStep(OnboardingStep.PIN_SETUP);
-  };
-
-  // Handle PIN setup completion
-  const handlePinSetupComplete = () => {
     setCurrentStep(OnboardingStep.COMPLETE);
     // Redirect to wallet after a short delay to show completion screen
     setTimeout(() => {
