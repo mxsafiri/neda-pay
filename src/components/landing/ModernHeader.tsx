@@ -81,40 +81,7 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
             </button>
             
             {/* Desktop buttons */}
-            <Link 
-              href="/sign-in" 
-              className="hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium transition-all duration-200"
-              style={{
-                color: theme === 'light' ? '#6b7280' : '#d1d5db'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#0254e6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = theme === 'light' ? '#6b7280' : '#d1d5db';
-              }}
-            >
-              Sign In
-            </Link>
-            
-            <Link 
-              href="/sign-in" 
-              className="hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200"
-              style={{
-                backgroundColor: '#0254e6',
-                boxShadow: '0 2px 8px rgba(2, 84, 230, 0.2)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#0242c7';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(2, 84, 230, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#0254e6';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(2, 84, 230, 0.2)';
-              }}
-            >
-              Open App
-            </Link>
+            {/* Authentication handled by Connect button on landing page */}
             
             {/* Mobile menu button */}
             <button
@@ -137,29 +104,7 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
             <nav className="flex flex-col gap-4">
               
               <div className="border-t mt-2 pt-2 flex flex-col gap-3">
-                <Link 
-                  href="/sign-in" 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors text-center ${
-                    theme === 'light'
-                      ? 'text-gray-700 hover:text-[#0A1F44]'
-                      : 'text-gray-300 hover:text-white'
-                  }`}
-                >
-                  Sign In
-                </Link>
-                
-                <Link 
-                  href="/sign-in" 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors text-center ${
-                    theme === 'light'
-                      ? 'bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white'
-                      : 'bg-[#0A1F44] hover:bg-[#0A1F44]/80 text-white'
-                  }`}
-                >
-                  Open App
-                </Link>
+                {/* Authentication handled by Connect button on landing page */}
               </div>
             </nav>
           </div>

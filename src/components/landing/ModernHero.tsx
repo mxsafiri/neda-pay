@@ -2,15 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { usePrivy } from '@privy-io/react-auth';
+import { useRouter } from 'next/navigation';
 
 interface ModernHeroProps {
   theme: 'light' | 'dark';
 }
 
 export function ModernHero({ theme }: ModernHeroProps) {
+  const { login, authenticated, ready } = usePrivy();
+  const router = useRouter();
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const [text, setText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -51,6 +55,29 @@ export function ModernHero({ theme }: ModernHeroProps) {
     
     return () => clearTimeout(timer);
   }, [text, isDeleting, loopNum, currentMessage, typingSpeed]);
+
+  // Handle Connect button click
+  const handleConnect = async () => {
+    if (!ready) return;
+    
+    setIsConnecting(true);
+    try {
+      await login();
+      // After successful authentication, redirect to wallet
+      router.push('/wallet');
+    } catch (error) {
+      console.error('Authentication failed:', error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (authenticated) {
+      router.push('/wallet');
+    }
+  }, [authenticated, router]);
 
   return (
     <section className={`pt-24 md:pt-32 pb-16 md:pb-20 ${theme === 'light' ? 'bg-gradient-to-b from-white to-gray-50' : 'bg-gradient-to-b from-gray-900 to-black'}`}>
@@ -94,16 +121,26 @@ export function ModernHero({ theme }: ModernHeroProps) {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-wrap gap-4"
             >
-              <Link 
-                href="/sign-in" 
-                className={`px-8 py-4 text-lg font-medium flex items-center gap-2 transition-all ${
+              <button 
+                onClick={handleConnect}
+                disabled={!ready || isConnecting}
+                className={`px-8 py-4 text-lg font-medium flex items-center gap-2 transition-all rounded-lg ${
                   theme === 'light'
                     ? 'bg-[#0254e6] hover:bg-[#0254e6]/90 text-white'
                     : 'bg-[#0254e6] hover:bg-[#0254e6]/80 text-white'
-                }`}
+                } ${(!ready || isConnecting) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
               >
-                Get Started <ArrowRight size={18} />
-              </Link>
+                {isConnecting ? (
+                  <>
+                    <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  <>
+                    Connect <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
               
               {/* Learn More button removed as requested */}
             </motion.div>
