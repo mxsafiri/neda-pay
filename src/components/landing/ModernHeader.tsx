@@ -98,7 +98,7 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
             </Link>
             
             <Link 
-              href="/onboarding" 
+              href="/sign-in" 
               className="hidden md:inline-block px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200"
               style={{
                 backgroundColor: '#0254e6',
@@ -150,7 +150,7 @@ export function ModernHeader({ theme, onThemeToggle }: ModernHeaderProps) {
                 </Link>
                 
                 <Link 
-                  href="/onboarding" 
+                  href="/sign-in" 
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors text-center ${
                     theme === 'light'

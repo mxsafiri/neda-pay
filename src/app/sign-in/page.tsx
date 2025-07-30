@@ -15,10 +15,7 @@ export default function SignInPage() {
   const router = useRouter();
   const { login } = useLogin();
 
-  // Redirect to Privy onboarding since we no longer use PIN authentication
-  useEffect(() => {
-    router.push('/onboarding');
-  }, [router]);
+  // Authentication is now handled directly on this page with Privy Connect button
 
   const theme = useModernTheme();
 

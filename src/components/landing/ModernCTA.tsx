@@ -58,7 +58,7 @@ export function ModernCTA({ theme }: ModernCTAProps) {
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
                 <Link 
-                  href="/onboarding" 
+                  href="/sign-in" 
                   className="inline-flex items-center gap-2 px-8 py-4 bg-white rounded-full text-lg font-medium transition-colors"
                   style={{
                     color: '#0254e6'

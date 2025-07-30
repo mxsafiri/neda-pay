@@ -131,7 +131,7 @@ export function ImmersiveHero() {
                 className="cta-button"
               >
                 <Link 
-                  href="/onboarding" 
+                  href="/sign-in" 
                   className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-full text-lg font-medium flex items-center gap-2 transition-all"
                 >
                   Get Started <ArrowRight size={18} />

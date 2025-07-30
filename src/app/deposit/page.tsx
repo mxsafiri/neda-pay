@@ -77,7 +77,7 @@ export default function DepositPage() {
                   <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
                   <p className="text-white/60 mb-4">Please connect your wallet to view deposit address</p>
                   <button 
-                    onClick={() => window.location.href = '/onboarding'}
+                    onClick={() => window.location.href = '/sign-in'}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
                   >
                     Connect Wallet

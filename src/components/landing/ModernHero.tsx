@@ -95,7 +95,7 @@ export function ModernHero({ theme }: ModernHeroProps) {
               className="flex flex-wrap gap-4"
             >
               <Link 
-                href="/onboarding" 
+                href="/sign-in" 
                 className={`px-8 py-4 text-lg font-medium flex items-center gap-2 transition-all ${
                   theme === 'light'
                     ? 'bg-[#0254e6] hover:bg-[#0254e6]/90 text-white'
