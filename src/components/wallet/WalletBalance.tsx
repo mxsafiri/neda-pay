@@ -11,12 +11,14 @@ interface WalletBalanceProps {
   currency?: string
 }
 
-export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'ETH' }) => {
+export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'TZS' }) => {
   const { theme } = useTheme()
   const { authenticated, walletAddress, getBalance, ready } = usePrivyWallet()
   const [balance, setBalance] = useState('0')
+  const [balanceInTZS, setBalanceInTZS] = useState('0')
   const [isLoading, setIsLoading] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [showETH, setShowETH] = useState(false)
   
   // Fetch balance when wallet is ready
   useEffect(() => {
@@ -26,6 +28,13 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'ETH' }) => {
         try {
           const ethBalance = await getBalance()
           setBalance(ethBalance)
+          
+          // Convert ETH to TZS
+          const ethToUSD = 3200 // Approximate ETH price in USD
+          const usdToTZS = 2559.39 // From exchange rate API
+          const ethInTZS = (parseFloat(ethBalance) * ethToUSD * usdToTZS).toFixed(0)
+          setBalanceInTZS(ethInTZS)
+          
           setLastUpdated(new Date())
         } catch (error) {
           console.error('Error fetching balance:', error)
@@ -56,8 +65,20 @@ export const WalletBalance: FC<WalletBalanceProps> = ({ currency = 'ETH' }) => {
           <LoadingState size="lg" text="" />
         ) : (
           <>
-            <span className="text-blue-500">{parseFloat(balance).toFixed(4)}</span>
-            <span className="text-gray-300"> {currency}</span>
+            <span 
+              className="text-blue-500 cursor-pointer" 
+              onClick={() => setShowETH(!showETH)}
+              title="Click to toggle between TZS and ETH"
+            >
+              {showETH ? parseFloat(balance).toFixed(4) : parseInt(balanceInTZS).toLocaleString()}
+            </span>
+            <span className="text-gray-300"> {showETH ? 'ETH' : currency}</span>
+            <button 
+              onClick={() => setShowETH(!showETH)}
+              className="ml-2 text-xs text-gray-400 hover:text-gray-300"
+            >
+              {showETH ? '→ TZS' : '→ ETH'}
+            </button>
           </>
         )}
       </motion.h1>
