@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePrivyWallet } from '@/hooks/usePrivyWallet';
+import { usePrivy } from '@privy-io/react-auth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { theme } from '@/styles/theme';
 import { ArrowRight, Mail } from 'lucide-react';
@@ -27,7 +27,7 @@ export function SocialLoginForm({
   title = "Create Your NEDApay Wallet",
   subtitle = "Choose how you'd like to sign in. Your wallet will be created automatically."
 }: SocialLoginFormProps) {
-  const { createWallet, isLoading, error, authenticated, walletAddress } = usePrivyWallet();
+  const { login, authenticated, user, ready } = usePrivy();
   const { theme: currentTheme } = useTheme();
   const themeColors = {
     primary: theme.colors.primary,
@@ -45,24 +45,28 @@ export function SocialLoginForm({
   };
   
   const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSocialLogin = async () => {
     setIsCreating(true);
+    setError(null);
     
     try {
-      const address = await createWallet();
-      if (address && onComplete) {
-        onComplete(address);
+      await login();
+      // After successful login, call onComplete with user info
+      if (onComplete && user?.wallet?.address) {
+        onComplete(user.wallet.address);
       }
     } catch (err) {
       console.error('Social login failed:', err);
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsCreating(false);
     }
   };
 
   // If already authenticated, show success state
-  if (authenticated && walletAddress) {
+  if (authenticated && user?.wallet?.address) {
     return (
       <div className="space-y-6 text-center">
         <div 
@@ -99,7 +103,7 @@ export function SocialLoginForm({
               color: themeColors.text.secondary,
             }}
           >
-            {walletAddress}
+            {user?.wallet?.address}
           </div>
         </div>
       </div>
@@ -138,9 +142,9 @@ export function SocialLoginForm({
       <div className="space-y-4">
         <button
           onClick={handleSocialLogin}
-          disabled={isCreating || isLoading}
+          disabled={isCreating || !ready}
           className={`w-full flex items-center justify-center gap-3 py-4 px-6 rounded-lg font-medium transition-all duration-200 ${
-            isCreating || isLoading
+            isCreating || !ready
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:scale-[1.02] active:scale-[0.98]'
           }`}
@@ -150,7 +154,7 @@ export function SocialLoginForm({
             boxShadow: '0 4px 20px rgba(10, 31, 68, 0.2)',
           }}
         >
-          {isCreating || isLoading ? (
+          {isCreating ? (
             <>
               <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin" />
               Creating Wallet...
