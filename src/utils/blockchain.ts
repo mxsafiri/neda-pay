@@ -97,7 +97,7 @@ export async function getETHBalance(address: `0x${string}`): Promise<string> {
 }
 
 /**
- * Get ERC-20 token balance
+ * Get ERC-20 token balance with proper decimal handling
  */
 export async function getTokenBalance(
   tokenAddress: `0x${string}`,
@@ -118,16 +118,44 @@ export async function getTokenBalance(
         inputs: [{ name: 'account', type: 'address' }],
         outputs: [{ name: '', type: 'uint256' }],
       },
+      {
+        name: 'decimals',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [],
+        outputs: [{ name: '', type: 'uint8' }],
+      },
     ] as const;
 
-    const balance = await client.readContract({
-      address: tokenAddress,
-      abi: tokenABI,
-      functionName: 'balanceOf',
-      args: [walletAddress],
-    });
+    // Get both balance and decimals
+    const [balance, decimals] = await Promise.all([
+      client.readContract({
+        address: tokenAddress,
+        abi: tokenABI,
+        functionName: 'balanceOf',
+        args: [walletAddress],
+      }),
+      client.readContract({
+        address: tokenAddress,
+        abi: tokenABI,
+        functionName: 'decimals',
+        args: [],
+      })
+    ]);
 
-    return formatEther(balance as bigint);
+    // Format balance with correct decimals
+    const balanceBigInt = balance as bigint;
+    const tokenDecimals = decimals as number;
+    const divisor = BigInt(10 ** tokenDecimals);
+    const formattedBalance = Number(balanceBigInt) / Number(divisor);
+    
+    console.log(`Token balance for ${tokenAddress}:`, {
+      raw: balanceBigInt.toString(),
+      decimals: tokenDecimals,
+      formatted: formattedBalance.toString()
+    });
+    
+    return formattedBalance.toString();
   } catch (error) {
     console.error('Error fetching token balance:', error);
     return '0';
