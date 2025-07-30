@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight, Wallet, Shield, KeyRound } from 'lucide-react';
-import { PinSetupModal } from '@/components/auth/PinSetupModal';
+
 import { RecoveryPhraseModal } from '@/components/auth/RecoveryPhraseModal';
 import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 
@@ -28,12 +28,6 @@ export default function CreateWalletContent() {
       console.error('Failed to create wallet:', error);
       setIsCreating(false);
     }
-  };
-  
-  const handlePinSetupComplete = () => {
-    // After PIN setup, show recovery phrase setup
-    setShowPinSetup(false);
-    setShowRecoverySetup(true);
   };
   
   const handleRecoverySetupComplete = () => {
@@ -109,15 +103,7 @@ export default function CreateWalletContent() {
             </div>
           ) : (
             <>
-              {/* PIN Setup Modal */}
-              {showPinSetup && walletAddress && (
-                <PinSetupModal
-                  isOpen={showPinSetup}
-                  onClose={() => setShowPinSetup(false)}
-                  onComplete={handlePinSetupComplete}
-                  walletAddress={walletAddress}
-                />
-              )}
+              {/* PIN Setup Modal removed - using Privy authentication */}
               
               {/* Recovery Phrase Setup Modal */}
               {showRecoverySetup && walletAddress && (

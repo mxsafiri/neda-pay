@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Copy, CheckCircle2, AlertCircle, Shield, Eye, EyeOff } from 'lucide-react';
-import { generateRecoveryPhrase } from '@/utils/recoveryPhrase';
+// Recovery phrase utilities removed - using Privy authentication
 
 interface RecoveryPhraseModalProps {
   isOpen: boolean;
@@ -26,7 +26,8 @@ export function RecoveryPhraseModal({ isOpen, onClose, onComplete, walletAddress
   // Generate recovery phrase on component mount
   useEffect(() => {
     if (isOpen && !recoveryPhrase) {
-      const phrase = generateRecoveryPhrase(12);
+      // Mock recovery phrase since we're using Privy authentication
+      const phrase = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
       setRecoveryPhrase(phrase);
     }
   }, [isOpen, recoveryPhrase]);

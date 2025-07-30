@@ -7,58 +7,23 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, Variants } from 'framer-motion';
 import { ArrowRight, Key, Shield, LockKeyhole } from 'lucide-react';
-import { PinVerificationModal } from '@/components/auth/PinVerificationModal';
-import { PinRecoveryModal } from '@/components/auth/PinRecoveryModal';
-import { useHybridWalletAuth } from '@/hooks/useHybridWalletAuth';
+
+
 
 export default function SignInPage() {
   const router = useRouter();
-  const { } = useHybridWalletAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
-  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
 
-  
-  // Check if wallet exists in local storage or user is already authenticated
+  // Redirect to Privy onboarding since we no longer use PIN authentication
   useEffect(() => {
-    const storedWalletData = localStorage.getItem('neda_wallet');
-    if (!storedWalletData) {
-      // No wallet found, redirect to onboarding
-      router.push('/onboarding');
-    }
+    router.push('/onboarding');
   }, [router]);
   
   const handleSignIn = async () => {
     setIsSigningIn(true);
-    try {
-      // Check if wallet data exists in localStorage
-      const storedWalletData = localStorage.getItem('neda_wallet');
-      if (storedWalletData) {
-        setShowPinModal(true);
-      } else {
-        throw new Error('No wallet found');
-      }
-    } catch (error) {
-      console.error('Failed to sign in:', error);
-      router.push('/onboarding');
-    } finally {
-      setIsSigningIn(false);
-    }
-  };
-  
-  const handlePinSuccess = () => {
-    // Redirect to wallet dashboard
-    router.push('/wallet');
-  };
-  
-  const handleRecoverySuccess = () => {
-    // Redirect to wallet dashboard after successful recovery
-    router.push('/wallet');
-  };
-  
-  const handleShowRecovery = () => {
-    setShowPinModal(false);
-    setShowRecoveryModal(true);
+    // Redirect to Privy onboarding since we no longer use PIN authentication
+    router.push('/onboarding');
+    setIsSigningIn(false);
   };
   
   // Animation variants with proper TypeScript typing
@@ -162,31 +127,11 @@ export default function SignInPage() {
               ) : (
                 <>
                   <LockKeyhole className="mr-2 h-5 w-5" />
-                  Continue to PIN <ArrowRight className="ml-2 h-5 w-5" />
+                  Sign In with Privy <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
             </motion.button>
           </motion.div>
-          
-          {/* PIN Verification Modal */}
-          {showPinModal && (
-            <PinVerificationModal
-              isOpen={showPinModal}
-              onClose={() => handleShowRecovery()} // Changed to show recovery when "Forgot PIN?" is clicked
-              onSuccess={handlePinSuccess}
-              walletAddress={JSON.parse(localStorage.getItem('neda_wallet') || '{}').address || ''}
-            />
-          )}
-          
-          {/* PIN Recovery Modal */}
-          {showRecoveryModal && (
-            <PinRecoveryModal
-              isOpen={showRecoveryModal}
-              onClose={() => setShowRecoveryModal(false)}
-              onSuccess={handleRecoverySuccess}
-              walletAddress={JSON.parse(localStorage.getItem('neda_wallet') || '{}').address || ''}
-            />
-          )}
           
 
         </motion.div>

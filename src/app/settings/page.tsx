@@ -8,13 +8,13 @@ import { WalletLayout } from '@/components/wallet/WalletLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme, financeTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
-import { ChevronRight, LogOut, Moon, Sun, User, Bell, Globe, FileCheck, X, Layers, Key } from 'lucide-react';
+import { ChevronRight, LogOut, Moon, Sun, User, Bell, Globe, FileCheck, X, Layers } from 'lucide-react';
 import { KYCForm } from '@/components/settings/KYCForm';
 import { KYCStatus } from '@/components/settings/KYCStatus';
 import { useKycStatus } from '@/hooks/useKycStatus';
 import { KycStatus as KycStatusEnum } from '@/types/kyc';
 import { ProfileEditModal, ProfileData } from '@/components/settings/ProfileEditModal';
-import { ViewRecoveryPhraseModal } from '@/components/settings/ViewRecoveryPhraseModal';
+
 
 
 export default function SettingsPage() {
@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showRecoveryPhraseModal, setShowRecoveryPhraseModal] = useState(false);
+  // showRecoveryPhraseModal removed - using Privy authentication
   
   // Get current theme colors
   const themeColors = financeTheme[theme];
@@ -122,13 +122,7 @@ export default function SettingsPage() {
     {
       title: 'Security & Backup',
       items: [
-        {
-          icon: Key,
-          label: 'View Recovery Phrase',
-          action: () => setShowRecoveryPhraseModal(true),
-          value: 'Backup your wallet',
-          description: 'View and save your recovery phrase offline for security',
-        },
+        // Recovery phrase option removed - using Privy authentication
       ],
     },
     {
@@ -395,14 +389,7 @@ export default function SettingsPage() {
             />
           )}
           
-          {/* Recovery Phrase Modal */}
-          {showRecoveryPhraseModal && user?.wallet && (
-            <ViewRecoveryPhraseModal
-              isOpen={showRecoveryPhraseModal}
-              onClose={() => setShowRecoveryPhraseModal(false)}
-              walletAddress={user.wallet}
-            />
-          )}
+          {/* Recovery Phrase Modal removed - using Privy authentication */}
           
 
         </div>

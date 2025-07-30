@@ -8,7 +8,7 @@ import { Home, ArrowLeftRight, Activity, Settings, QrCode, Scan } from 'lucide-r
 // import { LoginButton } from '@/components/auth/LoginButton' // Commented out as it's currently unused
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { SessionTimeoutHandler } from '@/components/auth/SessionTimeoutHandler'
+// SessionTimeoutHandler removed - using Privy authentication
 
 interface WalletLayoutProps {
   children: ReactNode
@@ -53,7 +53,7 @@ export const WalletLayout: FC<WalletLayoutProps> = ({ children }) => {
   return (
     <>
       {/* Session timeout handler for automatic PIN verification */}
-      <SessionTimeoutHandler />
+      {/* SessionTimeoutHandler removed - using Privy authentication */}
       
       <div 
         className="min-h-screen transition-colors duration-200"
