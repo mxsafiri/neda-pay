@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { CircularWalletBalance } from '@/components/wallet/CircularWalletBalance';
 import { ModernLayout, ModernPageContainer, ModernCard } from '@/components/layout/ModernLayout';
 import { DAppConnections } from '@/components/wallet/DAppConnections';
-import { BalanceDebug } from '@/components/debug/BalanceDebug';
 import { WalletHeader } from '@/components/layout/ModernHeader'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 
@@ -25,15 +24,6 @@ export default function WalletPage() {
           transition={{ duration: 0.4, ease: 'easeOut' }}
         >
           <CircularWalletBalance />
-        </motion.div>
-
-        {/* Debug Component - Temporary for troubleshooting */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          <BalanceDebug />
         </motion.div>
 
         {/* DApp Connections */}
