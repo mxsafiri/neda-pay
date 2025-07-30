@@ -6,6 +6,7 @@ import { usePrivyWallet } from '@/hooks/usePrivyWallet'
 import { getTokenBalance } from '@/utils/blockchain'
 import { BASE_TOKENS } from '@/utils/blockchain'
 import { ChevronDown, ArrowRight, Check, Loader2 } from 'lucide-react'
+import { useNotifications } from '@/contexts/NotificationContext'
 import {
   getSupportedCurrencies,
   getInstitutions,
@@ -32,6 +33,7 @@ interface PayoutMethod {
 export const ModernCashOut: React.FC<ModernCashOutProps> = ({ onClose, className = '' }) => {
   // Wallet integration
   const { authenticated, embeddedWallet } = usePrivyWallet()
+  const { addNotification } = useNotifications()
   
   // State management
   const [amount, setAmount] = useState('')
@@ -137,6 +139,14 @@ export const ModernCashOut: React.FC<ModernCashOutProps> = ({ onClose, className
     setError(null)
     
     try {
+      // Notify cash-out initiation
+      addNotification({
+        type: 'cashout',
+        title: 'Cash-out Initiated',
+        message: `Processing ${amount} USDC → ${selectedMethod.currency}`,
+        data: { amount, currency: selectedMethod.currency, status: 'initiated' }
+      })
+      
       // Get exchange rate first
       const rate = await getExchangeRate('USDC', amount, selectedMethod.currency)
       console.log('Exchange rate:', rate)
@@ -163,12 +173,29 @@ export const ModernCashOut: React.FC<ModernCashOutProps> = ({ onClose, className
       
       console.log('Cash-out order created:', order)
       
+      // Notify successful cash-out
+      addNotification({
+        type: 'cashout',
+        title: 'Cash-out Successful',
+        message: `${amount} USDC cash-out order created successfully`,
+        data: { amount, currency: selectedMethod.currency, status: 'completed', orderId: order.id }
+      })
+      
       // Success - close modal
       onClose?.()
     } catch (error) {
       console.error('Cash-out failed:', error)
-      setError(`Cash-out failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      setError(`Cash-out failed: ${errorMessage}`)
       setIsSlideComplete(false)
+      
+      // Notify cash-out failure
+      addNotification({
+        type: 'cashout',
+        title: 'Cash-out Failed',
+        message: `Failed to process ${amount} USDC cash-out: ${errorMessage}`,
+        data: { amount, currency: selectedMethod.currency, status: 'failed', error: errorMessage }
+      })
     } finally {
       setIsProcessing(false)
       setSlideProgress(0)

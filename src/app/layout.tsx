@@ -5,6 +5,7 @@ import { WalletAuthProvider } from "@/providers/WalletAuthProvider";
 import { PrivyWalletProvider } from "@/components/wallet/PrivyWalletProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ModernThemeProvider } from "@/contexts/ModernThemeContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,7 +68,9 @@ export default function RootLayout({
           <ModernThemeProvider>
             <PrivyWalletProvider>
               <WalletAuthProvider>
-                {children}
+                <NotificationProvider>
+                  {children}
+                </NotificationProvider>
               </WalletAuthProvider>
             </PrivyWalletProvider>
           </ModernThemeProvider>

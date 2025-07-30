@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { useNotifications } from '@/contexts/NotificationContext'
+import { NotificationPanel } from '@/components/notifications/NotificationPanel'
 
 interface ModernHeaderProps {
   title?: string
@@ -29,6 +31,8 @@ export function ModernHeader({
 }: ModernHeaderProps) {
   const router = useRouter()
   const { theme, mode, toggleMode } = useModernTheme()
+  const { unreadCount } = useNotifications()
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = React.useState(false)
 
   return (
     <motion.header
@@ -98,20 +102,30 @@ export function ModernHeader({
 
           {/* Notifications */}
           {showNotifications && (
-            <motion.button
-              className="relative p-2 rounded-lg transition-all duration-200"
-              style={{ color: theme.text.secondary }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Bell size={18} />
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 w-5 h-5 text-xs p-0 flex items-center justify-center"
+            <>
+              <motion.button
+                onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
+                className="relative p-2 rounded-lg transition-all duration-200"
+                style={{ color: theme.text.secondary }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                3
-              </Badge>
-            </motion.button>
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 w-5 h-5 text-xs p-0 flex items-center justify-center"
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Badge>
+                )}
+              </motion.button>
+              
+              <NotificationPanel 
+                isOpen={isNotificationPanelOpen}
+                onClose={() => setIsNotificationPanelOpen(false)}
+              />
+            </>
           )}
 
           {/* Profile */}

@@ -2,13 +2,16 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { CircularWalletBalance } from '@/components/wallet/CircularWalletBalance';
-import { ModernLayout, ModernPageContainer, ModernCard } from '@/components/layout/ModernLayout';
+import { CircularWalletBalance } from '@/components/wallet/CircularWalletBalance'
+import { ModernLayout } from '@/components/layout/ModernLayout'
+import { useWalletNotifications } from '@/hooks/useWalletNotifications'
 import { DAppConnections } from '@/components/wallet/DAppConnections';
 import { WalletHeader } from '@/components/layout/ModernHeader'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 
 export default function WalletPage() {
+  // Initialize wallet notifications to track balance changes
+  useWalletNotifications()
   const { theme } = useModernTheme()
   
   return (
