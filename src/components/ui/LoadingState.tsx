@@ -2,7 +2,6 @@
 
 import { FC } from 'react';
 import { motion } from 'framer-motion';
-import { theme } from '@/styles/theme';
 
 interface LoadingStateProps {
   size?: 'sm' | 'md' | 'lg';
