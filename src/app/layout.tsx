@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "NEDApay - Stablecoin Wallet",
   description: "A modern fiat-to-crypto wallet focused on stablecoins on the Base blockchain",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.svg?v=2",
     apple: "/apple-icon.png",
   },
   manifest: "/manifest.json",
@@ -57,7 +57,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.png?v=2" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
         <meta name="theme-color" content="#0A1F44" />
       </head>
