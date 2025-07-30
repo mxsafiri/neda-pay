@@ -19,7 +19,7 @@ export default function WalletPage() {
       {/* Custom Wallet Header */}
       <WalletHeader />
       
-      <ModernPageContainer className="space-y-6">
+      <div className="px-6 py-4 space-y-6 max-w-md mx-auto">
         {/* Circular Wallet Balance */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -35,9 +35,15 @@ export default function WalletPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
         >
-          <ModernCard variant="elevated">
+          <div 
+            className="p-6 rounded-xl border shadow-sm"
+            style={{
+              backgroundColor: theme.background.card,
+              borderColor: theme.border.primary
+            }}
+          >
             <DAppConnections />
-          </ModernCard>
+          </div>
         </motion.div>
 
         {/* Recent Activity */}
@@ -46,7 +52,13 @@ export default function WalletPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
         >
-          <ModernCard variant="elevated">
+          <div 
+            className="p-6 rounded-xl border shadow-sm"
+            style={{
+              backgroundColor: theme.background.card,
+              borderColor: theme.border.primary
+            }}
+          >
             <div>
               <h3 
                 className="text-lg font-medium mb-4"
@@ -61,9 +73,9 @@ export default function WalletPage() {
                 No recent transactions
               </div>
             </div>
-          </ModernCard>
+          </div>
         </motion.div>
-      </ModernPageContainer>
+      </div>
     </ModernLayout>
   );
 }
