@@ -1,66 +1,68 @@
-'use client';
+'use client'
 
-// Prevent Next.js from prerendering this page
-export const dynamic = 'force-dynamic';
-
-import React from 'react';
-import { WalletLayout } from '@/components/wallet/WalletLayout'
+import React from 'react'
+import { motion } from 'framer-motion'
 import { CircularWalletBalance } from '@/components/wallet/CircularWalletBalance'
-import { useWalletStore } from '@/store/useWalletStore'
-import { TransactionItem } from '@/components/wallet/TransactionItem'
-
 import { DAppConnections } from '@/components/wallet/DAppConnections'
-import { useTheme, financeTheme } from '@/contexts/ThemeContext'
+import { ModernLayout, ModernPageContainer, ModernCard } from '@/components/layout/ModernLayout'
+import { WalletHeader } from '@/components/layout/ModernHeader'
+import { useModernTheme } from '@/contexts/ModernThemeContext'
 
 export default function WalletPage() {
-  const { theme } = useTheme();
-  const themeColors = financeTheme[theme];
+  const { theme } = useModernTheme()
   
   return (
-    <WalletLayout>
-      <CircularWalletBalance />
-      <div className="space-y-6">
-        {/* DApp Connections Section */}
-        <div 
-          className="backdrop-blur-md p-6 rounded-2xl border transition-colors duration-200"
-          style={{
-            backgroundColor: themeColors.background.card,
-            borderColor: themeColors.border.primary
-          }}
+    <ModernLayout showHeader={false} showNavigation={true}>
+      {/* Custom Wallet Header */}
+      <WalletHeader />
+      
+      <ModernPageContainer className="space-y-6">
+        {/* Circular Wallet Balance */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
         >
-          <h3 
-            className="text-lg font-medium mb-4"
-            style={{ color: themeColors.text.primary }}
-          >
-            Connected Apps
-          </h3>
-          <DAppConnections />
-        </div>
-        
-        <ActivitySection />
-      </div>
-    </WalletLayout>
+          <CircularWalletBalance />
+        </motion.div>
+
+        {/* DApp Connections */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
+        >
+          <ModernCard variant="elevated">
+            <DAppConnections />
+          </ModernCard>
+        </motion.div>
+
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
+        >
+          <ModernCard variant="elevated">
+            <div>
+              <h3 
+                className="text-lg font-medium mb-4"
+                style={{ color: theme.text.primary }}
+              >
+                Recent Activity
+              </h3>
+              <div 
+                className="text-center py-6"
+                style={{ color: theme.text.secondary }}
+              >
+                No recent transactions
+              </div>
+            </div>
+          </ModernCard>
+        </motion.div>
+      </ModernPageContainer>
+    </ModernLayout>
   );
 }
 
-function ActivitySection() {
-  const { transactions } = useWalletStore();
-  
-  return (
-    <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-      <h3 className="text-lg font-medium mb-4">Recent Activity</h3>
-      
-      <div className="space-y-3">
-        {transactions.length > 0 ? (
-          transactions.map(transaction => (
-            <TransactionItem key={transaction.id} transaction={transaction} />
-          ))
-        ) : (
-          <div className="text-center py-6 text-white/60">
-            No recent transactions
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+

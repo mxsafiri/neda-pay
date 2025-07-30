@@ -3,139 +3,151 @@
 // Prevent Next.js from prerendering this page
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, Variants } from 'framer-motion';
-import { ArrowRight, Key, Shield, LockKeyhole } from 'lucide-react';
-
-
+import { motion } from 'framer-motion';
+import { useLogin } from '@privy-io/react-auth';
+import { Wallet, Shield, Zap, ArrowRight } from 'lucide-react';
+import { ModernLayout, ModernPageContainer, ModernCard, ModernButton } from '@/components/layout/ModernLayout';
+import { useModernTheme } from '@/contexts/ModernThemeContext';
 
 export default function SignInPage() {
   const router = useRouter();
-  const [isSigningIn, setIsSigningIn] = useState(false);
+  const { login } = useLogin();
 
   // Redirect to Privy onboarding since we no longer use PIN authentication
   useEffect(() => {
     router.push('/onboarding');
   }, [router]);
-  
-  const handleSignIn = async () => {
-    setIsSigningIn(true);
-    // Redirect to Privy onboarding since we no longer use PIN authentication
-    router.push('/onboarding');
-    setIsSigningIn(false);
-  };
-  
-  // Animation variants with proper TypeScript typing
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants: Variants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 24
-      }
-    }
-  };
-  
+
+  const theme = useModernTheme();
+
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-md w-full"
-        >
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
+    <ModernLayout showNavigation={false} showHeader={false}>
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <ModernPageContainer className="max-w-md">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-center mb-10"
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="text-center mb-8"
           >
-            <h1 className="text-4xl font-bold mb-3 text-white">Access Your Wallet</h1>
-            <p className="text-white/70 text-lg">
-              Sign in with your PIN to access your wallet
+            <div 
+              className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center"
+              style={{ backgroundColor: theme.colors.primary[600] }}
+            >
+              <Wallet size={32} style={{ color: '#ffffff' }} />
+            </div>
+            <h1 
+              className="text-3xl font-bold mb-3"
+              style={{ color: '#1f2937' }}
+            >
+              Welcome to NEDApay
+            </h1>
+            <p 
+              className="text-lg leading-relaxed"
+              style={{ color: '#6b7280' }}
+            >
+              Your modern stablecoin wallet for seamless digital payments
             </p>
           </motion.div>
-          
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-6"
-          >
-            <motion.div 
-              variants={itemVariants}
-              className="bg-[#0A1F44]/10 border border-[#0A1F44]/20 rounded-lg p-6 shadow-lg"
-            >
-              <div className="space-y-5">
-                <motion.div 
-                  variants={itemVariants}
-                  className="flex items-start"
-                >
-                  <div className="w-12 h-12 rounded-full bg-[#0A1F44]/20 flex items-center justify-center mr-4">
-                    <Key className="text-[#0A1F44] h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">PIN Access</h3>
-                    <p className="text-white/70">
-                      Enter your 6-digit PIN to securely access your wallet
-                    </p>
-                  </div>
-                </motion.div>
-                
-                <motion.div 
-                  variants={itemVariants}
-                  className="flex items-start"
-                >
-                  <div className="w-12 h-12 rounded-full bg-[#0A1F44]/20 flex items-center justify-center mr-4">
-                    <Shield className="text-[#0A1F44] h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">Protected Access</h3>
-                    <p className="text-white/70">
-                      Your wallet is protected with industry-standard encryption
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-            
-            <motion.button
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSignIn}
-              disabled={isSigningIn}
-              className="w-full p-4 bg-[#0A1F44] hover:bg-[#0A1F44]/90 text-white rounded-md flex items-center justify-center transition-all shadow-lg font-medium text-lg"
-            >
-              {isSigningIn ? (
-                <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <LockKeyhole className="mr-2 h-5 w-5" />
-                  Sign In with Privy <ArrowRight className="ml-2 h-5 w-5" />
-                </>
-              )}
-            </motion.button>
-          </motion.div>
-          
 
-        </motion.div>
+          {/* Features */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+            className="space-y-4 mb-8"
+          >
+            {[
+              {
+                icon: Shield,
+                title: 'Bank-Grade Security',
+                description: 'Your funds are protected with enterprise-level security'
+              },
+              {
+                icon: Zap,
+                title: 'Instant Transactions',
+                description: 'Send and receive money instantly with low fees'
+              },
+              {
+                icon: Wallet,
+                title: 'Multi-Chain Support',
+                description: 'Access multiple blockchains from one wallet'
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1, ease: 'easeOut' }}
+              >
+                <ModernCard variant="default" className="flex items-center space-x-4 p-4">
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                  >
+                    <feature.icon 
+                      size={20} 
+                      style={{ color: '#3b82f6' }}
+                    />
+                  </div>
+                  <div>
+                    <h3 
+                      className="font-medium mb-1"
+                      style={{ color: '#1f2937' }}
+                    >
+                      {feature.title}
+                    </h3>
+                    <p 
+                      className="text-sm"
+                      style={{ color: '#6b7280' }}
+                    >
+                      {feature.description}
+                    </p>
+                  </div>
+                </ModernCard>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Connect Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6, ease: 'easeOut' }}
+          >
+            <ModernButton
+              onClick={() => {
+                // Trigger Privy login modal directly
+                login()
+              }}
+              variant="primary"
+              size="lg"
+              className="w-full py-4 px-6 text-lg font-medium flex items-center justify-center space-x-3"
+            >
+              <span>Connect</span>
+              <ArrowRight size={20} />
+            </ModernButton>
+          </motion.div>
+
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8, ease: 'easeOut' }}
+            className="text-center mt-8"
+          >
+            <p 
+              className="text-lg mb-8"
+              style={{ color: '#6b7280' }}
+            >
+              By continuing, you agree to our Terms of Service and Privacy Policy
+            </p>
+          </motion.div>
+        </ModernPageContainer>
       </div>
-    </div>
+    </ModernLayout>
   );
 }

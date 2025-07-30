@@ -4,6 +4,7 @@ import "./globals.css";
 import { WalletAuthProvider } from "@/providers/WalletAuthProvider";
 import { PrivyWalletProvider } from "@/components/wallet/PrivyWalletProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ModernThemeProvider } from "@/contexts/ModernThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,11 +64,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <ThemeProvider>
-          <PrivyWalletProvider>
-            <WalletAuthProvider>
-              {children}
-            </WalletAuthProvider>
-          </PrivyWalletProvider>
+          <ModernThemeProvider>
+            <PrivyWalletProvider>
+              <WalletAuthProvider>
+                {children}
+              </WalletAuthProvider>
+            </PrivyWalletProvider>
+          </ModernThemeProvider>
         </ThemeProvider>
       </body>
     </html>
