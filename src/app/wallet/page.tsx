@@ -45,36 +45,6 @@ export default function WalletPage() {
             <DAppConnections />
           </div>
         </motion.div>
-
-        {/* Recent Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
-        >
-          <div 
-            className="p-6 rounded-xl border shadow-sm"
-            style={{
-              backgroundColor: theme.background.card,
-              borderColor: theme.border.primary
-            }}
-          >
-            <div>
-              <h3 
-                className="text-lg font-medium mb-4"
-                style={{ color: theme.text.primary }}
-              >
-                Recent Activity
-              </h3>
-              <div 
-                className="text-center py-6"
-                style={{ color: theme.text.secondary }}
-              >
-                No recent transactions
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </ModernLayout>
   );

@@ -6,10 +6,7 @@ import { motion } from 'framer-motion'
 import { 
   Home, 
   ArrowUpDown, 
-  TrendingUp, 
-  Settings,
-  CreditCard,
-  Send
+  TrendingUp
 } from 'lucide-react'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 
@@ -23,9 +20,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: Home, label: 'Wallet', href: '/wallet' },
   { icon: ArrowUpDown, label: 'Activity', href: '/activity' },
-  { icon: TrendingUp, label: 'Invest', href: '/invest' },
-  { icon: CreditCard, label: 'Deposit', href: '/deposit' },
-  { icon: Settings, label: 'Settings', href: '/settings' }
+  { icon: TrendingUp, label: 'Invest', href: '/invest' }
 ]
 
 export function ModernNavigation() {
@@ -112,35 +107,4 @@ export function ModernNavigation() {
   )
 }
 
-// Quick Action Floating Button (for main actions)
-export function QuickActionButton() {
-  const { theme } = useModernTheme()
-  const router = useRouter()
 
-  return (
-    <motion.div
-      initial={{ scale: 0, rotate: -180 }}
-      animate={{ scale: 1, rotate: 0 }}
-      transition={{ 
-        type: 'spring', 
-        stiffness: 400, 
-        damping: 20,
-        delay: 0.2 
-      }}
-      className="fixed bottom-24 right-6 z-40"
-    >
-      <motion.button
-        onClick={() => router.push('/payment')}
-        className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
-        style={{
-          backgroundColor: theme.button.primary.bg,
-          color: theme.button.primary.text
-        }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Send size={24} />
-      </motion.button>
-    </motion.div>
-  )
-}
