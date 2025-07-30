@@ -36,7 +36,7 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
   const circleRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const depositBtnRef = useRef<HTMLButtonElement>(null)
-  const investBtnRef = useRef<HTMLButtonElement>(null)
+  const cashOutBtnRef = useRef<HTMLButtonElement>(null)
 
   // Fetch balances when wallet is ready
   useEffect(() => {
@@ -128,8 +128,8 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
     router.push('/deposit')
   }
 
-  const handleInvest = () => {
-    router.push('/invest')
+  const handleCashOut = () => {
+    router.push('/off-ramp')
   }
 
   // Theme colors
@@ -165,27 +165,18 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
   return (
     <motion.div 
       ref={containerRef}
-      className={`flex flex-col items-center py-12 px-6 ${themeColors.background.primary}`}
+      className="flex flex-col items-center py-4 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Amount Balance Header */}
-      <motion.h2 
-        className={`text-lg ${themeColors.text.secondary} mb-8 font-medium`}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-      >
-        Amount Balance
-      </motion.h2>
 
       {/* Professional Circular Balance Display */}
       <motion.div 
-        className="relative w-80 h-80 mx-auto"
+        className="relative w-64 h-64 mx-auto mb-4"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.8, ease: [0.68, -0.55, 0.265, 1.55] }}
+        transition={{ delay: 0.2, duration: 0.6, ease: [0.68, -0.55, 0.265, 1.55] }}
       >
         {/* Gradient Background Circle */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-900/90 via-gray-800/95 to-black/90 backdrop-blur-xl shadow-2xl border border-gray-700/30" />
@@ -198,7 +189,7 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
             cy="50"
             r="45"
             fill="none"
-            stroke="rgba(75, 85, 99, 0.3)"
+            stroke="rgba(4, 45, 251, 0.3)"
             strokeWidth="2"
           />
           
@@ -328,10 +319,10 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
 
       {/* Primary Action Buttons */}
       <motion.div 
-        className="flex gap-6 mt-12"
+        className="flex gap-4 mt-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.6 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
       >
         {/* Deposit Button */}
         <motion.button
@@ -346,27 +337,27 @@ export const CircularWalletBalance: FC<CircularWalletBalanceProps> = () => {
           Deposit
         </motion.button>
 
-        {/* Invest Button */}
+        {/* Cash-out Button */}
         <motion.button
-          ref={investBtnRef}
-          onClick={handleInvest}
-          onMouseEnter={() => investBtnRef.current && animateButtonHover(investBtnRef.current, true)}
-          onMouseLeave={() => investBtnRef.current && animateButtonHover(investBtnRef.current, false)}
+          ref={cashOutBtnRef}
+          onClick={handleCashOut}
+          onMouseEnter={() => cashOutBtnRef.current && animateButtonHover(cashOutBtnRef.current, true)}
+          onMouseLeave={() => cashOutBtnRef.current && animateButtonHover(cashOutBtnRef.current, false)}
           className={`${themeColors.button.secondary} px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 min-w-[140px] ${themeColors.border.button} border`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          Invest
+          Cash-out
         </motion.button>
       </motion.div>
 
       {/* Wallet Info */}
       {walletAddress && lastUpdated && (
         <motion.div 
-          className={`mt-8 text-center ${themeColors.text.secondary}`}
+          className={`mt-4 text-center ${themeColors.text.secondary}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
         >
           <p className="text-xs">
             {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}

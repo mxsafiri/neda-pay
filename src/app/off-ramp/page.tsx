@@ -1,13 +1,10 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import React from 'react';
+import { PaycrestCashOut } from '@/components/paycrest/PaycrestCashOut';
 
-// Use dynamic import with SSR disabled to prevent recursion errors
-const OffRampPageContent = dynamic(
-  () => import('./OffRampPage'),
-  { ssr: false }
-);
+const OffRampPage = () => {
+  return <PaycrestCashOut />;
+};
 
-export default function OffRampPage() {
-  return <OffRampPageContent />;
-}
+export default OffRampPage;
