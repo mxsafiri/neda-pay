@@ -1,7 +1,22 @@
 'use client';
 
 import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  getETHBalance,
+  getTokenBalance,
+  sendETH,
+  sendToken,
+  deployToken,
+  getTransactionStatus,
+  TokenDeploymentParams,
+  TransactionStatus,
+  BASE_TOKENS,
+  isValidAddress,
+  formatTokenAmount,
+  getTransactionUrl,
+  WEB3_CONFIG,
+} from '@/utils/blockchain';
 
 /**
  * Hook for Privy wallet operations
@@ -119,64 +134,206 @@ export const usePrivyWallet = () => {
   }, [logout]);
 
   /**
-   * Get wallet balance for a specific token
+   * Get wallet balance (ETH)
    */
-  const getBalance = useCallback(async () => {
+  const getBalance = useCallback(async (): Promise<string> => {
+    if (!embeddedWallet?.address) {
+      console.log('No wallet address available');
+      return '0';
+    }
+
+    try {
+      console.log('Getting ETH balance for:', embeddedWallet.address);
+      const balance = await getETHBalance(embeddedWallet.address as `0x${string}`);
+      return balance;
+    } catch (error) {
+      console.error('Error getting balance:', error);
+      return '0';
+    }
+  }, [embeddedWallet]);
+
+  /**
+   * Get token balance for a specific token
+   */
+  const getSpecificTokenBalance = useCallback(async (tokenAddress: string): Promise<string> => {
+    if (!embeddedWallet?.address) {
+      console.log('No wallet address available');
+      return '0';
+    }
+
+    try {
+      if (!isValidAddress(tokenAddress)) {
+        throw new Error('Invalid token address');
+      }
+      
+      const balance = await getTokenBalance(tokenAddress as `0x${string}`, embeddedWallet.address as `0x${string}`);
+      return balance;
+    } catch (error) {
+      console.error('Error getting token balance:', error);
+      return '0';
+    }
+  }, [embeddedWallet]);
+
+  /**
+   * Get balances for common Base tokens
+   */
+  const getTokenBalances = useCallback(async () => {
+    if (!embeddedWallet?.address) {
+      return [];
+    }
+
+    try {
+      const balances = await Promise.all([
+        getETHBalance(embeddedWallet.address as `0x${string}`).then(balance => ({
+          symbol: 'ETH',
+          name: 'Ethereum',
+          balance,
+          address: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+          decimals: 18,
+        })),
+        getTokenBalance(BASE_TOKENS.USDC, embeddedWallet.address as `0x${string}`).then(balance => ({
+          symbol: 'USDC',
+          name: 'USD Coin',
+          balance,
+          address: BASE_TOKENS.USDC,
+          decimals: 6,
+        })),
+      ]);
+
+      return balances;
+    } catch (error) {
+      console.error('Error getting token balances:', error);
+      return [];
+    }
+  }, [embeddedWallet]);
+
+  /**
+   * Send ETH transaction
+   */
+  const sendETHTransaction = useCallback(async (to: string, amount: string): Promise<string | null> => {
     if (!embeddedWallet) {
       throw new Error('No wallet connected');
     }
     
     try {
-      // Implementation will depend on your token contracts
-      // For now, return a placeholder
-      return '0';
+      if (!isValidAddress(to)) {
+        throw new Error('Invalid recipient address');
+      }
+
+      // Get wallet client from Privy
+      const walletClient = await embeddedWallet.getEthereumProvider();
+      
+      const txHash = await sendETH(to as `0x${string}`, amount, walletClient);
+      
+      if (txHash) {
+        console.log('ETH transaction sent:', getTransactionUrl(txHash));
+      }
+      
+      return txHash;
     } catch (err) {
-      console.error('Failed to get balance:', err);
+      console.error('Failed to send ETH transaction:', err);
       throw err;
     }
   }, [embeddedWallet]);
 
   /**
-   * Send transaction
+   * Send token transaction
    */
-  const sendTransaction = useCallback(async (to: string, amount: string, tokenAddress?: string) => {
+  const sendTokenTransaction = useCallback(async (
+    tokenAddress: string,
+    to: string,
+    amount: string
+  ): Promise<string | null> => {
     if (!embeddedWallet) {
       throw new Error('No wallet connected');
     }
     
     try {
-      // Implementation for sending transactions
-      // This will use Privy's transaction methods
-      console.log('Sending transaction:', { to, amount, tokenAddress });
-      return 'transaction_hash_placeholder';
+      if (!isValidAddress(to) || !isValidAddress(tokenAddress)) {
+        throw new Error('Invalid address');
+      }
+
+      // Get wallet client from Privy
+      const walletClient = await embeddedWallet.getEthereumProvider();
+      
+      const txHash = await sendToken(
+        tokenAddress as `0x${string}`,
+        to as `0x${string}`,
+        amount,
+        walletClient
+      );
+      
+      if (txHash) {
+        console.log('Token transaction sent:', getTransactionUrl(txHash));
+      }
+      
+      return txHash;
     } catch (err) {
-      console.error('Failed to send transaction:', err);
+      console.error('Failed to send token transaction:', err);
       throw err;
     }
   }, [embeddedWallet]);
 
   /**
    * Deploy investment token
-   * New capability for NEDApay investment features
    */
   const deployInvestmentToken = useCallback(async (
-    name: string, 
-    symbol: string, 
-    totalSupply: number
-  ) => {
+    params: TokenDeploymentParams
+  ): Promise<string | null> => {
     if (!embeddedWallet) {
       throw new Error('No wallet connected');
     }
     
     try {
-      // Implementation for deploying custom investment tokens
-      console.log('Deploying investment token:', { name, symbol, totalSupply });
-      return 'contract_address_placeholder';
+      // Get wallet client from Privy
+      const walletClient = await embeddedWallet.getEthereumProvider();
+      
+      const txHash = await deployToken(params, walletClient);
+      
+      if (txHash) {
+        console.log('Investment token deployment:', getTransactionUrl(txHash));
+      }
+      
+      return txHash;
     } catch (err) {
-      console.error('Failed to deploy token:', err);
+      console.error('Failed to deploy investment token:', err);
       throw err;
     }
   }, [embeddedWallet]);
+
+  /**
+   * Monitor transaction status
+   */
+  const monitorTransaction = useCallback(async (txHash: string): Promise<TransactionStatus> => {
+    try {
+      if (!isValidAddress(txHash) && !txHash.startsWith('0x')) {
+        throw new Error('Invalid transaction hash');
+      }
+      
+      return await getTransactionStatus(txHash as `0x${string}`);
+    } catch (error) {
+      console.error('Error monitoring transaction:', error);
+      return {
+        hash: txHash as `0x${string}`,
+        status: 'failed',
+      };
+    }
+  }, []);
+
+  /**
+   * Legacy sendTransaction method for backward compatibility
+   */
+  const sendTransaction = useCallback(async (to: string, amount: string, token?: string) => {
+    if (token && token !== 'ETH') {
+      // Send token transaction
+      return await sendTokenTransaction(token, to, amount);
+    } else {
+      // Send ETH transaction
+      return await sendETHTransaction(to, amount);
+    }
+  }, [sendETHTransaction, sendTokenTransaction]);
+
+
 
   return {
     // Authentication state
@@ -197,8 +354,19 @@ export const usePrivyWallet = () => {
     
     // Wallet operations
     getBalance,
+    getSpecificTokenBalance,
+    getTokenBalances,
     sendTransaction,
+    sendETHTransaction,
+    sendTokenTransaction,
     deployInvestmentToken,
+    monitorTransaction,
+    
+    // Blockchain utilities
+    isValidAddress,
+    formatTokenAmount,
+    getTransactionUrl,
+    WEB3_CONFIG,
     
     // Compatibility with existing code
     isWalletAuthenticated: authenticated,

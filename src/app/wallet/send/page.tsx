@@ -8,8 +8,6 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send, CheckCircle2, Loader, AlertCircle } from 'lucide-react';
 import { WalletLayout } from '@/components/wallet/WalletLayout';
-import { useAuth } from '@/hooks/useAuth';
-
 import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 import { z } from 'zod';
 
@@ -29,8 +27,6 @@ type SendFormData = z.infer<typeof sendFormSchema>;
 export default function SendPage() {
   const router = useRouter();
   const {
-    user,
-    login,
     getBalance,
     sendTransaction
   } = usePrivyWallet();

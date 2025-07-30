@@ -7,8 +7,21 @@ interface PrivyWalletProviderProps {
   children: React.ReactNode;
 }
 
+// Web3 Configuration from environment variables
+const COINBASE_RPC = process.env.NEXT_PUBLIC_COINBASE_RPC;
+
+// Configure Base chain with custom RPC
+const baseChainConfig = {
+  ...base,
+  rpcUrls: {
+    default: {
+      http: [COINBASE_RPC || base.rpcUrls.default.http[0]],
+    },
+  },
+};
+
 // Configure supported chains for Privy
-const supportedChains = [base, baseSepolia];
+const supportedChains = [baseChainConfig, baseSepolia];
 
 /**
  * PrivyWalletProvider replaces BlockradarProvider
