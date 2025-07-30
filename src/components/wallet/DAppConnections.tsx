@@ -6,6 +6,7 @@ import { usePrivyWallet } from '@/hooks/usePrivyWallet';
 import { useModernTheme } from '@/contexts/ModernThemeContext';
 import { ShoppingBag, Wallet, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 // Define the dApp interface
 interface DApp {
@@ -18,41 +19,54 @@ interface DApp {
   preview?: {
     title: string;
     description: string;
+    url: string;
+    favicon: string;
     features: string[];
-    screenshot: string;
   };
 }
 
-// Define available dApps
+// Define available dApps with real link preview metadata
 const AVAILABLE_DAPPS: DApp[] = [
   {
-    id: 'merchant-app',
+    id: 'nedapay-merchant',
     name: 'NEDApay Merchant',
     description: 'Accept payments from customers',
     icon: ShoppingBag,
-    url: 'https://www.nedapay.xyz',
+    url: 'https://merchant.nedapay.xyz',
     category: 'merchant',
     preview: {
-      title: 'NEDApay Merchant Portal',
-      description: 'Accept USDC payments from customers with instant settlement',
-      features: ['Instant USDC payments', 'Real-time analytics', 'Multi-currency support', 'Low transaction fees'],
-      screenshot: '/images/merchant-preview.png' // We'll add this later
+      title: 'NEDApay',
+      description: 'Accept Stablecoins, Swap instantly, Cash Out Easily, Track Transactions',
+      url: 'nedapay.xyz',
+      favicon: '/favicon.ico',
+      features: [
+        'Instant USDC payments',
+        'Real-time analytics',
+        'Customer management',
+        'Transaction history'
+      ]
     }
   },
   {
-    id: 'wallet-connect',
+    id: 'universal-wallet',
     name: 'Universal Wallet',
     description: 'Connect to any dApp seamlessly',
     icon: Wallet,
-    url: '#',
+    url: 'https://wallet.nedapay.xyz',
     category: 'other',
     preview: {
-      title: 'Universal dApp Connector',
-      description: 'Connect your NEDApay wallet to any decentralized application',
-      features: ['WalletConnect support', 'Secure connections', 'Multi-chain compatibility', 'One-click authentication'],
-      screenshot: '/images/wallet-connect-preview.png'
+      title: 'NEDApay Wallet',
+      description: 'Universal Web3 wallet for seamless dApp connections and multi-chain transactions',
+      url: 'wallet.nedapay.xyz',
+      favicon: '/favicon.ico',
+      features: [
+        'WalletConnect support',
+        'Secure connections',
+        'Multi-chain compatibility',
+        'dApp ecosystem access'
+      ]
     }
-  },
+  }
 ];
 
 export const DAppConnections: FC = () => {
@@ -144,55 +158,79 @@ export const DAppConnections: FC = () => {
         </motion.div>
       )}
       
-      {/* Apps List - no cards, blend with background */}
-      <div className="space-y-3">
+      {/* Apps List - Real Link Previews */}
+      <div className="space-y-4">
         {AVAILABLE_DAPPS.map((dApp, index) => (
           <motion.div
             key={dApp.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="group relative p-3 transition-all duration-200 cursor-pointer hover:bg-white/5 rounded-lg"
-            whileHover={{ x: 4 }}
+            className="group relative p-4 border rounded-xl transition-all duration-200 cursor-pointer hover:shadow-md"
+            style={{
+              backgroundColor: theme.background.card,
+              borderColor: theme.border.primary
+            }}
+            whileHover={{ y: -2 }}
             onClick={() => handleConnect(dApp)}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <dApp.icon 
-                  className="w-5 h-5" 
-                  style={{ color: theme.text.accent }}
-                />
-                <div>
-                  <h4 
-                    className="text-base font-medium"
-                    style={{ color: theme.text.primary }}
-                  >
-                    {dApp.name}
-                  </h4>
-                  <p 
-                    className="text-sm"
-                    style={{ color: theme.text.secondary }}
-                  >
-                    {dApp.description}
-                  </p>
+            {/* Link Preview Header */}
+            <div className="flex items-start space-x-3 mb-3">
+              <Image 
+                src={dApp.preview?.favicon || '/favicon.ico'} 
+                alt="favicon" 
+                width={24}
+                height={24}
+                className="w-6 h-6 rounded-sm flex-shrink-0 mt-0.5"
+              />
+              <div className="flex-1 min-w-0">
+                <h4 
+                  className="text-lg font-semibold mb-1 truncate"
+                  style={{ color: theme.text.primary }}
+                >
+                  {dApp.preview?.title || dApp.name}
+                </h4>
+                <p 
+                  className="text-sm leading-relaxed mb-2"
+                  style={{ color: theme.text.secondary }}
+                >
+                  {dApp.preview?.description || dApp.description}
+                </p>
+                <div 
+                  className="text-xs flex items-center space-x-1"
+                  style={{ color: theme.text.tertiary }}
+                >
+                  <span>{dApp.preview?.url || dApp.url}</span>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-2">
+              {/* Connection Status */}
+              <div className="flex items-center space-x-2 flex-shrink-0">
                 {connecting === dApp.id ? (
                   <motion.div
-                    className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+                    className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
                     style={{ color: theme.text.accent }}
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   />
                 ) : (
                   <ArrowRight 
-                    className="w-4 h-4 transition-transform group-hover:translate-x-1" 
+                    className="w-5 h-5 transition-transform group-hover:translate-x-1" 
                     style={{ color: theme.text.accent }}
                   />
                 )}
               </div>
+            </div>
+            
+            {/* Link Preview Footer */}
+            <div 
+              className="text-xs pt-2 border-t"
+              style={{ 
+                borderColor: theme.border.secondary,
+                color: theme.text.tertiary 
+              }}
+            >
+              Click to connect • {dApp.category === 'merchant' ? 'Merchant Tools' : 'Wallet Service'}
             </div>
           </motion.div>
         ))}
