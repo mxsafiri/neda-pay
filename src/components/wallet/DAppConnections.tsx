@@ -32,7 +32,7 @@ const AVAILABLE_DAPPS: DApp[] = [
     name: 'NEDApay Merchant',
     description: 'Accept payments from customers',
     icon: ShoppingBag,
-    url: 'https://merchant.nedapay.xyz',
+    url: 'https://nedapay.xyz',
     category: 'merchant',
     preview: {
       title: 'NEDApay',
@@ -52,7 +52,7 @@ const AVAILABLE_DAPPS: DApp[] = [
     name: 'Universal Wallet',
     description: 'Connect to any dApp seamlessly',
     icon: Wallet,
-    url: 'https://wallet.nedapay.xyz',
+    url: 'https://https://nedatshc.netlify.app/',
     category: 'other',
     preview: {
       title: 'NEDApay Wallet',
