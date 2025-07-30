@@ -50,11 +50,16 @@ const supportedChains = [baseChainConfig, baseSepolia];
 export function PrivyWalletProvider({ children }: PrivyWalletProviderProps) {
   const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
   
-  // Debug logging (remove in production)
-  console.log('Privy App ID:', privyAppId ? 'Set' : 'Not set');
+  // Enhanced debug logging for production troubleshooting
+  console.log('Privy Configuration:', {
+    appId: privyAppId ? 'Set' : 'Not set',
+    appIdLength: privyAppId?.length || 0,
+    environment: process.env.NODE_ENV,
+    domain: typeof window !== 'undefined' ? window.location.origin : 'SSR',
+  });
   
   // If no app ID is set, render children without Privy (for build/development)
-  if (!privyAppId || privyAppId === 'undefined') {
+  if (!privyAppId || privyAppId === 'undefined' || privyAppId === '') {
     console.warn('Privy App ID not configured. Wallet functionality will be limited.');
     return <>{children}</>;
   }
