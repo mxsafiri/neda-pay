@@ -282,12 +282,21 @@ const SingleCardCashOut: React.FC = () => {
           walletAddress: embeddedWallet?.address
         })
         
-        // Import Biconomy gasless transfer function
-        const { sendGaslessUSDC, isBiconomyConfigured } = await import('@/utils/biconomy')
+        // Import and configure Biconomy for gasless transactions
+        const { sendGaslessUSDC, getBiconomyConfig } = await import('@/utils/biconomy')
         
-        // Check if Biconomy is configured
-        if (!isBiconomyConfigured()) {
-          throw new Error('Biconomy account abstraction not configured')
+        // Debug Biconomy configuration
+        const biconomyConfig = getBiconomyConfig()
+        console.log('Biconomy configuration:', biconomyConfig)
+        
+        if (!biconomyConfig.configured) {
+          console.error('Biconomy not configured:', {
+            bundlerUrl: !!biconomyConfig.bundlerUrl,
+            paymasterUrl: !!biconomyConfig.paymasterUrl,
+            chainId: biconomyConfig.chainId
+          })
+          // Fallback to regular transaction with user paying gas
+          console.log('Falling back to regular transaction - user will pay gas fees')
         }
         
         // Get proper wallet client from Privy embedded wallet
@@ -350,12 +359,42 @@ const SingleCardCashOut: React.FC = () => {
           throw new Error('Wallet client creation failed - no client available')
         }
         
-        // Send USDC transfer using proper wallet client
-        const txHash = await sendGaslessUSDC(
+        // Send USDC transfer using Biconomy (gasless) or fallback to regular transaction
+        console.log('Sending USDC to escrow:', {
           escrowAddress,
-          usdcAmountToSend,
-          walletClient // Pass proper wallet client
-        )
+          usdcAmount: usdcAmountToSend,
+          biconomyConfigured: biconomyConfig.configured,
+          walletClient: !!walletClient
+        })
+        
+        let txHash: string | null = null
+        
+        if (biconomyConfig.configured) {
+          // Try Biconomy gasless transaction first
+          console.log('Attempting gasless transaction via Biconomy...')
+          try {
+            txHash = await sendGaslessUSDC(
+              escrowAddress,
+              usdcAmountToSend,
+              walletClient
+            )
+          } catch (biconomyError) {
+            console.error('Biconomy gasless transaction failed:', biconomyError)
+            console.log('Falling back to regular transaction...')
+          }
+        }
+        
+        // Fallback to regular transaction if Biconomy failed or not configured
+        if (!txHash) {
+          console.log('Using regular transaction with gas fees...')
+          const { sendToken } = await import('../../utils/blockchain')
+          txHash = await sendToken(
+            '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC contract on Base
+            escrowAddress as `0x${string}`,
+            usdcAmountToSend,
+            walletClient
+          )
+        }
         
         console.log('USDC transfer successful! Transaction hash:', txHash)
         
