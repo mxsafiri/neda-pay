@@ -274,15 +274,33 @@ const SingleCardCashOut: React.FC = () => {
         message: `Payment order created! Order ID: ${result.data.id}. Now sending USDC to Paycrest...`
       })
       
-      // Execute blockchain transaction to send USDC to Paycrest escrow
+      // Execute gasless blockchain transaction to send USDC to Paycrest escrow
       try {
-        console.log('Executing USDC transfer to Paycrest escrow...')
+        console.log('Executing gasless USDC transfer to Paycrest escrow...', {
+          escrowAddress,
+          usdcAmountToSend,
+          walletAddress: embeddedWallet?.address
+        })
         
-        // Import the USDC transfer function
-        const { sendUSDC } = await import('@/utils/blockchain')
+        // Import Biconomy gasless transfer function
+        const { sendGaslessUSDC, isBiconomyConfigured } = await import('@/utils/biconomy')
         
-        // Send USDC to Paycrest escrow address
-        const txHash = await sendUSDC(escrowAddress, usdcAmountToSend, embeddedWallet)
+        // Check if Biconomy is configured
+        if (!isBiconomyConfigured()) {
+          throw new Error('Biconomy account abstraction not configured')
+        }
+        
+        // Get wallet signer from Privy embedded wallet
+        if (!embeddedWallet) {
+          throw new Error('No wallet connected')
+        }
+        
+        // Send gasless USDC transfer using Biconomy
+        const txHash = await sendGaslessUSDC(
+          escrowAddress,
+          usdcAmountToSend,
+          embeddedWallet // Pass embedded wallet as signer
+        )
         
         console.log('USDC transfer successful! Transaction hash:', txHash)
         
