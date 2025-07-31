@@ -28,6 +28,36 @@ interface ExchangeRateData {
   total: number
 }
 
+// Country flag mapping for Paycrest supported countries
+const getCountryFlag = (countryCode: string): string => {
+  const flagMap: { [key: string]: string } = {
+    'TZS': '🇹🇿', // Tanzania
+    'KES': '🇰🇪', // Kenya
+    'NGN': '🇳🇬', // Nigeria
+    'GHS': '🇬🇭', // Ghana
+    'UGX': '🇺🇬', // Uganda
+  }
+  return flagMap[countryCode] || '🌍'
+}
+
+// Provider icon mapping for different payment methods
+const getProviderIcon = (providerName: string, type: string): string => {
+  // Mobile money providers
+  if (providerName.toLowerCase().includes('m-pesa')) return '📱'
+  if (providerName.toLowerCase().includes('tigo')) return '📱'
+  if (providerName.toLowerCase().includes('mtn')) return '📱'
+  if (providerName.toLowerCase().includes('airtel')) return '📱'
+  if (providerName.toLowerCase().includes('opay')) return '📱'
+  
+  // Bank transfers
+  if (type === 'bank' || providerName.toLowerCase().includes('bank')) return '🏦'
+  
+  // Default mobile money icon
+  if (type === 'mobile_money') return '📱'
+  
+  return '💳'
+}
+
 const SingleCardCashOut: React.FC = () => {
   // State management
   const [currencies, setCurrencies] = useState<Currency[]>([])
@@ -220,7 +250,7 @@ const SingleCardCashOut: React.FC = () => {
                 className="w-full bg-slate-700/50 border border-slate-600 rounded-xl px-4 py-3 text-left text-white flex items-center justify-between hover:bg-slate-700/70 transition-colors"
               >
                 <span className="flex items-center gap-3">
-                  <span className="text-2xl">🇹🇿</span>
+                  <span className="text-2xl">{selectedCurrency ? getCountryFlag(selectedCurrency.code) : '🌍'}</span>
                   <span>{selectedCurrency ? selectedCurrency.name : 'Choose country...'}</span>
                 </span>
                 <ChevronDown className={`w-5 h-5 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
@@ -234,10 +264,10 @@ const SingleCardCashOut: React.FC = () => {
                       onClick={() => handleCurrencySelect(currency)}
                       className="w-full px-4 py-3 text-left text-white hover:bg-slate-600 transition-colors flex items-center gap-3 border-b border-slate-600 last:border-b-0"
                     >
-                      <span className="text-xl">🇹🇿</span>
+                      <span className="text-xl">{getCountryFlag(currency.code)}</span>
                       <div>
                         <div className="font-medium">{currency.name}</div>
-                        <div className="text-sm text-slate-400">{currency.symbol}</div>
+                        <div className="text-sm text-slate-400">{currency.symbol} • {currency.country || currency.name}</div>
                       </div>
                     </button>
                   ))}
@@ -249,13 +279,18 @@ const SingleCardCashOut: React.FC = () => {
           {/* Provider Selection */}
           {selectedCurrency && (
             <div className="mb-6">
-              <label className="block text-white text-sm font-medium mb-3">Select Mobile Money Provider</label>
+              <label className="block text-white text-sm font-medium mb-3">Select Payment Method</label>
               <div className="relative">
                 <button
                   onClick={() => setShowProviderDropdown(!showProviderDropdown)}
                   className="w-full bg-slate-700/50 border border-slate-600 rounded-xl px-4 py-3 text-left text-white flex items-center justify-between hover:bg-slate-700/70 transition-colors"
                 >
-                  <span>{selectedInstitution ? selectedInstitution.name : 'Choose provider...'}</span>
+                  <span className="flex items-center gap-2">
+                    {selectedInstitution && (
+                      <span className="text-lg">{getProviderIcon(selectedInstitution.name, selectedInstitution.type)}</span>
+                    )}
+                    <span>{selectedInstitution ? selectedInstitution.name : 'Choose payment method...'}</span>
+                  </span>
                   <ChevronDown className={`w-5 h-5 transition-transform ${showProviderDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 
@@ -267,8 +302,13 @@ const SingleCardCashOut: React.FC = () => {
                         onClick={() => handleInstitutionSelect(institution)}
                         className="w-full px-4 py-3 text-left text-white hover:bg-slate-600 transition-colors flex items-center gap-3 border-b border-slate-600 last:border-b-0"
                       >
-                        <CheckCircle className="w-4 h-4 text-green-400" />
-                        <span>{institution.name}</span>
+                        <span className="text-lg">{getProviderIcon(institution.name, institution.type)}</span>
+                        <div>
+                          <div className="font-medium">{institution.name}</div>
+                          <div className="text-sm text-slate-400">
+                            {institution.type === 'mobile_money' ? 'Mobile Money' : 'Bank Transfer'}
+                          </div>
+                        </div>
                       </button>
                     ))}
                   </div>

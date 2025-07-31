@@ -25,25 +25,32 @@ export async function GET(
       },
     })
 
-    if (!response.ok) {
-      // If the API endpoint doesn't exist, return fallback data based on currency
-      if (response.status === 404) {
-        const fallbackInstitutions = getFallbackInstitutions(currency)
-        return NextResponse.json({
-          status: 'success',
-          message: 'Operation successful',
-          data: fallbackInstitutions
-        })
-      }
+    console.log(`Fetching institutions for ${currency} from Paycrest API...`)
+    console.log('Response status:', response.status)
 
-      throw new Error(`HTTP ${response.status}`)
+    if (!response.ok) {
+      console.error(`Paycrest API error: ${response.status} ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('Error response:', errorText)
+      
+      // Return fallback data if API fails
+      const fallbackInstitutions = getFallbackInstitutions(currency)
+      console.log(`Using fallback institutions for ${currency}:`, fallbackInstitutions)
+      return NextResponse.json({
+        status: 'success',
+        message: 'Using fallback data - API unavailable',
+        data: fallbackInstitutions
+      })
     }
 
     const data = await response.json()
+    console.log(`Live Paycrest institutions for ${currency}:`, data)
+    
+    // Return the live data from Paycrest API
     return NextResponse.json({
       status: 'success',
-      message: 'Operation successful',
-      data: data.data || data.institutions || []
+      message: 'Live data from Paycrest API',
+      data: data.data || data.institutions || data
     })
   } catch (error) {
     console.error('Paycrest institutions API error:', error)

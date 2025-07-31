@@ -19,69 +19,78 @@ export async function GET() {
       },
     })
 
+    console.log('Fetching currencies from Paycrest API...')
+    console.log('Response status:', response.status)
+
     if (!response.ok) {
-      // If the API endpoint doesn't exist, return fallback data
-      if (response.status === 404) {
-        const fallbackCurrencies = [
-          {
-            code: 'TZS',
-            name: 'Tanzanian Shilling',
-            shortName: 'TZS',
-            decimals: 2,
-            symbol: 'TSh',
-            marketRate: 2551.11,
-            country: 'Tanzania'
-          },
-          {
-            code: 'KES',
-            name: 'Kenyan Shilling',
-            shortName: 'KES',
-            decimals: 2,
-            symbol: 'KSh',
-            marketRate: 129.50,
-            country: 'Kenya'
-          },
-          {
-            code: 'NGN',
-            name: 'Nigerian Naira',
-            shortName: 'NGN',
-            decimals: 2,
-            symbol: '₦',
-            marketRate: 1580.00,
-            country: 'Nigeria'
-          },
-          {
-            code: 'GHS',
-            name: 'Ghanaian Cedi',
-            shortName: 'GHS',
-            decimals: 2,
-            symbol: '₵',
-            marketRate: 15.20,
-            country: 'Ghana'
-          },
-          {
-            code: 'UGX',
-            name: 'Ugandan Shilling',
-            shortName: 'UGX',
-            decimals: 2,
-            symbol: 'USh',
-            marketRate: 3750.00,
-            country: 'Uganda'
-          }
-        ]
+      console.error(`Paycrest API error: ${response.status} ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('Error response:', errorText)
+      
+      // Return fallback data if API fails
+      const fallbackCurrencies = [
+        {
+          code: 'TZS',
+          name: 'Tanzanian Shilling',
+          shortName: 'TZS',
+          decimals: 2,
+          symbol: 'TSh',
+          marketRate: 2551.11,
+          country: 'Tanzania'
+        },
+        {
+          code: 'KES',
+          name: 'Kenyan Shilling',
+          shortName: 'KES',
+          decimals: 2,
+          symbol: 'KSh',
+          marketRate: 129.50,
+          country: 'Kenya'
+        },
+        {
+          code: 'NGN',
+          name: 'Nigerian Naira',
+          shortName: 'NGN',
+          decimals: 2,
+          symbol: '₦',
+          marketRate: 1580.00,
+          country: 'Nigeria'
+        },
+        {
+          code: 'GHS',
+          name: 'Ghanaian Cedi',
+          shortName: 'GHS',
+          decimals: 2,
+          symbol: '₵',
+          marketRate: 15.20,
+          country: 'Ghana'
+        },
+        {
+          code: 'UGX',
+          name: 'Ugandan Shilling',
+          shortName: 'UGX',
+          decimals: 2,
+          symbol: 'USh',
+          marketRate: 3750.00,
+          country: 'Uganda'
+        }
+      ]
 
-        return NextResponse.json({
-          status: 'success',
-          message: 'Operation successful',
-          data: fallbackCurrencies
-        })
-      }
-
-      throw new Error(`HTTP ${response.status}`)
+      console.log('Using fallback currencies:', fallbackCurrencies)
+      return NextResponse.json({
+        status: 'success',
+        message: 'Using fallback data - API unavailable',
+        data: fallbackCurrencies
+      })
     }
 
     const data = await response.json()
-    return NextResponse.json(data)
+    console.log('Live Paycrest currencies:', data)
+    return NextResponse.json({
+      status: 'success',
+      message: 'Live data from Paycrest API',
+      data: data.data || data.currencies || data
+    })
   } catch (error) {
     console.error('Paycrest currencies API error:', error)
     
