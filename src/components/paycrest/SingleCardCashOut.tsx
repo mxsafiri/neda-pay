@@ -193,6 +193,7 @@ const SingleCardCashOut: React.FC = () => {
           institution: selectedInstitution.code,
           accountIdentifier: accountIdentifier,
           accountName: 'NEDApay User', // Could be enhanced with user's name
+          memo: `NEDApay cash-out to ${selectedInstitution.name}`, // Required field
           currency: selectedCurrency.code,
           providerId: selectedInstitution.code
         },
@@ -201,6 +202,20 @@ const SingleCardCashOut: React.FC = () => {
       }
 
       console.log('Creating Paycrest payment order:', paymentOrderData)
+
+      // Get fresh rate data from Paycrest before creating order
+      const rateResponse = await fetch(`/api/paycrest/rates/USDC/${amountInUSDC}/TZS`)
+      const rateData = await rateResponse.json()
+      
+      if (!rateResponse.ok) {
+        throw new Error('Failed to get current exchange rate')
+      }
+
+      // Update payment order with fresh rate data
+      paymentOrderData.rate = parseFloat(rateData.data.rate)
+      paymentOrderData.amount = parseFloat(rateData.data.amount)
+
+      console.log('Updated payment order with fresh rate:', paymentOrderData)
 
       // Create payment order via Paycrest API
       const response = await fetch('/api/paycrest/orders', {
@@ -214,7 +229,8 @@ const SingleCardCashOut: React.FC = () => {
       const result = await response.json()
       
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create payment order')
+        console.error('Payment order creation failed:', result)
+        throw new Error(result.details || result.error || 'Failed to create payment order')
       }
 
       console.log('Payment order created successfully:', result.data)

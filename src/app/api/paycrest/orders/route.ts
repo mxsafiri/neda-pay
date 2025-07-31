@@ -14,6 +14,7 @@ interface PaymentOrderRequest {
     institution: string
     accountIdentifier: string
     accountName: string
+    memo: string
     currency: string
     providerId: string
   }
