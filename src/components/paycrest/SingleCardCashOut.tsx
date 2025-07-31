@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronDown, Loader2, CheckCircle, ArrowRight } from 'lucide-react'
+import { ChevronDown, Loader2, CheckCircle, ArrowRight, Clock } from 'lucide-react'
 import { useNotifications } from '@/contexts/NotificationContext'
 import { getSupportedCurrencies, getInstitutions, getExchangeRate } from '@/utils/paycrest'
 import { usePrivyWallet } from '@/hooks/usePrivyWallet'
@@ -75,7 +75,8 @@ const SingleCardCashOut: React.FC = () => {
   const [slideProgress, setSlideProgress] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
-  
+  const [isPending, setIsPending] = useState(false)
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null)
   const { addNotification } = useNotifications()
   const { embeddedWallet } = usePrivyWallet()
 
@@ -255,29 +256,44 @@ const SingleCardCashOut: React.FC = () => {
 
       console.log('Payment order created successfully:', result.data)
       
-      // TODO: Execute blockchain transaction to send USDC to Paycrest escrow address
-      // const escrowAddress = result.data.receiveAddress
-      // const usdcAmount = result.data.amount
+      // Store payment order details
+      setPaymentOrderId(result.data.id)
       
-      setIsComplete(true)
+      // Show pending state first
+      setIsProcessing(false)
+      setIsPending(true)
+      
       addNotification({
         type: 'cashout',
         title: 'Payment Order Created',
-        message: `Payment order created successfully! Order ID: ${result.data.id}. Your ${selectedCurrency.symbol} ${parseFloat(amount).toLocaleString()} will be sent to ${accountIdentifier} via ${selectedInstitution.name}.`
+        message: `Payment order created! Order ID: ${result.data.id}. Processing your cash-out to ${selectedInstitution.name}...`
       })
       
-      // Reset form after success
+      // Simulate processing time, then show success
       setTimeout(() => {
-        setSelectedCurrency(null)
-        setSelectedInstitution(null)
-        setAmount('')
-        setPhoneNumber('')
-        setAccountNumber('')
-        setExchangeData(null)
-        setAmountInUSDC('0')
-        setIsComplete(false)
-        setSlideProgress(0)
-      }, 5000) // Longer delay to show success message
+        setIsPending(false)
+        setIsComplete(true)
+        
+        addNotification({
+          type: 'cashout',
+          title: 'Cash-out Complete!',
+          message: `${selectedCurrency.symbol} ${parseFloat(amount).toLocaleString()} has been sent to ${accountIdentifier} via ${selectedInstitution.name}.`
+        })
+        
+        // Reset form after showing success
+        setTimeout(() => {
+          setSelectedCurrency(null)
+          setSelectedInstitution(null)
+          setAmount('')
+          setPhoneNumber('')
+          setAccountNumber('')
+          setExchangeData(null)
+          setAmountInUSDC('0')
+          setIsComplete(false)
+          setPaymentOrderId(null)
+          setSlideProgress(0)
+        }, 4000)
+      }, 3000) // Show pending for 3 seconds
       
     } catch (error) {
       console.error('Cash-out failed:', error)
@@ -318,8 +334,77 @@ const SingleCardCashOut: React.FC = () => {
           <p className="text-blue-200">Convert USDC to local currency</p>
         </div>
 
-        {/* Main Card */}
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50">
+        {/* Pending State Card */}
+        {isPending && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 text-center"
+          >
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-orange-400 animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Processing Cash-out</h2>
+              <p className="text-slate-300 mb-4">
+                Your payment order is being processed...
+              </p>
+              {paymentOrderId && (
+                <div className="bg-slate-700/50 rounded-xl p-3 mb-4">
+                  <p className="text-sm text-slate-400 mb-1">Order ID</p>
+                  <p className="text-white font-mono text-sm">{paymentOrderId}</p>
+                </div>
+              )}
+              <div className="text-sm text-slate-400">
+                Sending {selectedCurrency?.symbol} {parseFloat(amount || '0').toLocaleString()} to {selectedInstitution?.name}
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-400"></div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Success State Card */}
+        {isComplete && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 text-center"
+          >
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Cash-out Complete!</h2>
+              <p className="text-slate-300 mb-4">
+                Your money has been sent successfully
+              </p>
+              {paymentOrderId && (
+                <div className="bg-slate-700/50 rounded-xl p-3 mb-4">
+                  <p className="text-sm text-slate-400 mb-1">Order ID</p>
+                  <p className="text-white font-mono text-sm">{paymentOrderId}</p>
+                </div>
+              )}
+              <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-4">
+                <div className="text-green-400 font-medium mb-1">
+                  {selectedCurrency?.symbol} {parseFloat(amount || '0').toLocaleString()}
+                </div>
+                <div className="text-sm text-slate-400">
+                  Sent to {selectedInstitution?.type === 'mobile_money' ? phoneNumber : accountNumber} via {selectedInstitution?.name}
+                </div>
+              </div>
+              <p className="text-xs text-slate-500">
+                This form will reset automatically in a few seconds
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Main Form Card - Only show when not pending or complete */}
+        {!isPending && !isComplete && (
+          <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50">
+          
           
           {/* Country Selection */}
           <div className="mb-6">
@@ -533,6 +618,7 @@ const SingleCardCashOut: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   )
