@@ -26,3 +26,6 @@ export function ConnectButton() {
     </motion.button>
   )
 }
+
+// Default export for better module resolution
+export default ConnectButton

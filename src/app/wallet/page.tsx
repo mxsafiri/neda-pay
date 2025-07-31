@@ -9,7 +9,7 @@ import { DAppConnections } from '@/components/wallet/DAppConnections'
 import { WalletHeader } from '@/components/layout/ModernHeader'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 import { usePrivy } from '@privy-io/react-auth'
-import { ConnectButton } from '@/components/auth/ConnectButton'
+import ConnectButton from '../../components/auth/ConnectButton'
 // Wallet icon removed - using text-based NEDApay branding instead
 
 export default function WalletPage() {
