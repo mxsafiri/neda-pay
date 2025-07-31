@@ -307,6 +307,57 @@ export async function sendToken(
 }
 
 /**
+ * Send USDC transaction with proper 6-decimal handling
+ * USDC uses 6 decimals, not 18 like ETH
+ */
+export async function sendUSDC(
+  to: `0x${string}`,
+  amount: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  walletClient: any
+): Promise<`0x${string}` | null> {
+  try {
+    const tokenABI = [
+      {
+        name: 'transfer',
+        type: 'function',
+        stateMutability: 'nonpayable',
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        outputs: [{ name: '', type: 'bool' }],
+      },
+    ] as const;
+
+    // Convert USDC amount to proper units (6 decimals)
+    const usdcAmount = parseFloat(amount);
+    const usdcAmountInUnits = BigInt(Math.floor(usdcAmount * 1000000)); // 6 decimals
+    
+    console.log('Sending USDC:', {
+      to,
+      amount,
+      usdcAmountInUnits: usdcAmountInUnits.toString(),
+      tokenAddress: BASE_TOKENS.USDC
+    });
+
+    // Use writeContract with proper USDC decimals
+    const txHash = await walletClient.writeContract({
+      address: BASE_TOKENS.USDC,
+      abi: tokenABI,
+      functionName: 'transfer',
+      args: [to, usdcAmountInUnits],
+    });
+
+    console.log('USDC transaction sent:', txHash);
+    return txHash;
+  } catch (error) {
+    console.error('Error sending USDC:', error);
+    throw error; // Re-throw for proper error handling in cash-out flow
+  }
+}
+
+/**
  * Get gas price estimation
  */
 export async function getGasPrice(): Promise<bigint> {

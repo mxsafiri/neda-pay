@@ -258,42 +258,74 @@ const SingleCardCashOut: React.FC = () => {
       
       // Store payment order details
       setPaymentOrderId(result.data.id)
+      const escrowAddress = result.data.receiveAddress
+      const usdcAmountToSend = result.data.amount
       
-      // Show pending state first
+      console.log('Escrow address:', escrowAddress)
+      console.log('USDC amount to send:', usdcAmountToSend)
+      
+      // Show pending state for blockchain transaction
       setIsProcessing(false)
       setIsPending(true)
       
       addNotification({
         type: 'cashout',
         title: 'Payment Order Created',
-        message: `Payment order created! Order ID: ${result.data.id}. Processing your cash-out to ${selectedInstitution.name}...`
+        message: `Payment order created! Order ID: ${result.data.id}. Now sending USDC to Paycrest...`
       })
       
-      // Simulate processing time, then show success
-      setTimeout(() => {
+      // Execute blockchain transaction to send USDC to Paycrest escrow
+      try {
+        console.log('Executing USDC transfer to Paycrest escrow...')
+        
+        // Import the USDC transfer function
+        const { sendUSDC } = await import('@/utils/blockchain')
+        
+        // Send USDC to Paycrest escrow address
+        const txHash = await sendUSDC(escrowAddress, usdcAmountToSend, embeddedWallet)
+        
+        console.log('USDC transfer successful! Transaction hash:', txHash)
+        
+        // Update to success state after blockchain transaction
         setIsPending(false)
         setIsComplete(true)
         
         addNotification({
           type: 'cashout',
           title: 'Cash-out Complete!',
-          message: `${selectedCurrency.symbol} ${parseFloat(amount).toLocaleString()} has been sent to ${accountIdentifier} via ${selectedInstitution.name}.`
+          message: `${selectedCurrency.symbol} ${parseFloat(amount).toLocaleString()} has been sent to ${accountIdentifier} via ${selectedInstitution.name}. Transaction: ${txHash}`
         })
         
-        // Reset form after showing success
-        setTimeout(() => {
-          setSelectedCurrency(null)
-          setSelectedInstitution(null)
-          setAmount('')
-          setPhoneNumber('')
-          setAccountNumber('')
-          setExchangeData(null)
-          setAmountInUSDC('0')
-          setIsComplete(false)
-          setPaymentOrderId(null)
-          setSlideProgress(0)
-        }, 4000)
-      }, 3000) // Show pending for 3 seconds
+      } catch (blockchainError) {
+        console.error('Blockchain transaction failed:', blockchainError)
+        
+        // Reset states on blockchain failure
+        setIsPending(false)
+        setIsProcessing(false)
+        setSlideProgress(0)
+        
+        addNotification({
+          type: 'system',
+          title: 'Transaction Failed',
+          message: `Failed to send USDC to Paycrest. Your payment order ${result.data.id} was created but the blockchain transaction failed. Please try again.`
+        })
+        
+        return // Exit early on blockchain failure
+      }
+      
+      // Reset form after showing success
+      setTimeout(() => {
+        setSelectedCurrency(null)
+        setSelectedInstitution(null)
+        setAmount('')
+        setPhoneNumber('')
+        setAccountNumber('')
+        setExchangeData(null)
+        setAmountInUSDC('0')
+        setIsComplete(false)
+        setPaymentOrderId(null)
+        setSlideProgress(0)
+      }, 4000)
       
     } catch (error) {
       console.error('Cash-out failed:', error)
