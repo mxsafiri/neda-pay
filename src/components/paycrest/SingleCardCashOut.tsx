@@ -56,7 +56,7 @@ const SingleCardCashOut: React.FC = () => {
     if (!embeddedWallet?.address) return
     
     try {
-      const balance = await getTokenBalance(BASE_TOKENS.USDC, embeddedWallet.address)
+      const balance = await getTokenBalance(BASE_TOKENS.USDC, embeddedWallet.address as `0x${string}`)
       setUsdcBalance(balance)
     } catch (error) {
       console.error('Failed to fetch USDC balance:', error)
@@ -125,10 +125,18 @@ const SingleCardCashOut: React.FC = () => {
 
       try {
         const rateData = await getExchangeRate('USDC', amount, selectedCurrency.code)
-        setExchangeData(rateData)
+        
+        // Transform the rate data to match our interface
+        const exchangeRateData: ExchangeRateData = {
+          exchangeRate: parseFloat(rateData.rate || '2551.11'), // rate from PaycrestRate
+          fee: parseFloat(rateData.fee || '0'),
+          total: parseFloat(rateData.total || '0')
+        }
+        
+        setExchangeData(exchangeRateData)
         
         // Calculate USDC equivalent
-        const usdcAmount = parseFloat(amount) / rateData.exchangeRate
+        const usdcAmount = parseFloat(amount) / exchangeRateData.exchangeRate
         setAmountInUSDC(usdcAmount.toFixed(6))
       } catch (error) {
         console.error('Failed to get exchange rate:', error)
