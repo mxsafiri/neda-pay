@@ -23,7 +23,6 @@ export function ModernLayout({
   showHeader = true,
   className = ''
 }: ModernLayoutProps) {
-  const { theme } = useModernTheme()
 
   return (
     <div className="min-h-screen flex flex-col">

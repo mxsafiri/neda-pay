@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { usePrivyWallet } from '@/hooks/usePrivyWallet'
 import { getTokenBalance } from '@/utils/blockchain'
 import { BASE_TOKENS } from '@/utils/blockchain'
-import { ChevronDown, ArrowRight, Check, Loader2, Globe, Phone, Building2 } from 'lucide-react'
+import { ArrowRight, Check, Loader2, Globe, Phone, Building2 } from 'lucide-react'
 import { useNotifications } from '@/contexts/NotificationContext'
 import {
   getSupportedCurrencies,
@@ -21,11 +21,6 @@ import {
 interface PaycrestCashOutFlowProps {
   onClose?: () => void
   className?: string
-}
-
-interface CountryProvider {
-  country: PaycrestCurrency
-  providers: PaycrestInstitution[]
 }
 
 export const PaycrestCashOutFlow: React.FC<PaycrestCashOutFlowProps> = ({ onClose, className = '' }) => {
@@ -185,13 +180,12 @@ export const PaycrestCashOutFlow: React.FC<PaycrestCashOutFlowProps> = ({ onClos
         reference: `NEDApay-${Date.now()}`
       }
 
-      const order = await createCashOutOrder(orderData)
+      await createCashOutOrder(orderData)
       
       addNotification({
-        type: 'success',
+        type: 'cashout',
         title: 'Cash-out Initiated',
-        message: `Your ${amount} USDC cash-out to ${selectedProvider.name} has been initiated.`,
-        timestamp: new Date()
+        message: `Your ${amount} USDC cash-out to ${selectedProvider.name} has been initiated.`
       })
 
       // Reset form
@@ -210,10 +204,9 @@ export const PaycrestCashOutFlow: React.FC<PaycrestCashOutFlowProps> = ({ onClos
       console.error('Cash-out failed:', error)
       setError('Cash-out failed. Please try again.')
       addNotification({
-        type: 'error',
+        type: 'system',
         title: 'Cash-out Failed',
-        message: 'Your cash-out request could not be processed. Please try again.',
-        timestamp: new Date()
+        message: 'Your cash-out request could not be processed. Please try again.'
       })
     } finally {
       setIsProcessing(false)
@@ -404,7 +397,7 @@ export const PaycrestCashOutFlow: React.FC<PaycrestCashOutFlowProps> = ({ onClos
               {exchangeRate && (
                 <div className="mb-4 p-4 bg-gray-800/30 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-300">You'll receive</span>
+                    <span className="text-gray-300">You&apos;ll receive</span>
                     <span className="text-white font-semibold">
                       {exchangeRate.total} {selectedCountry?.symbol}
                     </span>
@@ -491,7 +484,7 @@ export const PaycrestCashOutFlow: React.FC<PaycrestCashOutFlowProps> = ({ onClos
                   </div>
                   {exchangeRate && (
                     <div className="flex justify-between font-semibold">
-                      <span className="text-gray-300">You'll receive</span>
+                      <span className="text-gray-300">You&apos;ll receive</span>
                       <span className="text-green-400">
                         {exchangeRate.total} {selectedCountry?.symbol}
                       </span>
