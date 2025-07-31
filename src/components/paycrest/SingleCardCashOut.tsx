@@ -167,7 +167,6 @@ const SingleCardCashOut: React.FC = () => {
         setAmountInUSDC('0')
         setIsComplete(false)
         setSlideProgress(0)
-        setIsSliding(false)
       }, 3000)
       
     } catch (error) {
