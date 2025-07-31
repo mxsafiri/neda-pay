@@ -10,7 +10,7 @@ import { WalletHeader } from '@/components/layout/ModernHeader'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 import { usePrivy } from '@privy-io/react-auth'
 import { ConnectButton } from '@/components/auth/ConnectButton'
-import { Wallet, Shield, Zap } from 'lucide-react'
+import { Wallet } from 'lucide-react'
 
 export default function WalletPage() {
   const { authenticated, ready } = usePrivy()
@@ -42,39 +42,28 @@ export default function WalletPage() {
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="text-center space-y-8 max-w-md"
           >
-            {/* Logo/Brand */}
-            <div className="space-y-4">
-              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                <Wallet className="w-10 h-10 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">NEDApay</h1>
-                <p className="text-gray-400 text-lg">Your Digital Wallet</p>
-              </div>
-            </div>
-            
-            {/* Features */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3 text-left">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-white font-medium">Secure & Safe</h3>
-                  <p className="text-gray-400 text-sm">Bank-level security for your digital assets</p>
+            {/* Official NEDApay Branding */}
+            <div className="space-y-6">
+              {/* NEDApay Logo Symbol */}
+              <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-2xl">
+                {/* Geometric N Symbol */}
+                <div className="text-white text-2xl font-bold tracking-wider">
+                  N
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3 text-left">
-                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="text-white font-medium">Lightning Fast</h3>
-                  <p className="text-gray-400 text-sm">Instant transactions on Base network</p>
-                </div>
+              {/* NEDApay Wordmark */}
+              <div className="text-center">
+                <h1 className="text-4xl font-bold text-white mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  NEDApay
+                </h1>
+                <p className="text-purple-200 text-lg font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  Your Digital Wallet
+                </p>
               </div>
             </div>
+            
+
             
             {/* Connect Button */}
             <motion.div

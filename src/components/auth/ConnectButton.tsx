@@ -15,7 +15,8 @@ export function ConnectButton() {
   return (
     <motion.button
       onClick={handleConnect}
-      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
+      className="w-full bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
+      style={{ fontFamily: 'Poppins, sans-serif' }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
