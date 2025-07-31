@@ -10,7 +10,7 @@ import { WalletHeader } from '@/components/layout/ModernHeader'
 import { useModernTheme } from '@/contexts/ModernThemeContext'
 import { usePrivy } from '@privy-io/react-auth'
 import { ConnectButton } from '@/components/auth/ConnectButton'
-import { Wallet } from 'lucide-react'
+// Wallet icon removed - using text-based NEDApay branding instead
 
 export default function WalletPage() {
   const { authenticated, ready } = usePrivy()
