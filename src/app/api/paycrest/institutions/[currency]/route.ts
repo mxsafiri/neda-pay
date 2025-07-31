@@ -53,8 +53,16 @@ export async function GET(
   }
 }
 
+interface FallbackInstitution {
+  id: string;
+  name: string;
+  code: string;
+  type: 'mobile_money' | 'bank';
+  country: string;
+}
+
 function getFallbackInstitutions(currency: string) {
-  const institutionMap: Record<string, any[]> = {
+  const institutionMap: Record<string, FallbackInstitution[]> = {
     TZS: [
       {
         id: 'tz-mpesa',
