@@ -31,7 +31,7 @@ export async function GET(
         const fallbackInstitutions = getFallbackInstitutions(currency)
         return NextResponse.json({
           status: 'success',
-          message: 'Institutions loaded',
+          message: 'Operation successful',
           data: fallbackInstitutions
         })
       }
@@ -40,7 +40,11 @@ export async function GET(
     }
 
     const data = await response.json()
-    return NextResponse.json(data)
+    return NextResponse.json({
+      status: 'success',
+      message: 'Operation successful',
+      data: data.data || data.institutions || []
+    })
   } catch (error) {
     console.error('Paycrest institutions API error:', error)
     
@@ -48,121 +52,93 @@ export async function GET(
     const fallbackInstitutions = getFallbackInstitutions(params.currency)
     return NextResponse.json({
       status: 'success',
-      message: 'Institutions loaded (fallback)',
+      message: 'Operation successful',
       data: fallbackInstitutions
     })
   }
 }
 
 interface FallbackInstitution {
-  id: string;
   name: string;
   code: string;
-  type: 'mobile_money' | 'bank';
-  country: string;
+  type: string;
 }
 
 function getFallbackInstitutions(currency: string) {
   const institutionMap: Record<string, FallbackInstitution[]> = {
     TZS: [
       {
-        id: 'tz-mpesa',
         name: 'M-Pesa Tanzania',
         code: 'MPESA_TZ',
-        type: 'mobile_money',
-        country: 'Tanzania'
+        type: 'mobile_money'
       },
       {
-        id: 'tz-tigo',
         name: 'Tigo Pesa',
-        code: 'TIGO_TZ',
-        type: 'mobile_money',
-        country: 'Tanzania'
+        code: 'TIGO_PESA',
+        type: 'mobile_money'
       },
       {
-        id: 'tz-bank',
-        name: 'Tanzania Bank Transfer',
+        name: 'Bank Transfer Tanzania',
         code: 'BANK_TZ',
-        type: 'bank',
-        country: 'Tanzania'
+        type: 'bank'
       }
     ],
     KES: [
       {
-        id: 'ke-mpesa',
         name: 'M-Pesa Kenya',
         code: 'MPESA_KE',
-        type: 'mobile_money',
-        country: 'Kenya'
+        type: 'mobile_money'
       },
       {
-        id: 'ke-airtel',
         name: 'Airtel Money Kenya',
         code: 'AIRTEL_KE',
-        type: 'mobile_money',
-        country: 'Kenya'
+        type: 'mobile_money'
       },
       {
-        id: 'ke-bank',
-        name: 'Kenya Bank Transfer',
+        name: 'Bank Transfer Kenya',
         code: 'BANK_KE',
-        type: 'bank',
-        country: 'Kenya'
+        type: 'bank'
       }
     ],
     NGN: [
       {
-        id: 'ng-bank',
-        name: 'Nigeria Bank Transfer',
+        name: 'Bank Transfer Nigeria',
         code: 'BANK_NG',
-        type: 'bank',
-        country: 'Nigeria'
+        type: 'bank'
       },
       {
-        id: 'ng-opay',
         name: 'OPay Nigeria',
         code: 'OPAY_NG',
-        type: 'mobile_money',
-        country: 'Nigeria'
+        type: 'mobile_money'
       }
     ],
     GHS: [
       {
-        id: 'gh-mtn',
         name: 'MTN Mobile Money Ghana',
         code: 'MTN_GH',
-        type: 'mobile_money',
-        country: 'Ghana'
+        type: 'mobile_money'
       },
       {
-        id: 'gh-bank',
-        name: 'Ghana Bank Transfer',
+        name: 'Bank Transfer Ghana',
         code: 'BANK_GH',
-        type: 'bank',
-        country: 'Ghana'
+        type: 'bank'
       }
     ],
     UGX: [
       {
-        id: 'ug-mtn',
         name: 'MTN Mobile Money Uganda',
         code: 'MTN_UG',
-        type: 'mobile_money',
-        country: 'Uganda'
+        type: 'mobile_money'
       },
       {
-        id: 'ug-airtel',
         name: 'Airtel Money Uganda',
         code: 'AIRTEL_UG',
-        type: 'mobile_money',
-        country: 'Uganda'
+        type: 'mobile_money'
       },
       {
-        id: 'ug-bank',
-        name: 'Uganda Bank Transfer',
+        name: 'Bank Transfer Uganda',
         code: 'BANK_UG',
-        type: 'bank',
-        country: 'Uganda'
+        type: 'bank'
       }
     ]
   }

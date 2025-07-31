@@ -40,17 +40,20 @@ export async function GET(
     }
 
     const data = await response.json()
-    return NextResponse.json(data)
+    return NextResponse.json({
+      status: 'success',
+      message: 'Operation successful',
+      data: {
+        exchangeRate: parseFloat(data.data || '0'),
+        fee: calculateFee(parseFloat(amount)),
+        total: parseFloat(data.data || '0') - calculateFee(parseFloat(amount))
+      }
+    })
   } catch (error) {
     console.error('Paycrest exchange rate API error:', error)
     
     // Return fallback exchange rate on any error
-    const fallbackRate = getFallbackExchangeRate(params.token, params.amount, params.fiat)
-    return NextResponse.json({
-      status: 'success',
-      message: 'Exchange rate calculated (fallback)',
-      data: fallbackRate
-    })
+    return getFallbackExchangeRate(params.token, params.amount, params.fiat)
   }
 }
 
@@ -65,17 +68,22 @@ function getFallbackExchangeRate(token: string, amount: string, fiat: string) {
   }
 
   const rate = exchangeRates[fiat] || 1
-  const amountNum = parseFloat(amount)
-  const total = amountNum * rate
-  const fee = total * 0.02 // 2% fee
-  const finalAmount = total - fee
+  const exchangeRate = rate * parseFloat(amount)
+  const fee = calculateFee(parseFloat(amount))
+  const total = exchangeRate - fee
 
-  return {
-    token,
-    fiat,
-    rate: rate.toString(),
-    amount: amount,
-    fee: fee.toFixed(2),
-    total: finalAmount.toFixed(2)
-  }
+  return NextResponse.json({
+    status: 'success',
+    message: 'Operation successful',
+    data: {
+      exchangeRate,
+      fee,
+      total
+    }
+  })
+}
+
+function calculateFee(amount: number) {
+  // Calculate fee (2% of the amount)
+  return amount * 0.02
 }

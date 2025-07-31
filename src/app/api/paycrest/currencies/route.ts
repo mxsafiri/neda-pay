@@ -26,38 +26,53 @@ export async function GET() {
           {
             code: 'TZS',
             name: 'Tanzanian Shilling',
-            symbol: 'TZS',
+            shortName: 'TZS',
+            decimals: 2,
+            symbol: 'TSh',
+            marketRate: 2551.11,
             country: 'Tanzania'
           },
           {
             code: 'KES',
             name: 'Kenyan Shilling',
-            symbol: 'KES',
+            shortName: 'KES',
+            decimals: 2,
+            symbol: 'KSh',
+            marketRate: 129.50,
             country: 'Kenya'
           },
           {
             code: 'NGN',
             name: 'Nigerian Naira',
-            symbol: 'NGN',
+            shortName: 'NGN',
+            decimals: 2,
+            symbol: '₦',
+            marketRate: 1580.00,
             country: 'Nigeria'
           },
           {
             code: 'GHS',
             name: 'Ghanaian Cedi',
-            symbol: 'GHS',
+            shortName: 'GHS',
+            decimals: 2,
+            symbol: '₵',
+            marketRate: 15.20,
             country: 'Ghana'
           },
           {
             code: 'UGX',
             name: 'Ugandan Shilling',
-            symbol: 'UGX',
+            shortName: 'UGX',
+            decimals: 2,
+            symbol: 'USh',
+            marketRate: 3750.00,
             country: 'Uganda'
           }
         ]
 
         return NextResponse.json({
           status: 'success',
-          message: 'Supported currencies loaded',
+          message: 'Operation successful',
           data: fallbackCurrencies
         })
       }
@@ -106,7 +121,7 @@ export async function GET() {
 
     return NextResponse.json({
       status: 'success',
-      message: 'Supported currencies loaded (fallback)',
+      message: 'Operation successful',
       data: fallbackCurrencies
     })
   }
