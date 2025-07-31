@@ -194,8 +194,8 @@ const SingleCardCashOut: React.FC = () => {
           accountIdentifier: accountIdentifier,
           accountName: 'NEDApay User', // Could be enhanced with user's name
           memo: `NEDApay cash-out to ${selectedInstitution.name}`, // Required field
-          currency: selectedCurrency.code,
-          providerId: selectedInstitution.code
+          currency: selectedCurrency.code
+          // Removed providerId as it may be causing rate validation conflicts
         },
         reference: `nedapay-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         returnAddress: embeddedWallet.address
@@ -203,38 +203,37 @@ const SingleCardCashOut: React.FC = () => {
 
       console.log('Creating Paycrest payment order:', paymentOrderData)
 
-      // Get fresh rate data from Paycrest before creating order
-      const rateResponse = await fetch(`/api/paycrest/rates/USDC/${amountInUSDC}/${selectedCurrency.code}`)
-      const rateData = await rateResponse.json()
+      // Use the existing exchange rate data that was already calculated
+      // This ensures consistency between the rate shown to user and the rate sent to Paycrest
+      console.log('Using existing exchange rate data:', exchangeData)
+      console.log('Provider details:', selectedInstitution)
       
-      if (!rateResponse.ok) {
-        console.error('Rate fetch failed:', rateData)
-        throw new Error('Failed to get current exchange rate')
+      // Validate that we have proper exchange rate data
+      if (!exchangeData || !exchangeData.exchangeRate || exchangeData.exchangeRate <= 0) {
+        throw new Error('Invalid exchange rate data. Please try selecting amount again.')
       }
-
-      console.log('Fresh rate data from API:', rateData)
-
-      // Validate and update payment order with fresh rate data
-      if (!rateData.data || !rateData.data.exchangeRate) {
-        console.error('Invalid rate data structure:', rateData)
-        throw new Error('Invalid exchange rate data received')
-      }
-
-      // Ensure amount and rate are valid numbers
-      const freshRate = parseFloat(rateData.data.exchangeRate)
+      
       const usdcAmount = parseFloat(amountInUSDC)
-      
-      if (isNaN(freshRate) || freshRate <= 0) {
-        throw new Error('Invalid exchange rate received from API')
-      }
-      
       if (isNaN(usdcAmount) || usdcAmount <= 0) {
         throw new Error('Invalid USDC amount calculated')
       }
 
-      // Update payment order with validated data
-      paymentOrderData.rate = freshRate
+      // Use the exchange rate that was already calculated and shown to the user
+      // This ensures consistency and should match what Paycrest expects
+      paymentOrderData.rate = exchangeData.exchangeRate
       paymentOrderData.amount = usdcAmount
+      
+      // The issue might be that we need to use a different field structure
+      // Let's try using the currency code instead of specific provider code for rate validation
+      console.log('Final payment order data before sending:', {
+        ...paymentOrderData,
+        recipient: {
+          ...paymentOrderData.recipient,
+          // Keep the specific provider code but log it for debugging
+          institution: selectedInstitution.code,
+          providerId: selectedInstitution.code
+        }
+      })
 
       console.log('Updated payment order with fresh rate:', paymentOrderData)
 
