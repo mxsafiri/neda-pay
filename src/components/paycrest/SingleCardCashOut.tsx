@@ -295,29 +295,60 @@ const SingleCardCashOut: React.FC = () => {
           throw new Error('No wallet connected')
         }
         
-        console.log('Getting wallet client from Privy embedded wallet...')
+        console.log('Getting wallet client from Privy embedded wallet...', {
+          walletType: embeddedWallet.walletClientType,
+          address: embeddedWallet.address,
+          chainId: embeddedWallet.chainId
+        })
         
-        // Get Ethereum provider from Privy wallet
-        const provider = await embeddedWallet.getEthereumProvider()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let walletClient: any = null
         
-        if (!provider) {
-          throw new Error('Failed to get Ethereum provider from embedded wallet')
+        try {
+          // Get Ethereum provider from Privy wallet
+          console.log('Calling getEthereumProvider()...')
+          const provider = await embeddedWallet.getEthereumProvider()
+          
+          if (!provider) {
+            throw new Error('Failed to get Ethereum provider from embedded wallet')
+          }
+          
+          console.log('Ethereum provider obtained:', {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            isMetaMask: (provider as any).isMetaMask,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            chainId: (provider as any).chainId,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            selectedAddress: (provider as any).selectedAddress,
+            hasRequest: typeof provider.request === 'function'
+          })
+          
+          // Create wallet client using viem
+          console.log('Creating wallet client with viem...')
+          const { createWalletClient, custom } = await import('viem')
+          const { base } = await import('viem/chains')
+          
+          walletClient = createWalletClient({
+            account: embeddedWallet.address as `0x${string}`,
+            chain: base,
+            transport: custom(provider),
+          })
+          
+          console.log('Wallet client created successfully:', {
+            address: walletClient.account?.address,
+            chainId: walletClient.chain?.id,
+            hasWriteContract: typeof walletClient.writeContract === 'function'
+          })
+          
+        } catch (providerError) {
+          console.error('Failed to create wallet client:', providerError)
+          const errorMessage = providerError instanceof Error ? providerError.message : 'Unknown error occurred'
+          throw new Error(`Wallet client creation failed: ${errorMessage}`)
         }
         
-        // Create wallet client using viem
-        const { createWalletClient, custom } = await import('viem')
-        const { base } = await import('viem/chains')
-        
-        const walletClient = createWalletClient({
-          account: embeddedWallet.address as `0x${string}`,
-          chain: base,
-          transport: custom(provider),
-        })
-        
-        console.log('Wallet client created:', {
-          address: walletClient.account?.address,
-          chainId: walletClient.chain?.id
-        })
+        if (!walletClient) {
+          throw new Error('Wallet client creation failed - no client available')
+        }
         
         // Send USDC transfer using proper wallet client
         const txHash = await sendGaslessUSDC(
