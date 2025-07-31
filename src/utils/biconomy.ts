@@ -1,6 +1,5 @@
 'use client'
 
-import { parseUnits } from 'viem'
 import { BASE_TOKENS } from './blockchain'
 
 // Environment variables
@@ -26,24 +25,22 @@ export async function sendGaslessUSDC(
     })
 
     // For now, use the existing sendToken function from blockchain utils
-    // This can be upgraded to full Biconomy integration later
+    // This bypasses Biconomy and uses direct wallet client approach
     const { sendToken } = await import('./blockchain')
-    
-    // Convert amount to USDC units (6 decimals)
-    const usdcAmount = parseUnits(amount, 6)
     
     console.log('Sending USDC transaction:', {
       tokenAddress: BASE_TOKENS.USDC,
       to,
-      amount: usdcAmount.toString(),
-      decimals: 6
+      amount, // Raw amount string - sendToken will handle USDC decimal conversion
+      walletClient: embeddedWallet
     })
 
     // Send USDC using existing blockchain utilities
+    // sendToken handles USDC 6-decimal conversion internally
     const txHash = await sendToken(
       BASE_TOKENS.USDC,
       to as `0x${string}`,
-      usdcAmount.toString(),
+      amount, // Pass raw amount - sendToken will convert to 6 decimals
       embeddedWallet
     )
 
