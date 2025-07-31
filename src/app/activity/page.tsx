@@ -10,7 +10,7 @@ import { TransactionItem } from '@/components/wallet/TransactionItem';
 import { motion } from 'framer-motion';
 import { useTheme, financeTheme } from '@/contexts/ThemeContext';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { Bell, ArrowUpRight, ArrowDownLeft, Repeat, CreditCard, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Bell, ArrowUpRight, ArrowDownLeft, Repeat, AlertCircle, CheckCircle } from 'lucide-react';
 
 type FilterType = 'all' | 'notifications' | 'transactions' | 'cashout' | 'deposit';
 
