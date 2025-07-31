@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronDown, Loader2, CheckCircle, ArrowUp } from 'lucide-react'
+import { ChevronDown, Loader2, CheckCircle, ArrowRight } from 'lucide-react'
 import { useNotifications } from '@/contexts/NotificationContext'
 import { getSupportedCurrencies, getInstitutions, getExchangeRate } from '@/utils/paycrest'
 import { usePrivyWallet } from '@/hooks/usePrivyWallet'
@@ -520,7 +520,7 @@ const SingleCardCashOut: React.FC = () => {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <ArrowUp className="w-5 h-5" />
+                    <ArrowRight className="w-5 h-5" />
                     <span>Swipe to Send</span>
                     <span className="ml-2 text-sm opacity-75">0 {selectedCurrency?.symbol || 'TZS'}</span>
                   </div>
