@@ -290,16 +290,40 @@ const SingleCardCashOut: React.FC = () => {
           throw new Error('Biconomy account abstraction not configured')
         }
         
-        // Get wallet signer from Privy embedded wallet
+        // Get proper wallet client from Privy embedded wallet
         if (!embeddedWallet) {
           throw new Error('No wallet connected')
         }
         
-        // Send gasless USDC transfer using Biconomy
+        console.log('Getting wallet client from Privy embedded wallet...')
+        
+        // Get Ethereum provider from Privy wallet
+        const provider = await embeddedWallet.getEthereumProvider()
+        
+        if (!provider) {
+          throw new Error('Failed to get Ethereum provider from embedded wallet')
+        }
+        
+        // Create wallet client using viem
+        const { createWalletClient, custom } = await import('viem')
+        const { base } = await import('viem/chains')
+        
+        const walletClient = createWalletClient({
+          account: embeddedWallet.address as `0x${string}`,
+          chain: base,
+          transport: custom(provider),
+        })
+        
+        console.log('Wallet client created:', {
+          address: walletClient.account?.address,
+          chainId: walletClient.chain?.id
+        })
+        
+        // Send USDC transfer using proper wallet client
         const txHash = await sendGaslessUSDC(
           escrowAddress,
           usdcAmountToSend,
-          embeddedWallet // Pass embedded wallet as signer
+          walletClient // Pass proper wallet client
         )
         
         console.log('USDC transfer successful! Transaction hash:', txHash)
