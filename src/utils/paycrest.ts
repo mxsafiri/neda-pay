@@ -130,8 +130,14 @@ async function paycrestRequest<T>(
  * Get supported fiat currencies
  */
 export async function getSupportedCurrencies(): Promise<PaycrestCurrency[]> {
-  const response = await paycrestRequest<PaycrestCurrency[]>('/currencies');
-  return response.data || [];
+  try {
+    const response = await fetch('/api/paycrest/currencies');
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch currencies:', error);
+    return [];
+  }
 }
 
 /**
@@ -146,8 +152,14 @@ export async function getSupportedTokens(): Promise<PaycrestToken[]> {
  * Get supported institutions for a currency
  */
 export async function getInstitutions(currencyCode: string): Promise<PaycrestInstitution[]> {
-  const response = await paycrestRequest<PaycrestInstitution[]>(`/institutions/${currencyCode}`);
-  return response.data || [];
+  try {
+    const response = await fetch(`/api/paycrest/institutions/${currencyCode}`);
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch institutions:', error);
+    return [];
+  }
 }
 
 /**
@@ -158,11 +170,17 @@ export async function getExchangeRate(
   amount: string,
   fiat: string
 ): Promise<PaycrestRate> {
-  const response = await paycrestRequest<PaycrestRate>(`/rates/${token}/${amount}/${fiat}`);
-  if (!response.data) {
+  try {
+    const response = await fetch(`/api/paycrest/rates/${token}/${amount}/${fiat}`);
+    const data = await response.json();
+    if (!data.data) {
+      throw new Error('Failed to get exchange rate');
+    }
+    return data.data;
+  } catch (error) {
+    console.error('Failed to fetch exchange rate:', error);
     throw new Error('Failed to get exchange rate');
   }
-  return response.data;
 }
 
 /**
