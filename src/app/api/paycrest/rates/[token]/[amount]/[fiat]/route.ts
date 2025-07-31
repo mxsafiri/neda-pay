@@ -5,8 +5,9 @@ const PAYCREST_CLIENT_ID = process.env.NEXT_PUBLIC_PAYCREST_CLIENT_ID || ''
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string; amount: string; fiat: string } }
+  context: { params: Promise<{ token: string; amount: string; fiat: string }> }
 ) {
+  const params = await context.params
   try {
     const { token, amount, fiat } = params
 
