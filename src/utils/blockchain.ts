@@ -267,7 +267,7 @@ export async function sendETH(
 }
 
 /**
- * Send ERC-20 token transaction
+ * Send ERC-20 token transaction with proper decimal handling
  */
 export async function sendToken(
   tokenAddress: `0x${string}`,
@@ -290,12 +290,25 @@ export async function sendToken(
       },
     ] as const;
 
+    // Determine the correct decimals based on token address
+    let tokenAmount: bigint;
+    if (tokenAddress.toLowerCase() === BASE_TOKENS.USDC.toLowerCase()) {
+      // USDC uses 6 decimals
+      const usdcAmount = parseFloat(amount);
+      tokenAmount = BigInt(Math.floor(usdcAmount * 1000000)); // 6 decimals
+      console.log('USDC transfer:', { amount, usdcAmount, tokenAmount: tokenAmount.toString() });
+    } else {
+      // Default to 18 decimals for other tokens
+      tokenAmount = parseEther(amount);
+      console.log('Token transfer (18 decimals):', { amount, tokenAmount: tokenAmount.toString() });
+    }
+
     // Use writeContract directly with walletClient
     const txHash = await walletClient.writeContract({
       address: tokenAddress,
       abi: tokenABI,
       functionName: 'transfer',
-      args: [to, parseEther(amount)],
+      args: [to, tokenAmount],
     });
 
     console.log('Token transaction sent:', txHash);
