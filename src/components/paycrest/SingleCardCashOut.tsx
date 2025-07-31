@@ -30,7 +30,6 @@ interface ExchangeRateData {
 
 const SingleCardCashOut: React.FC = () => {
   // State management
-  const [loading, setLoading] = useState(false)
   const [currencies, setCurrencies] = useState<Currency[]>([])
   const [institutions, setInstitutions] = useState<Institution[]>([])
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null)
@@ -43,13 +42,12 @@ const SingleCardCashOut: React.FC = () => {
   const [showProviderDropdown, setShowProviderDropdown] = useState(false)
   const [usdcBalance, setUsdcBalance] = useState<string>('0')
   const [amountInUSDC, setAmountInUSDC] = useState<string>('0')
-  const [isSliding, setIsSliding] = useState(false)
   const [slideProgress, setSlideProgress] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
   
   const { addNotification } = useNotifications()
-  const { authenticated, embeddedWallet } = usePrivyWallet()
+  const { embeddedWallet } = usePrivyWallet()
 
   // Fetch USDC balance
   const fetchBalance = useCallback(async () => {
@@ -67,7 +65,6 @@ const SingleCardCashOut: React.FC = () => {
   useEffect(() => {
     const loadCurrencies = async () => {
       try {
-        setLoading(true)
         const currencyData = await getSupportedCurrencies()
         setCurrencies(currencyData)
       } catch (error) {
@@ -77,8 +74,6 @@ const SingleCardCashOut: React.FC = () => {
           title: 'Error',
           message: 'Failed to load supported countries. Please try again.'
         })
-      } finally {
-        setLoading(false)
       }
     }
 
@@ -93,7 +88,6 @@ const SingleCardCashOut: React.FC = () => {
     setShowCountryDropdown(false)
     
     try {
-      setLoading(true)
       const institutionData = await getInstitutions(currency.code)
       setInstitutions(institutionData)
     } catch (error) {
@@ -103,8 +97,6 @@ const SingleCardCashOut: React.FC = () => {
         title: 'Error',
         message: 'Failed to load payment methods. Please try again.'
       })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -191,10 +183,6 @@ const SingleCardCashOut: React.FC = () => {
   }
 
   // Slide gesture handlers
-  const handleSlideStart = () => {
-    setIsSliding(true)
-  }
-
   const handleSlideMove = (progress: number) => {
     setSlideProgress(Math.max(0, Math.min(100, progress)))
     
@@ -206,7 +194,6 @@ const SingleCardCashOut: React.FC = () => {
   const handleSlideEnd = () => {
     if (slideProgress < 90) {
       setSlideProgress(0)
-      setIsSliding(false)
     }
   }
 
@@ -344,7 +331,7 @@ const SingleCardCashOut: React.FC = () => {
           {/* Balance and Conversion Info */}
           <div className="mb-6 space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-400">You'll pay</span>
+              <span className="text-slate-400">You&apos;ll pay</span>
               <span className="text-slate-400">Base</span>
             </div>
             <div className="flex justify-between items-center">
@@ -386,7 +373,6 @@ const SingleCardCashOut: React.FC = () => {
                   ? 'bg-green-600 hover:bg-green-700'
                   : 'bg-slate-600 cursor-not-allowed'
               }`}
-              onPanStart={handleSlideStart}
               onPan={(event, info) => {
                 const progress = (info.offset.x / 200) * 100
                 handleSlideMove(progress)
