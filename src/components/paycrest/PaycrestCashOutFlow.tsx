@@ -1,55 +1,57 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { usePrivyWallet } from '@/hooks/usePrivyWallet'
-import { getTokenBalance } from '@/utils/blockchain'
-import { BASE_TOKENS } from '@/utils/blockchain'
-import { ArrowRight, Check, Loader2, Globe, Phone, Building2 } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { ChevronDown, Loader2, CheckCircle, ArrowUp } from 'lucide-react'
 import { useNotifications } from '@/contexts/NotificationContext'
-import {
-  getSupportedCurrencies,
-  getInstitutions,
-  getExchangeRate,
-  createCashOutOrder,
-  validatePaycrestConfig,
-  type PaycrestCurrency,
-  type PaycrestInstitution,
-  type PaycrestRate
-} from '@/utils/paycrest'
+import { getSupportedCurrencies, getInstitutions, getExchangeRate } from '@/utils/paycrest'
+import { useWallet } from '@privy-io/react-auth'
+import { getTokenBalance } from '@/utils/blockchain'
 
-interface PaycrestCashOutFlowProps {
-  onClose?: () => void
-  className?: string
+interface Currency {
+  code: string
+  name: string
+  symbol: string
+  country?: string
 }
 
-export const PaycrestCashOutFlow: React.FC<PaycrestCashOutFlowProps> = ({ onClose, className = '' }) => {
-  // Wallet integration
-  const { authenticated, embeddedWallet } = usePrivyWallet()
-  const { addNotification } = useNotifications()
-  
-  // State management
-  const [step, setStep] = useState<'country' | 'provider' | 'amount' | 'details' | 'confirm'>('country')
-  const [selectedCountry, setSelectedCountry] = useState<PaycrestCurrency | null>(null)
-  const [selectedProvider, setSelectedProvider] = useState<PaycrestInstitution | null>(null)
+interface Institution {
+  name: string
+  code: string
+  type: string
+}
+
+interface ExchangeRateData {
+  exchangeRate: number
+  fee: number
+  total: number
+}
+
+const PaycrestCashOutFlow: React.FC = () => {
+  const [loading, setLoading] = useState(false)
+  const [currencies, setCurrencies] = useState<Currency[]>([])
+  const [institutions, setInstitutions] = useState<Institution[]>([])
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null)
+  const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null)
   const [amount, setAmount] = useState('')
+  const [exchangeData, setExchangeData] = useState<ExchangeRateData | null>(null)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [accountNumber, setAccountNumber] = useState('')
-  const [accountName, setAccountName] = useState('')
-  const [usdcBalance, setUsdcBalance] = useState('0')
-  const [exchangeRate, setExchangeRate] = useState<PaycrestRate | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  
-  // Paycrest data
-  const [countries, setCountries] = useState<PaycrestCurrency[]>([])
-  const [providers, setProviders] = useState<PaycrestInstitution[]>([])
+  const [isSliding, setIsSliding] = useState(false)
   const [slideProgress, setSlideProgress] = useState(0)
-  const [isSlideComplete, setIsSlideComplete] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [isComplete, setIsComplete] = useState(false)
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false)
+  const [usdcBalance, setUsdcBalance] = useState<string>('0')
+  const [amountInUSDC, setAmountInUSDC] = useState<string>('0')
+  const { addNotification } = useNotifications()
+  const { user } = useWallet()
 
   // Fetch USDC balance
   const fetchBalance = useCallback(async () => {
+    if (!user?.address) return
+
     if (!embeddedWallet?.address) return
     
     try {
