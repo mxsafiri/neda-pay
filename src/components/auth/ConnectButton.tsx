@@ -15,10 +15,10 @@ export function ConnectButton() {
   return (
     <motion.button
       onClick={handleConnect}
-      className="w-full bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
-      style={{ fontFamily: 'Poppins, sans-serif' }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      className="w-full bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 hover:border-white/30 text-white font-medium py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3"
+      style={{ fontFamily: 'Poppins', fontWeight: 500 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
     >
       <Wallet className="w-5 h-5" />
       <span>Connect Wallet</span>

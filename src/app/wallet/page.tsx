@@ -42,24 +42,32 @@ export default function WalletPage() {
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="text-center space-y-8 max-w-md"
           >
-            {/* Official NEDApay Branding */}
-            <div className="space-y-6">
-              {/* NEDApay Logo Symbol */}
-              <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-2xl">
-                {/* Geometric N Symbol */}
-                <div className="text-white text-2xl font-bold tracking-wider">
-                  N
-                </div>
-              </div>
-              
+            {/* Clean FinTech Branding */}
+            <div className="space-y-8">
               {/* NEDApay Wordmark */}
-              <div className="text-center">
-                <h1 className="text-4xl font-bold text-white mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              <div className="text-center space-y-4">
+                <h1 className="text-5xl font-bold text-white mb-4" style={{ fontFamily: 'Poppins', fontWeight: 700, letterSpacing: '-0.02em' }}>
                   NEDApay
                 </h1>
-                <p className="text-purple-200 text-lg font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Your Digital Wallet
+                <p className="text-gray-300 text-xl" style={{ fontFamily: 'Poppins', fontWeight: 100, letterSpacing: '0.01em' }}>
+                  Accept Stablecoins, Swap instantly, Cash Out Easily
                 </p>
+              </div>
+              
+              {/* Supported Tokens */}
+              <div className="flex justify-center space-x-3">
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm" style={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                  USDC
+                </span>
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm" style={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                  cNGN
+                </span>
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm" style={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                  TSHC
+                </span>
+                <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm" style={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                  IDRX
+                </span>
               </div>
             </div>
             

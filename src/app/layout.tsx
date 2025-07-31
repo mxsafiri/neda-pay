@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "../styles/fonts.css";
 import { WalletAuthProvider } from "@/providers/WalletAuthProvider";
 import { PrivyWalletProvider } from "@/components/wallet/PrivyWalletProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
