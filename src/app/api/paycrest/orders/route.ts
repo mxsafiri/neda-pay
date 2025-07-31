@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PAYCREST_API_URL = process.env.NEXT_PUBLIC_PAYCREST_API_URL || 'https://api.paycrest.io/v1'
+const PAYCREST_API_URL = process.env.NEXT_PUBLIC_PAYCREST_API_URL || 'https://api.paycrest.io'
+const PAYCREST_BASE_URL = PAYCREST_API_URL.endsWith('/v1') ? PAYCREST_API_URL : `${PAYCREST_API_URL}/v1`
 const PAYCREST_CLIENT_ID = process.env.NEXT_PUBLIC_PAYCREST_CLIENT_ID
 const PAYCREST_CLIENT_SECRET = process.env.PAYCREST_CLIENT_SECRET
 
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     const body: PaymentOrderRequest = await request.json()
     console.log('Creating Paycrest payment order:', body)
 
-    const response = await fetch(`${PAYCREST_API_URL}/sender/orders`, {
+    const response = await fetch(`${PAYCREST_BASE_URL}/sender/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
