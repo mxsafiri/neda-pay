@@ -169,21 +169,65 @@ const SingleCardCashOut: React.FC = () => {
     return () => clearTimeout(debounceTimer)
   }, [amount, selectedCurrency])
 
-  // Handle slide to send
+  // Handle slide to send - Create actual Paycrest payment order
   const handleSlideToSend = async () => {
-    if (!selectedCurrency || !selectedInstitution || !amount || !exchangeData) return
+    if (!selectedCurrency || !selectedInstitution || !amount || !exchangeData || !embeddedWallet?.address) return
 
     setIsProcessing(true)
     
     try {
-      // Simulate cash-out process
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Get account identifier based on provider type
+      const accountIdentifier = selectedInstitution.type === 'mobile_money' ? phoneNumber : accountNumber
+      
+      if (!accountIdentifier) {
+        throw new Error('Please enter phone number or account number')
+      }
+
+      // Create payment order payload
+      const paymentOrderData = {
+        amount: parseFloat(amountInUSDC), // USDC amount
+        token: 'USDC',
+        rate: exchangeData.exchangeRate,
+        network: 'base',
+        recipient: {
+          institution: selectedInstitution.code,
+          accountIdentifier: accountIdentifier,
+          accountName: 'NEDApay User', // Could be enhanced with user's name
+          currency: selectedCurrency.code,
+          providerId: selectedInstitution.code
+        },
+        reference: `nedapay-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        returnAddress: embeddedWallet.address
+      }
+
+      console.log('Creating Paycrest payment order:', paymentOrderData)
+
+      // Create payment order via Paycrest API
+      const response = await fetch('/api/paycrest/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentOrderData)
+      })
+
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create payment order')
+      }
+
+      console.log('Payment order created successfully:', result.data)
+      
+      // TODO: Execute blockchain transaction to send USDC to Paycrest escrow address
+      // const escrowAddress = result.data.receiveAddress
+      // const usdcAmount = result.data.amount
       
       setIsComplete(true)
       addNotification({
         type: 'cashout',
-        title: 'Cash-out Initiated',
-        message: `Your ${selectedCurrency.symbol} ${parseFloat(amount).toLocaleString()} cash-out has been initiated via ${selectedInstitution.name}.`
+        title: 'Payment Order Created',
+        message: `Payment order created successfully! Order ID: ${result.data.id}. Your ${selectedCurrency.symbol} ${parseFloat(amount).toLocaleString()} will be sent to ${accountIdentifier} via ${selectedInstitution.name}.`
       })
       
       // Reset form after success
@@ -197,17 +241,17 @@ const SingleCardCashOut: React.FC = () => {
         setAmountInUSDC('0')
         setIsComplete(false)
         setSlideProgress(0)
-      }, 3000)
+      }, 5000) // Longer delay to show success message
       
     } catch (error) {
       console.error('Cash-out failed:', error)
       addNotification({
         type: 'system',
         title: 'Cash-out Failed',
-        message: 'Failed to process cash-out. Please try again.'
+        message: error instanceof Error ? error.message : 'Failed to process cash-out. Please try again.'
       })
-    } finally {
       setIsProcessing(false)
+      setSlideProgress(0)
     }
   }
 
