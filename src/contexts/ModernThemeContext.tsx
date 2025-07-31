@@ -89,7 +89,6 @@ export function ModernThemeProvider({
       <div 
         className={`min-h-screen transition-colors duration-300 ${mode}`}
         style={{
-          backgroundColor: currentTheme.background.primary,
           color: currentTheme.text.primary
         }}
       >

@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
-import { ModernCashOut } from '@/components/paycrest/ModernCashOut';
+import { PaycrestCashOutFlow } from '@/components/paycrest/PaycrestCashOutFlow';
+import { ModernLayout } from '@/components/layout/ModernLayout';
 
 const OffRampPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <ModernCashOut />
-    </div>
+    <ModernLayout showHeader={true} showNavigation={true}>
+      <div className="py-6">
+        <PaycrestCashOutFlow />
+      </div>
+    </ModernLayout>
   );
 };
 
