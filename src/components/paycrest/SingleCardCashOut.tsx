@@ -204,16 +204,37 @@ const SingleCardCashOut: React.FC = () => {
       console.log('Creating Paycrest payment order:', paymentOrderData)
 
       // Get fresh rate data from Paycrest before creating order
-      const rateResponse = await fetch(`/api/paycrest/rates/USDC/${amountInUSDC}/TZS`)
+      const rateResponse = await fetch(`/api/paycrest/rates/USDC/${amountInUSDC}/${selectedCurrency.code}`)
       const rateData = await rateResponse.json()
       
       if (!rateResponse.ok) {
+        console.error('Rate fetch failed:', rateData)
         throw new Error('Failed to get current exchange rate')
       }
 
-      // Update payment order with fresh rate data
-      paymentOrderData.rate = parseFloat(rateData.data.rate)
-      paymentOrderData.amount = parseFloat(rateData.data.amount)
+      console.log('Fresh rate data from API:', rateData)
+
+      // Validate and update payment order with fresh rate data
+      if (!rateData.data || !rateData.data.exchangeRate) {
+        console.error('Invalid rate data structure:', rateData)
+        throw new Error('Invalid exchange rate data received')
+      }
+
+      // Ensure amount and rate are valid numbers
+      const freshRate = parseFloat(rateData.data.exchangeRate)
+      const usdcAmount = parseFloat(amountInUSDC)
+      
+      if (isNaN(freshRate) || freshRate <= 0) {
+        throw new Error('Invalid exchange rate received from API')
+      }
+      
+      if (isNaN(usdcAmount) || usdcAmount <= 0) {
+        throw new Error('Invalid USDC amount calculated')
+      }
+
+      // Update payment order with validated data
+      paymentOrderData.rate = freshRate
+      paymentOrderData.amount = usdcAmount
 
       console.log('Updated payment order with fresh rate:', paymentOrderData)
 
