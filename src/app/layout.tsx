@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "NEDApay",
     title: "NEDApay - Stablecoin Wallet",
-    description: "A modern fiat-to-crypto wallet focused on stablecoins on the Base blockchain",
+    description: "A modern fiat-to-crypto wallet focused on stablecoins",
   },
 };
 
